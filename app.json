@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "TempestApp",
-    "slug": "TempestApp",
+    "name": "Tempest",
+    "slug": "Tempest",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "tempestapp",
+    "scheme": "tempest",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
