@@ -9,26 +9,26 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function Index() {
   const insets = useSafeAreaInsets();
 
-  const dummyPost: postDetails = {postId: "dummy", postName: "Dummy Post", personID: "0", myPost: true, username:'dummyUser'};
+  const dummyPost: postDetails = {postId: "dummy", taskOrEventName: "Dummy Post", personID: "0", myPost: true, username:'dummyUser', thoughts: "This is a dummy post for testing purposes.", hashtags: ['test', 'dummy'], timeCreated: new Date("2023-10-01T12:00:00Z")};
 
   const postData: postDetails[] = [
-    {postId: "1", postName: "Post 1", personID: "1", myPost: true, username:'umamageswari'},
-    {postId: "2", postName: "Post 2", personID: "2", myPost: false, username:'little kiddo'},
-    {postId: "3", postName: "Post 3", personID: "3", myPost: true, username:'rhea'},
-    {postId: "4", postName: "Post 4", personID: "4", myPost: false, username:'rhea'},
-    {postId: "5", postName: "Post 5", personID: "5", myPost: true, username:'umamageswari'},
-    {postId: "6", postName: "Post 6", personID: "6", myPost: false, username:'little kiddo'},
-    {postId: "7", postName: "Post 7", personID: "7", myPost: true, username:'rhea'},
-    {postId: "8", postName: "Post 8", personID: "8", myPost: false, username:'rhea'},
-    {postId: "9", postName: "Post 9", personID: "9", myPost: true, username:'umamageswari'},
-    {postId: "10", postName: "Post 10", personID: "10", myPost: false, username:'little kiddo'},
-    {postId: "11", postName: "Post 11", personID: "11", myPost: true, username:'rhea'},
-    {postId: "12", postName: "Post 12", personID: "12", myPost: false, username:'rhea'},
-    {postId: "13", postName: "Post 13", personID: "13", myPost: true, username:'umamageswari'},
-    {postId: "14", postName: "Post 14", personID: "14", myPost: false, username:'little kiddo'},
-    {postId: "15", postName: "Post 15", personID: "15", myPost: true, username:'rhea'},
-    {postId: "16", postName: "Post 16", personID: "16", myPost: false, username:'rhea'},
-    {postId: "17", postName: "Post 17", personID: "17", myPost: true, username:'umamageswari'},
+    {postId: "1", taskOrEventName: "Post 1", personID: "1", myPost: true, username:'umamageswari', thoughts: "This is a dummy post for testing purposes.", hashtags: ['test', 'dummy'], timeCreated: new Date(Date.now())},
+    {postId: "2", taskOrEventName: "Post 2", personID: "2", myPost: false, username:'little kiddo', thoughts: "more thoughtsssss and thoughts and testing how many lines we should add and more and more and more and more and more and more and more and more and more and more and more and more and more and more and moremore thoughtsssss and thoughts and testing how many lines we should add and more and more and more and more and more and more and more and more and more and more and more and more and more and more and more", hashtags: ['example', 'dummy'], timeCreated: new Date("2025-06-18T6:00:00Z")},
+    {postId: "3", taskOrEventName: "Post 3", personID: "3", myPost: true, username:'rhea', thoughts: "This is a sample post to demonstrate the functionality.", hashtags: [], timeCreated: new Date("2013-10-03T12:00:00Z")},
+    {postId: "4", taskOrEventName: "Post 4", personID: "4", myPost: false, username:'rhea', thoughts: "This is a sample post to demonstrate the functionality.", hashtags: [], timeCreated: new Date("2023-10-04T12:00:00Z")},
+    {postId: "5", taskOrEventName: "Post 5", personID: "5", myPost: true, username:'umamageswari', thoughts: '', timeCreated: new Date("2023-10-05T12:00:00Z")},
+    {postId: "6", taskOrEventName: "Post 6", personID: "6", myPost: false, username:'little kiddo', thoughts: '', timeCreated: new Date("2023-10-06T12:00:00Z")},
+    {postId: "7", taskOrEventName: "Post 7", personID: "7", myPost: true, username:'rhea', thoughts: '', timeCreated: new Date("2023-10-07T12:00:00Z")},
+    {postId: "8", taskOrEventName: "Post 8", personID: "8", myPost: false, username:'rhea', thoughts: '', timeCreated: new Date("2023-10-08T12:00:00Z")},
+    {postId: "9", taskOrEventName: "Post 9", personID: "9", myPost: true, username:'umamageswari', thoughts: '', timeCreated: new Date("2023-10-09T12:00:00Z")},
+    {postId: "10", taskOrEventName: "Post 10", personID: "10", myPost: false, username:'little kiddo', thoughts: 'more thoughts',timeCreated: new Date("2023-10-10T12:00:00Z")},
+    {postId: "11", taskOrEventName: "Post 11", personID: "11", myPost: true, username:'rhea', thoughts: 'more thoughts', timeCreated: new Date("2023-10-11T12:00:00Z")},
+    {postId: "12", taskOrEventName: "Post 12", personID: "12", myPost: false, username:'rhea', thoughts: 'more thoughtsssss and thoughts and testing how many lines we should add and more and more and more and more and more and more and more and more and more and more and more and more and more and more and more', timeCreated: new Date("2023-10-12T12:00:00Z")},
+    {postId: "13", taskOrEventName: "Post 13", personID: "13", myPost: true, username:'umamageswari', thoughts: 'more thoughts', timeCreated: new Date("2023-10-13T12:00:00Z")},
+    {postId: "14", taskOrEventName: "Post 14", personID: "14", myPost: false, username:'little kiddo', thoughts: '', timeCreated: new Date("2023-10-14T12:00:00Z")},
+    {postId: "15", taskOrEventName: "Post 15", personID: "15", myPost: true, username:'rhea', thoughts: '', timeCreated: new Date("2023-10-15T12:00:00Z")},
+    {postId: "16", taskOrEventName: "Post 16", personID: "16", myPost: false, username:'rhea', thoughts: '', timeCreated: new Date("2023-10-16T12:00:00Z")},
+    {postId: "17", taskOrEventName: "Post 17", personID: "17", myPost: true, username:'umamageswari', thoughts: '', timeCreated : new Date("2023-10-17T12:00:00Z")},
   ];
 
   return (
@@ -42,11 +42,13 @@ export default function Index() {
           keyExtractor={(item) => item.postId} // Use the keyExtractor to set the key
           renderItem={({ item, index }) => index ? <PostCard {...item} /> : <FollowingOrGlobal />}
           ListHeaderComponent={
-            <View>
+            <View className="h-[200px]">
               <StoryCarosel storyCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
             </View>
           }
           stickyHeaderIndices={[1]} // Make the header sticky
+          showsVerticalScrollIndicator={false}
+          scrollToOverflowEnabled={false}
         />
       </View>
   );
@@ -59,7 +61,8 @@ const storyCardDetails1: StoryCardDetails = {
     taskName: "little rhea kid gym day", 
     mytask: true, 
     backlog: false, 
-    dueDay: new Date("2025-06-19T00:00:00Z") 
+    dueDay: new Date("2025-06-19T00:00:00Z"),
+    accomplished: false,
   }
 
 const storyCardDetails2: StoryCardDetails = { 
@@ -70,7 +73,8 @@ const storyCardDetails2: StoryCardDetails = {
     taskName: "little rhea kid gym day", 
     mytask: true, 
     backlog: false, 
-    dueDay: new Date("2025-06-17T00:00:00Z") 
+    dueDay: new Date("2025-06-17T00:00:00Z"), 
+    accomplished: true,
   }
 
   const storyCardDetails3: StoryCardDetails = { 
@@ -80,5 +84,6 @@ const storyCardDetails2: StoryCardDetails = {
     groupName: "Gym ofc 🏋️", 
     taskName: "little rhea kid gym day", 
     mytask: false, 
-    backlog: true
+    backlog: true,
+    accomplished: false,
   }

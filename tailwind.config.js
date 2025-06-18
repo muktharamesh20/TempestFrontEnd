@@ -8,6 +8,13 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
+      aspectRatio:{
+        '2/3': '2 / 3',
+        '3/4': '3 / 4',
+        '3/5': '3 / 5',
+        '9/16': '9 / 16',
+        '9/21': '9 / 21',
+      },
       colors: {
         primary: '#F9F8F5',
         secondary: '#0E2433',

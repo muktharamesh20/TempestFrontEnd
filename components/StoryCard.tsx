@@ -4,21 +4,22 @@ import { Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { SB_STORAGE_CONFIG } from '../services/api';
 
 export interface StoryCardDetails {
-	  taskID?: string;
-		eventID?: string;
-    personID: string;
-    taskName?: string;
-    groupName?: string | null;
-    dueDay?: Date; 
-    numNudges?: number;
-    nudged?: boolean;
-    finished?: boolean;
-    username?: string;
-		mytask:boolean;
-		backlog?: boolean;
+	taskID?: string;
+	eventID?: string;
+	personID: string;
+	taskName?: string;
+	groupName?: string | null;
+	dueDay?: Date; 
+	numNudges?: number;
+	nudged?: boolean;
+	finished?: boolean;
+	username?: string;
+	mytask:boolean;
+	backlog?: boolean;
+	accomplished: boolean;
 }
 
-const StoryCard = ({backlog, mytask, taskID, eventID, personID, taskName, groupName, dueDay, numNudges, nudged, finished, username }: StoryCardDetails) => {
+const StoryCard = ({backlog, mytask, taskID, eventID, personID, taskName, groupName, dueDay, numNudges, nudged, finished, username, accomplished }: StoryCardDetails) => {
   const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
@@ -33,8 +34,9 @@ const StoryCard = ({backlog, mytask, taskID, eventID, personID, taskName, groupN
   return (
 		<Link href = {taskID ? `../infoScreen/todo/${taskID}` : `../infoScreen/event/${eventID}`} asChild>
     <ImageBackground
-      source={require('../assets/images/border.png')} 
+      source={(!accomplished && require('../assets/images/border.png'))} 
       style={styles.border} 
+	  className = {accomplished ? "border border-black" : ""}
       imageStyle={{ borderRadius: 12 }}
     >
       <View style={styles.innerBox} className="w-[130px] h-[170px] bg-primary">
