@@ -6,11 +6,12 @@ import { Image, Text, View } from 'react-native';
 export interface postDetails {
     postId: string;
     personID: string;
+    username: string;
     postName: string;
     myPost: boolean;
 }
 
-const PostCard = ({personID, postId, postName, myPost}: postDetails) => {
+const PostCard = ({username, personID, postId, postName, myPost}: postDetails) => {
     const [imageUrl, setImageUrl] = useState('');
 
     useEffect(() => {
@@ -28,12 +29,12 @@ const PostCard = ({personID, postId, postName, myPost}: postDetails) => {
         {/* Post Card Header */}
         <View className='flex flex-row h-[51px] justify-between items-center pl-[12px] pr-4 w-full bg-primary'>
             <View className='flex flex-row gap-2 items-center'>
-                <Image source={{ uri: imageUrl }} className='w-[45px] h-[45px] border rounded-full' 
+                <Image source={{ uri: imageUrl }} className='w-[45px] h-[45px] border rounded-full justify-center' 
                         resizeMode='cover' />
 
-                <View className='flex flex-col'>
+                <View className='flex flex-col justify-center mb-[2px] ml-[1px]'>
                     <Text className='text-lg font-semibold text-black'>{postName}</Text>
-                    <Text className='text-sm text-secondary'>Post ID: {postId}</Text>
+                    <Text className='text-sm text-secondary mt-[-3px]'>{username}</Text>
                 </View>
             </View>
 

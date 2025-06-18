@@ -1,37 +1,54 @@
 import SimpleHeader from "@/components/CustomHeader";
+import FollowingOrGlobal from "@/components/FollowingOrGlobal";
 import PostCard, { postDetails } from "@/components/Post";
 import { StoryCardDetails } from "@/components/StoryCard";
 import StoryCarosel from "@/components/StoryCarosel";
-import { numbers } from "@/constants/numbers";
 import { FlatList, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Index() {
+  const insets = useSafeAreaInsets();
+
+  const dummyPost: postDetails = {postId: "dummy", postName: "Dummy Post", personID: "0", myPost: true, username:'dummyUser'};
+
   const postData: postDetails[] = [
-    {postId: "1", postName: "Post 1", personID: "1", myPost: true},
-    {postId: "2", postName: "Post 2", personID: "2", myPost: false},
+    {postId: "1", postName: "Post 1", personID: "1", myPost: true, username:'umamageswari'},
+    {postId: "2", postName: "Post 2", personID: "2", myPost: false, username:'little kiddo'},
+    {postId: "3", postName: "Post 3", personID: "3", myPost: true, username:'rhea'},
+    {postId: "4", postName: "Post 4", personID: "4", myPost: false, username:'rhea'},
+    {postId: "5", postName: "Post 5", personID: "5", myPost: true, username:'umamageswari'},
+    {postId: "6", postName: "Post 6", personID: "6", myPost: false, username:'little kiddo'},
+    {postId: "7", postName: "Post 7", personID: "7", myPost: true, username:'rhea'},
+    {postId: "8", postName: "Post 8", personID: "8", myPost: false, username:'rhea'},
+    {postId: "9", postName: "Post 9", personID: "9", myPost: true, username:'umamageswari'},
+    {postId: "10", postName: "Post 10", personID: "10", myPost: false, username:'little kiddo'},
+    {postId: "11", postName: "Post 11", personID: "11", myPost: true, username:'rhea'},
+    {postId: "12", postName: "Post 12", personID: "12", myPost: false, username:'rhea'},
+    {postId: "13", postName: "Post 13", personID: "13", myPost: true, username:'umamageswari'},
+    {postId: "14", postName: "Post 14", personID: "14", myPost: false, username:'little kiddo'},
+    {postId: "15", postName: "Post 15", personID: "15", myPost: true, username:'rhea'},
+    {postId: "16", postName: "Post 16", personID: "16", myPost: false, username:'rhea'},
+    {postId: "17", postName: "Post 17", personID: "17", myPost: true, username:'umamageswari'},
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
-      <View className="flex flex-col gap-0 bg-primary h-full w-full">
+
+      <View className="flex flex-col flex-1 gap-0 bg-primary h-full w-full">
         <SimpleHeader />
 
         <FlatList
-          data={postData} // Example data array
-          contentContainerStyle={{ paddingTop: numbers.headerHeight }}
+        className="flex-1"
+          data={[dummyPost, ...postData]} // Example data array
           keyExtractor={(item) => item.postId} // Use the keyExtractor to set the key
-          renderItem={({ item }) => (
-            <PostCard {...item}/>
-          )}
+          renderItem={({ item, index }) => index ? <PostCard {...item} /> : <FollowingOrGlobal />}
           ListHeaderComponent={
             <View>
-            <StoryCarosel storyCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
+              <StoryCarosel storyCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
             </View>
           }
+          stickyHeaderIndices={[1]} // Make the header sticky
         />
       </View>
-    </SafeAreaView>
   );
 }
 
