@@ -2,7 +2,8 @@
 export const numbers = {
   headerHeight: 55,
   calendarHeaderHeight: 90,
-  primaryColor: '#0E2433',
+  primaryColor: '#F9F8F5',
   secondaryColor: '#0E2433',
+  divider: '#E4E4E4',
   textSize: 20
 };
