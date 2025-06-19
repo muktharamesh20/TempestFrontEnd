@@ -16,12 +16,19 @@ export interface postDetails {
     eventID?: string;
     hashtags?: string[];
     timeCreated: Date;
+    likes: number; // New prop for likes
+    comments: number; // New prop for comments
+    alreadyLiked: boolean;
+    alreadySaved: boolean;
 }
 
-const PostCard = ({username, personID, postId, taskOrEventName: postName, myPost, thoughts, hashtags, timeCreated}: postDetails) => {
+const PostCard = ({alreadySaved, alreadyLiked, username, personID, postId, taskOrEventName: postName, myPost, thoughts, hashtags, timeCreated, likes, comments}: postDetails) => {
     const [imageUrl, setImageUrl] = useState('');
     const [showFullText, setShowFullText] = useState(true); // State to toggle full text
     const [isTextTruncated, setIsTextTruncated] = useState(false); // State to check if text is truncated
+    const [isLiked, setIsLiked] = useState(alreadyLiked); // State for the heart icon
+    const [isSaved, setIsSaved] = useState(alreadySaved); // State for the bookmark icon
+    const [likeCount, setLikeCount] = useState(likes); // State for the number of likes
 
     useEffect(() => {
       const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${personID}.jpg`;
@@ -45,6 +52,19 @@ const PostCard = ({username, personID, postId, taskOrEventName: postName, myPost
         // Otherwise, show a relative time (e.g., "1 year ago", "10 hours ago")
         return formatDistanceToNow(date, { addSuffix: true });
     };
+
+    const handleLikePress = () => {
+        if (isLiked) {
+          setLikeCount(likeCount - 1); // Decrease like count if unliked
+        } else {
+          setLikeCount(likeCount + 1); // Increase like count if liked
+        }
+        setIsLiked(!isLiked); // Toggle like state
+    };
+
+    const handleSavedPress = () => {
+        setIsSaved(!isSaved); // Toggle save state
+    }
 
     return (
     <View className = "flex flex-col gap-0">
@@ -78,29 +98,39 @@ const PostCard = ({username, personID, postId, taskOrEventName: postName, myPost
                 {/* Left Section: Like and Comment Icons */}
                 <View className="flex flex-row items-center gap-4">
                     {/* Heart Icon for Likes */}
-                    <View className="flex flex-row items-center gap-1">
-                        <Ionicons name="heart-outline" size={25} color="gray" />
-                        <Text className="text-sm text-secondary">0</Text>
-                    </View>
+                    <TouchableOpacity onPress={handleLikePress}>
+                        <View className="flex flex-row items-center gap-1">
+                            <Ionicons
+                                name={isLiked ? 'heart' : 'heart-outline'} // Toggle between filled and outline
+                                size={25}
+                                color={isLiked ? 'red' : 'gray'} // Change color when liked
+                            />
+                            <Text className="text-sm text-secondary">{likeCount}</Text>
+                        </View>
+                    </TouchableOpacity>
 
                     {/* Comment Icon for Comments */}
                     <View className="flex flex-row items-center gap-1">
                         <Ionicons name="chatbubble-outline" size={25} color="gray" />
-                        <Text className="text-sm text-secondary">0</Text>
+                        <Text className="text-sm text-secondary">{comments}</Text>
                     </View>
                 </View>
 
                 {/* Right Section: Saved Icon */}
-                <View>
-                    <Ionicons name="bookmark-outline" size={25} color="gray" />
-                </View>
+                <TouchableOpacity onPress={handleSavedPress}>
+                    <Ionicons
+                        name={isSaved ? 'bookmark' : 'bookmark-outline'} // Toggle between filled and outline
+                        size={25}
+                        color={isSaved ? 'blue' : 'gray'} // Change color when saved
+                    />
+                </TouchableOpacity>
             </View>
 
             {/* Post Content */}
             {thoughts && thoughts.trim().length > 0 && (
             <View className="flex flex-row items-start justify-start gap-2 px-4">
                 <Text
-                    className="font-regular flex-1"
+                    className="font-regular flex-1 text-sm"
                     numberOfLines={showFullText ? undefined : 3} // Limit to 3 lines unless expanded
                     onTextLayout={(e) => {
                         const { lines } = e.nativeEvent;

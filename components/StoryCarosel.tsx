@@ -10,7 +10,7 @@ const StoryCarosel = ({ storyCards }: StoryCaroselProps) => {
   storyCards = storyCards.sort((a, b) => Number(a.accomplished) - Number(b.accomplished));
   return (
     <ScrollView
-      className="pl-2 mt-3 mb-0 flex-1 w-full h-full border-b pb-3 border-divider"
+      className="pl-2 pt-3 mb-0 flex-1 w-full h-full border-b pb-3 border-divider"
       horizontal
       showsHorizontalScrollIndicator={false}
     >

@@ -72,7 +72,8 @@ const _layout = () => {
                             icon = {icons.calendar}
                             title = "Calendar"
                         />
-                    )
+                    ),
+                     
             }}/>
         <Tabs.Screen
             name = "kanban"
