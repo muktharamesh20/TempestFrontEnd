@@ -1,7 +1,7 @@
 import { icons } from '@/constants/icons';
 import { numbers } from '@/constants/numbers';
 import { Ionicons } from '@expo/vector-icons';
-import { addDays, format, isValid, startOfWeek } from 'date-fns';
+import { addDays, endOfWeek, format, isValid, startOfWeek } from 'date-fns';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Dimensions,
@@ -59,7 +59,7 @@ const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, han
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    setMonth(format(sunday, 'MMMM yyyy'));
+    setMonth(format(endOfWeek(sunday), 'MMMM yyyy'));
   }, [sunday]);
 
   // Set parent-focused date ONCE on mount (to avoid updating during render)
