@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CalendarDrawer, { drawerProps } from './CalendarDrawer'; // Adjust the import path as needed
+import DayViewCalendar from './DayViewCalendar';
 
 interface calendarProps {
   viewingDate: Date;
@@ -113,9 +114,6 @@ const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, han
   const today = new Date();
   const todayDate = format(today, 'd');
 
-  const handleTogglePublic = () => {
-    console.log('Toggle public clicked');
-  };
 
   return (
     <View style={{ flex: 1, backgroundColor: numbers.primaryColor }}>
@@ -216,7 +214,15 @@ const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, han
           );
         }}
       />
-
+  </View>
+    
+    {/*underlay, the actual calendar itself*/}
+        
+    {/* Main Content Area */}
+    <View style={{ flex: 1, backgroundColor: "green"}}>
+      {/* Placeholder for main content */}
+      <Text className="text-black text-lg">Main content goes here</Text>
+      <DayViewCalendar day={focusedDay} categoriesShown = {categories}/>
 
     </View>
 

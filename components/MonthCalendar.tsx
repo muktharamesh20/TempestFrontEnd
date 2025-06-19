@@ -69,6 +69,7 @@ const MonthCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, h
   // Set parent-focused date ONCE on mount (to avoid updating during render)
   useEffect(() => {
     setFocusedDay(initialDay);
+    setViewingDateFunc(initialDay);
   }, []); // only run on first mount
 
   const scrollToIndex = (index: number) => {
@@ -83,6 +84,7 @@ const MonthCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, h
     if (targetIndex !== -1) {
       scrollToIndex(targetIndex);
       setFocusedDay(date);
+      setViewingDateFunc(date);
     } else {
       console.warn("Date not found in the current week data.");
     }

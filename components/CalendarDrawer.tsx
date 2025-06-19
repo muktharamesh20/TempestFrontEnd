@@ -94,7 +94,7 @@ const CalendarDrawer = ({ categories, handleCategoryToggle, setView }: CalendarD
               <Ionicons name="calendar-clear-outline" size={22} color="#0E2433" style={{ marginRight: 12 }} />
               <Text className='text-xl font-semibold'>Day View</Text>
             </TouchableOpacity>
-            <Text className='text-2xl font-bold ml-4 mt-4'>Event Categories</Text>
+            <Text className='text-2xl font-bold ml-4 mt-4'>Categories</Text>
           </>
         )}
         renderItem={({ item, index }) => (

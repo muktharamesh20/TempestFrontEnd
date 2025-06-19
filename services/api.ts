@@ -8,5 +8,3 @@ export const SB_STORAGE_CONFIG = {
     }
 }
 //https://vjdjrmuhojwprugppufd.supabase.co/storage/v1/object/public/profile-images//blank-profile-pic.jpg
-
-console.log(process.env.PROJECT_ID)

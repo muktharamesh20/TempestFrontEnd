@@ -187,8 +187,12 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
                   height: numbers.calendarHeaderHeight - 5,
                   marginTop: insets.top + numbers.headerHeight - 5,
                 }}
-                className="flex flex-row justify-center items-start gap-[3px] px-4"
+                className="flex flex-row justify-around items-start px-[3px]"
               >
+                <Text className="text-2xl font-semibold text-white  w-[30px]">
+                  {/*a little blank space to display times*/}
+                </Text>
+
                 {weekdays.map((date, index) => {
                   const isFocused =
                     isValid(date) &&
