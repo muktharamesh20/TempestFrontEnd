@@ -8,7 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function Index() {
+export default function Home() {
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
 

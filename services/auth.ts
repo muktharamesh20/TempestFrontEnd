@@ -1,25 +1,23 @@
-import { AuthSessionMissingError, createClient,  JwtPayload, SupabaseClient } from '@supabase/supabase-js'
-import { Database } from '../databasetypes'
-import assert from 'assert'
-import jwt, { Jwt } from 'jsonwebtoken'
-import dotenv from 'dotenv';
-import { MergeDeep } from 'type-fest'
-import * as types from './utils.js'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthSessionMissingError, createClient, processLock, SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '../databasetypes';
+
 
 //allows us to use process.env to get environment variables
-dotenv.config();
+
 
 // Create a single supabase client for interacting with your database
-export async function getSupabaseClient(): Promise<SupabaseClient<Database>> {
+export function getSupabaseClient(): SupabaseClient<Database> {
   const supabase = createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? assert.fail('NEXT_PUBLIC_SUPABASE_URL is not defined'),
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? assert.fail('NEXT_PUBLIC_SUPABASE_ANON_KEY is not defined'), {
-    auth: {
-      flowType: 'pkce',
-      autoRefreshToken: false,
-      persistSession: true,
-      detectSessionInUrl: true
-    }
+    process.env.EXPO_PUBLIC_SUPABASE_URL ?? (() => { throw new Error('EXPO_PUBLIC_SUPABASE_URL is not defined'); })(),
+    process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? (() => { throw new Error('EXPO_PUBLIC_SUPABASE_ANON_KEY is not defined'); })(), {
+      auth: {
+        storage: AsyncStorage,
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+        lock: processLock,
+      },
   });
   return supabase;
 }
@@ -53,14 +51,13 @@ export async function createUser(email: string, password: string, supabaseClient
  * @returns the decoded user information from the JWT token (has id attribute)
  * @throws Will throw an error if the JWT secret is not defined or if the token is invalid.
  */
-export async function verifyToken(token: string): Promise<JwtPayload> {
-    const decodedData = jwt.verify(token, process.env.JWT_SECRET ?? assert.fail('NEXT_PUBLIC_SUPABASE_JWT_SECRET is not defined'), { algorithms: ['HS256'] }) as JwtPayload;
+// export async function verifyToken(token: string): Promise<JwtPayload> {
+//     const decodedData = jwt.verify(token, process.env.JWT_SECRET ?? assert.fail('NEXT_PUBLIC_SUPABASE_JWT_SECRET is not defined'), { algorithms: ['HS256'] }) as JwtPayload;
 
-    assert(decodedData.iss === 'https://vjdjrmuhojwprugppufd.supabase.co/auth/v1', 'Token issuer does not match Supabase URL');
-    //console.log('current tiem:', Math.floor(Date.now() / 1000));
-    //assert(decodedData.exp > Math.floor(Date.now() / 1000), 'Token has expired');
-    return decodedData;
-}
+//     //console.log('current tiem:', Math.floor(Date.now() / 1000));
+//     //assert(decodedData.exp > Math.floor(Date.now() / 1000), 'Token has expired');
+//     return decodedData;
+// }
 
 /**
  * Decodes a JWT token without verifying its signature or that its expired (in string format).
@@ -69,11 +66,11 @@ export async function verifyToken(token: string): Promise<JwtPayload> {
  * @returns the payload of the JWT token as a JWT token.
  * @throws Will throw an error if the token cannot be decoded.
  */
-export function decodeToken(token: string): Jwt {
-    const decodedData = jwt.decode(token, { complete: true })?? assert.fail('Failed to decode token');
+// export function decodeToken(token: string): Jwt {
+//     //const decodedData = jwt.decode(token, { complete: true })?? assert.fail('Failed to decode token');
 
-    return decodedData;
-}
+//     //return decodedData;
+// }
 
 /**
  * Tries to sign the user in with a username and password, and returns the access token and refresh token.

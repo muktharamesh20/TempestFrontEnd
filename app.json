@@ -15,14 +15,16 @@
         "imageWidth": 2048,
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "bundleIdentifier": "com.anonymous.Tempest"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.Tempest"
     },
     "web": {
       "bundler": "metro",
