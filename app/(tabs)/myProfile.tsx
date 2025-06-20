@@ -16,7 +16,9 @@ const myProfile = () => {
   }, [])
 
   const handleSignOut = async () => {
+    console.log("here")
     const { error } = await supabase.auth.signOut()
+    console.log("also here")
     if (error) {
       Alert.alert('Sign out error', error.message)
     } else {

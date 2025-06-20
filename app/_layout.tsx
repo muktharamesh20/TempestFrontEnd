@@ -1,9 +1,12 @@
 import { supabase } from "@/constants/supabaseClient";
 import { Session } from "@supabase/supabase-js";
 import { Stack, useRouter, useSegments } from "expo-router";
+import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import './globals.css';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [session, setSession] = useState<Session | null>(null);
@@ -30,6 +33,12 @@ export default function RootLayout() {
       listener.subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      SplashScreen.hideAsync();
+    }
+  }, [loading]);
 
   // Redirect logic
   useEffect(() => {
