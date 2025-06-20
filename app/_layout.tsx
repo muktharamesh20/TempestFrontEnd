@@ -11,6 +11,7 @@ export default function RootLayout() {
   const router = useRouter();
   const segments = useSegments();
 
+
   // Fetch session on mount and subscribe to auth changes
   useEffect(() => {
     const fetchSession = async () => {

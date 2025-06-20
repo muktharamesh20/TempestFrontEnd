@@ -57,9 +57,10 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
       fileName = `${url}.${fileExt}`
       contentType = image.mimeType ?? 'image/jpeg'
 
+      await supabase.storage.from('profile-images').remove([fileName]);
       const { data, error: uploadError } = await supabase.storage
         .from('profile-images')
-        .upload(fileName, arrayBuffer, { contentType })
+        .upload(fileName, arrayBuffer, { contentType, upsert: true })
 
       if (uploadError) {
         throw uploadError
