@@ -47,7 +47,7 @@ export default function RootLayout() {
     const inLoginGroup = segments[0] === "(login)";
 
     if (!session && !inLoginGroup) {
-      router.replace("/(login)/login");
+      router.replace("/(login)/onboarding");
     } else if (session && inLoginGroup) {
       router.replace("/(tabs)/home");
     }

@@ -11,7 +11,7 @@ export default function Index() {
       if (session) {
         router.replace('/(tabs)/home')
       } else {
-        router.replace('/(login)/login')
+        router.replace('/(login)/onboarding')
       }
     })
   }, [])

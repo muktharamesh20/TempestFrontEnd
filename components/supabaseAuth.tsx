@@ -1,20 +1,24 @@
 import { Button, Input } from '@rneui/themed'
 import * as WebBrowser from 'expo-web-browser'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Alert, AppState, StyleSheet, View } from 'react-native'
 import { supabase } from '../constants/supabaseClient'
 
 WebBrowser.maybeCompleteAuthSession()
 
 // Handle session refresh when app is foregrounded
-AppState.addEventListener('change', (state) => {
-  if (state === 'active') {
-    supabase.auth.startAutoRefresh()
-  } else {
-    supabase.auth.stopAutoRefresh()
-  }
-})
+useEffect(() => {
+  const subscription = AppState.addEventListener('change', (state) => {
+    if (state === 'active') {
+      supabase.auth.startAutoRefresh()
+    } else {
+      supabase.auth.stopAutoRefresh()
+    }
+  })
+  return () => subscription.remove()
+}, [])
+
 
 export default function Auth() {
   const [email, setEmail] = useState('')
@@ -71,28 +75,36 @@ export default function Auth() {
   
     if (data?.url) {
       // Open the OAuth URL in a browser session and wait for the redirect back to your app
-      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl)
-  
-      if (result.type === 'success') {
-        // OAuth completed, the user is back in your app
-        // Supabase handles the session internally via the redirect
-        const {
-            data: { session },
-            error: sessionError,
-          } = await supabase.auth.getSession()
-  
-          if (sessionError) {
-            Alert.alert('Error fetching session', sessionError.message)
-            return
+      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
+
+      if (result.type === 'success' && 'url' in result && result.url) { 
+        // Parse the fragment/hash part of the URL
+        const url = result.url;
+        const hash = url.split('#')[1];
+        const params = new URLSearchParams(hash);
+
+        const access_token = params.get('access_token');
+        const refresh_token = params.get('refresh_token');
+
+        if (access_token && refresh_token) {
+          // Set the session in Supabase
+          const { data, error } = await supabase.auth.setSession({
+            access_token,
+            refresh_token,
+          });
+
+          if (error) {
+            Alert.alert('Session error', error.message);
+            return;
           }
-  
-          if (session) {
-            console.log('OAuth successful, session:', session)
+
+          // Now you have a valid session!
+          console.log('Session set!', data.session);
+        } else {
+          Alert.alert('Could not extract tokens from redirect URL');
+        }
       } else {
-        Alert.alert('Login canceled or failed')
-      }
-    } else {
-      Alert.alert('No URL returned from Supabase')
+        Alert.alert('No URL returned from Supabase')
       }
     }
   }
