@@ -32,7 +32,7 @@ const baseTextStyle: TextStyle = {
   fontFamily: 'System', // or your custom font if used elsewhere
 };
 
-const login = () => {
+const signup = () => {
   const router = useRouter();
   const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
@@ -40,16 +40,6 @@ const login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-
-  async function signInWithEmail() {
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    if (error) Alert.alert(error.message)
-    setLoading(false)
-  }
 
   async function signUpWithEmail() {
     setLoading(true)
@@ -60,8 +50,9 @@ const login = () => {
       email,
       password,
     })
+
     if (error) Alert.alert(error.message)
-    if (!session) Alert.alert('Please check your inbox for email verification!')
+    else if (!session) Alert.alert('Please check your inbox for email verification!')
     setLoading(false)
   }
 
@@ -157,7 +148,7 @@ const login = () => {
         />
 
         <Text className="py-4 font-bold text-[20px] text-primary w-full text-start ml-[20%]">
-          Log In
+          Sign Up
         </Text>
 
         {/* Email Input */}
@@ -207,7 +198,7 @@ const login = () => {
         {/* Sign Up Button */}
         <TouchableOpacity
           style={{ width: '80%', alignItems: 'center', justifyContent: 'center' }}
-          onPress={signInWithEmail}
+          onPress={signUpWithEmail}
         >
           <Text style={{
             paddingVertical: 12,
@@ -219,7 +210,7 @@ const login = () => {
             width: '100%',
             textAlign: 'center'
           }}>
-            Log In
+            Sign Up
           </Text>
         </TouchableOpacity>
 
@@ -279,11 +270,11 @@ const login = () => {
         {/* Top text */}
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 10, marginBottom: 8 }}>
           <Text style={{ ...baseTextStyle, fontSize: 18, fontWeight: '600', color: 'white' }}>
-            Don't have an account?{' '}
+            Already have an account?{' '}
           </Text>
           <TouchableOpacity onPress={() => router.push('/login')}>
             <Text style={{ ...baseTextStyle, fontSize: 18, fontWeight: 'bold', color: 'white', textDecorationLine: 'underline' }}>
-              Sign up
+              Log in
             </Text>
           </TouchableOpacity>
         </View>
@@ -292,4 +283,4 @@ const login = () => {
   );
 }
 
-export default login;
+export default signup;

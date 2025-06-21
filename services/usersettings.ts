@@ -1,15 +1,7 @@
-import {createClient, SupabaseClient} from '@supabase/supabase-js'
-import { QueryResult, QueryData, QueryError } from '@supabase/supabase-js'
-import { Database, Tables, Enums } from '../databasetypes'
-import {signInAndGetToken, signOut, getSupabaseClient, decodeToken, createUser, deleteAccount} from './auth'
-import assert from 'assert'
-import dotenv from 'dotenv';
-import { get } from 'http'
-import { create } from 'domain'
-import * as types from './utils.js'
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '../databasetypes';
+import * as types from './utils.js';
 
-//allows us to use process.env to get environment variables
-dotenv.config();
 
 
 /**
@@ -19,11 +11,11 @@ dotenv.config();
  * @param user the user to change the username for
  * @param supabaseClient the Supabase client to use for the database operations
  */
-export async function changeUsername(newUsername: string, user: types.User, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function changeUsername(newUsername: string, userId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { data, error } = await supabaseClient
         .from('usersettings') 
-        .update({ username: newUsername }) 
-        .eq('id', user.user_id); 
+        .update({ username: newUsername.toLowerCase() }) 
+        .eq('id', userId); 
 
     if (error) {
         console.error('Error changing username:', error.message);
