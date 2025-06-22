@@ -1,15 +1,32 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database, Json } from "../databasetypes";
+import { getUserId } from "./api";
 
 export type Post = {image: Image, caption: Text, categories: Category, ownerId: UserId, id: PostId, createdAt: Date, likeCount:number
 , likedByMe: boolean, inspiredCount: number, comments: MainComment[], linkedObject: Event | Todo};
+export interface postDetails {
+    postId: string;
+    personID: string;
+    username: string;
+    thoughts: string;
+    taskOrEventName: string;
+    myPost: boolean;
+    taskID?: string;
+    eventID?: string;
+    hashtags?: string[];
+    timeCreated: Date;
+    likes: number; // New prop for likes
+    comments: number; // New prop for comments
+    alreadyLiked: boolean;
+    alreadySaved: boolean;
+}
 export type MainComment = {id: CommentId, owner: User, content: Text, createdAt: Date, replies: ReplyComment[], deleted: boolean};
 export type ReplyComment = {id: CommentId, owner: User, content: Text, createdAt: Date, replyTo: MainComment};
 export type Calendar = {forNow:null}
 export type Group = {forNow: null, group_id: GroupId, onlyAdminsInvite: boolean, onlyAdminsAssignTodos: boolean}
 export type UserHomePage = {id: CategoryId, CategoryName: string, orderNum: number, posts: Post[], tags: Post[], followers: UserList, following: UserList, profile: User, mutual_groups: GroupList};
 export type GroupHomePage = {CategoryName: string, orderNum: number, posts: Post[], tags: Post[], members: UserList, profile: User};
-export type Feed = {posts: Post[]}
+export type Feed = {posts: postDetails[]}
 export type Album = {posts: Post[], album_name: 'Liked' | 'Saved'}
 export type Message = {id: string, content: Text, createdAt: Date, senderId: string}
 export type GroupChat = {group: Group, members: GroupUserList, messages: Message[]}; //in order
@@ -145,6 +162,17 @@ export async function createMessageTypeWithGroupData(messageDetails: { by_person
 //created
 export async function createPostTypeWithData(postDetails: { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; }[]): Promise<Post[]> {
     throw new NotImplementedError('createPostTypeWithData');
+}
+
+type oldDetails = { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; comment_count: number;  username: string; alreadyliked: boolean; alreadysaved: boolean};
+
+
+export async function createPostDetailsTypeWithData(postDetails: { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; comment_count: number;  username: string; alreadyliked: boolean; alreadysaved: boolean }[]): Promise<postDetails[]> {
+    async function convertPost(post: oldDetails ): Promise<postDetails>{
+        return {postId: post.id, personID: post.owner_id, username: post.username, thoughts: post.description ?? '', taskOrEventName: post.title, myPost:post.owner_id === (await getUserId()), taskID: post.todo_id ?? undefined, eventID: post.event_id ?? undefined, hashtags: undefined, timeCreated: new Date(post.created_at), likes:post.liked_count, comments: post.comment_count, alreadyLiked: post.alreadyliked, alreadySaved: post.alreadysaved}
+    }
+    
+    return Promise.all(postDetails.map(convertPost))
 }
 
 export async function createCommentTypeWithData(commentDetails: { content: Text; ownerId: UserId; postId: PostId; reply_to_id: CommentId | null }): Promise<Comment> {

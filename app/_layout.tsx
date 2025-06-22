@@ -1,4 +1,5 @@
 import { supabase } from "@/constants/supabaseClient";
+import { getUserId } from "@/services/api";
 import { Session } from "@supabase/supabase-js";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter, useSegments } from "expo-router";
@@ -80,11 +81,12 @@ export default function RootLayout() {
 
     if (!session && !inLoginGroup) {
       router.replace("/(login)/onboarding");
-    } else if (session && inLoginGroup && !mustAddUsername) {
+    } else if (session && inLoginGroup) {
+      getUserId();
       // If logged in and on login pages but username is set, redirect to home
       router.replace("/(tabs)/home");
     }
-  }, [session, segments, loading, mustAddUsername]);
+  }, [session, segments, loading]);
 
   // Optional loading indicator while checking session or username
   if (loading) {

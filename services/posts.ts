@@ -1,41 +1,32 @@
-import {createClient, SupabaseClient} from '@supabase/supabase-js'
-import { QueryResult, QueryData, QueryError } from '@supabase/supabase-js'
-import { Database, Tables, Enums } from '../databasetypes'
-import {signInAndGetToken, signOut, getSupabaseClient, decodeToken, createUser, deleteAccount} from './auth'
-import assert from 'assert'
-import dotenv from 'dotenv';
-import { get } from 'http'
-import { create } from 'domain'
-import * as types from './utils.js'
-import { Record } from 'neo4j-driver'
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '../databasetypes';
+import { getUserId } from './api';
+import * as types from './utils';
 
 
-//allows us to use process.env to get environment variables
-dotenv.config();
 
-
-export async function likePost(post: types.Post, user: types.User, databaseClient: SupabaseClient<Database>): Promise<void> {
+export async function likePost(postId: string, databaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await databaseClient
         .from('people_to_liked')
-        .insert({ post_id: post.id, person_id: user.user_id });
+        .upsert({ post_id: postId});
 
-    if (error) {
-        console.error('Error liking post:', error.message);
-        throw error;
-    }
+    // if (error) {
+    //     console.error('Error liking post:', error.message);
+    //     throw error;
+    // }
 }
 
-export async function unlikePost(post: types.Post, user: types.User, databaseClient: SupabaseClient<Database>): Promise<void> {
+export async function unlikePost(postId: string, databaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await databaseClient
         .from('people_to_liked')
         .delete()
-        .eq('post_id', post.id)
-        .eq('user_id', user.user_id );
+        .eq('post_id', postId)
+        .eq('person_id', await getUserId());
 
-    if (error) {
-        console.error('Error unliking post:', error.message);
-        throw error;
-    }
+    // if (error) {
+    //     console.error('Error unliking post:', error.message);
+    //     throw error;
+    // }
 }
 
 export async function getAllLikedPosts(user: types.User, databaseClient: SupabaseClient<Database>): Promise<types.Album> {
@@ -469,30 +460,53 @@ export async function getFeed(user: types.User, viewed_posts: types.Post[], data
         console.error('Error fetching feed:', error.message);
         throw error;
     }
+    throw new Error('unimplemented');
+    //return {posts: await types.createPostTypeWithData(data)};
+}
 
-    return {posts: await types.createPostTypeWithData(data)};
+/**
+ * Returns 15 posts the user has not viewed yet.  Will return posts that the user has already viewed if there are not enough new posts.
+ * 
+ * @param user the user for whom the feed is being requested
+ * @param viewed_posts the posts that have been viewed in the last feed
+ * @param databaseClient the database client to use for the database operations
+ */
+export async function getFeedNew(databaseClient: SupabaseClient<Database>): Promise<types.Feed> {
+    //when a new feed is requested, mark anything viewed from the last feed as viewed
+
+    const { data, error } = await databaseClient
+    .rpc('get_feed');
+
+    if (error) {
+        console.error('Error fetching feed:', error.message);
+        throw error;
+    }
+
+    return {posts: await types.createPostDetailsTypeWithData(data)};
 }
 
 export async function addCommentToPost(post: types.Post, commentDetails: { content: string; authorId: string }, databaseClient: SupabaseClient<Database>): Promise<types.Post> {
-    const { error } = await databaseClient
-        .from('comments')
-        .insert({ post_id: post.id, ...commentDetails });
+    // const { error } = await databaseClient
+    //     .from('comments')
+    //     .insert({ post_id: post.id, ...commentDetails });
 
-    if (error) {
-        console.error('Error adding comment to post:', error.message);
-        throw error;
-    }
+    // if (error) {
+    //     console.error('Error adding comment to post:', error.message);
+    //     throw error;
+    // }
+    throw new Error('unimplemented');
 }
 
 export async function replyToComment(commentId: string, replyDetails: { content: string; authorId: string }, databaseClient: SupabaseClient<Database>): Promise<void> {
-    const { error } = await databaseClient
-        .from('comment_replies')
-        .insert({ comment_id: commentId, ...replyDetails });
+    // const { error } = await databaseClient
+    //     .from('comment_replies')
+    //     .insert({ comment_id: commentId, ...replyDetails });
 
-    if (error) {
-        console.error('Error replying to comment:', error.message);
-        throw error;
-    }
+    // if (error) {
+    //     console.error('Error replying to comment:', error.message);
+    //     throw error;
+    // }
+    throw new Error('unimplemented');
 }
 
 /**

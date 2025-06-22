@@ -1,5 +1,7 @@
 import { icons } from '@/constants/icons';
+import { supabase } from '@/constants/supabaseClient';
 import { SB_STORAGE_CONFIG } from '@/services/api';
+import { likePost, unlikePost } from '@/services/posts';
 import { Ionicons } from '@expo/vector-icons'; // Import icons from Expo Vector Icons
 import { formatDistanceToNow } from 'date-fns';
 import { default as React, useEffect, useState } from 'react';
@@ -56,8 +58,10 @@ const PostCard = ({alreadySaved, alreadyLiked, username, personID, postId, taskO
     const handleLikePress = () => {
         if (isLiked) {
           setLikeCount(likeCount - 1); // Decrease like count if unliked
+          unlikePost(postId, supabase);
         } else {
           setLikeCount(likeCount + 1); // Increase like count if liked
+          likePost(postId, supabase);
         }
         setIsLiked(!isLiked); // Toggle like state
     };

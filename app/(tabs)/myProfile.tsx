@@ -1,6 +1,7 @@
 import Auth from '@/components/supabaseAuth'
 import Avatar from '@/components/supabaseAvatar'
 import { supabase } from '@/constants/supabaseClient'
+import { resetUserId } from '@/services/api'
 import React from 'react'
 import { Alert, Button, View } from 'react-native'
 
@@ -17,6 +18,7 @@ const myProfile = () => {
 
   const handleSignOut = async () => {
     console.log("here")
+    await resetUserId();
     const { error } = await supabase.auth.signOut()
     console.log("also here")
     if (error) {

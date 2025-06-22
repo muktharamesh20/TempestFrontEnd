@@ -543,36 +543,52 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          documentLink: string | null
           message_id: string
           messenger_id: string
+          postLinked: string | null
           receiver_deleted: boolean
           receiver_id: string
+          reply_to: string | null
           sender_deleted: boolean
         }
         Insert: {
           content: string
           created_at?: string
+          documentLink?: string | null
           message_id?: string
           messenger_id: string
+          postLinked?: string | null
           receiver_deleted?: boolean
           receiver_id: string
+          reply_to?: string | null
           sender_deleted: boolean
         }
         Update: {
           content?: string
           created_at?: string
+          documentLink?: string | null
           message_id?: string
           messenger_id?: string
+          postLinked?: string | null
           receiver_deleted?: boolean
           receiver_id?: string
+          reply_to?: string | null
           sender_deleted?: boolean
         }
         Relationships: [
           {
             foreignKeyName: "messages_messenger_id_fkey"
             columns: ["messenger_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "usersettings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_postLinked_fkey"
+            columns: ["postLinked"]
+            isOneToOne: false
+            referencedRelation: "post"
             referencedColumns: ["id"]
           },
           {
@@ -581,6 +597,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "usersettings"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_fkey"
+            columns: ["reply_to"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["message_id"]
           },
         ]
       }
@@ -726,7 +749,7 @@ export type Database = {
           post_id: string
         }
         Insert: {
-          person_id: string
+          person_id?: string
           post_id: string
         }
         Update: {
@@ -970,6 +993,55 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "post"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_to_comment: {
+        Row: {
+          comment_content: string
+          created_at: string
+          id: string
+          person_id: string
+          post_id: string
+          reply_to: string | null
+        }
+        Insert: {
+          comment_content: string
+          created_at?: string
+          id?: string
+          person_id: string
+          post_id: string
+          reply_to?: string | null
+        }
+        Update: {
+          comment_content?: string
+          created_at?: string
+          id?: string
+          person_id?: string
+          post_id?: string
+          reply_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_to_comment_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "usersettings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_to_comment_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_to_comment_reply_to_fkey"
+            columns: ["reply_to"]
+            isOneToOne: false
+            referencedRelation: "post_to_comment"
             referencedColumns: ["id"]
           },
         ]
@@ -1351,9 +1423,13 @@ export type Database = {
           owner_id: string
           inspired_by_count: number
           liked_count: number
+          comment_count: number
           title: string
           imageLink: string
           highlighted_by_owner: boolean
+          username: string
+          alreadyliked: boolean
+          alreadysaved: boolean
         }[]
       }
       get_group_ids_for_user: {

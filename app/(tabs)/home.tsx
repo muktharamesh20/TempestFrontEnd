@@ -3,8 +3,12 @@ import FollowingOrGlobal from "@/components/FollowingOrGlobal";
 import PostCard, { postDetails } from "@/components/Post";
 import { StoryCardDetails } from "@/components/StoryCard";
 import StoryCarosel from "@/components/StoryCarosel";
+import { supabase } from "@/constants/supabaseClient";
+import { getFeedNew } from "@/services/posts";
+import useFetch from "@/services/useFetch";
 import { useIsFocused } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -14,7 +18,7 @@ export default function Home() {
 
   const dummyPost: postDetails = {postId: "dummy", taskOrEventName: "Dummy Post", personID: "0", myPost: true, username:'dummyUser', thoughts: "This is a dummy post for testing purposes.", hashtags: ['test', 'dummy'], timeCreated: new Date("2023-10-01T12:00:00Z"), likes: 0, comments: 0, alreadyLiked: false, alreadySaved: false};
 
-  const postData: postDetails[] = [
+  const postData2: postDetails[] = [
     {postId: "1", taskOrEventName: "Post 1", personID: "1", myPost: true, username:'umamageswari', thoughts: "This is a dummy post for testing purposes.", hashtags: ['test', 'dummy'], timeCreated: new Date(Date.now()), likes: 10, comments: 5, alreadyLiked: true, alreadySaved: false},
     {postId: "2", taskOrEventName: "Post 2", personID: "2", myPost: false, username:'little kiddo', thoughts: "more thoughtsssss and thoughts and testing how many lines we should add and more and more and more and more and more and more and more and more and more and more and more and more and more and more and moremore thoughtsssss and thoughts and testing how many lines we should add and more and more and more and more and more and more and more and more and more and more and more and more and more and more and more", hashtags: ['example', 'dummy'], timeCreated: new Date("2025-06-18T6:00:00Z"), likes: 20, comments: 10, alreadyLiked: false, alreadySaved: true},
     {postId: "3", taskOrEventName: "Post 3", personID: "3", myPost: true, username:'rhea', thoughts: "This is a sample post to demonstrate the functionality.", hashtags: [], timeCreated: new Date("2013-10-03T12:00:00Z"), likes: 15, comments: 8, alreadyLiked: true, alreadySaved: false},
@@ -34,6 +38,26 @@ export default function Home() {
     {postId: "17", taskOrEventName: "Post 17", personID: "17", myPost: true, username:'umamageswari', thoughts: '', timeCreated : new Date("2023-10-17T12:00:00Z"), likes: 110, comments: 55, alreadyLiked: false, alreadySaved: false},
   ];
 
+  const {
+    data: postData,
+    loading, 
+    error,
+    refetch,
+    reset
+  } = useFetch(() => getFeedNew(supabase))
+
+  let posts = postData?.posts ?? [];
+
+  useEffect(()=> {
+    if (postData?.posts) {
+      posts = postData.posts
+    }
+    console.log(posts)
+  }, [loading])
+
+  //change where the posts are coming from
+  const [globalToggle, setGlobalToggle] = useState(false);
+
   return (
 
       <View className="flex flex-col flex-1 gap-0 bg-primary h-full w-full">
@@ -41,7 +65,7 @@ export default function Home() {
         {isFocused && <StatusBar style="dark" />}
         <FlatList
         className="flex-1"
-          data={[dummyPost, ...postData]} // Example data array
+          data={[dummyPost, ...posts]} // Example data array
           keyExtractor={(item) => item.postId} // Use the keyExtractor to set the key
           renderItem={({ item, index }) => index ? <PostCard {...item} /> : <FollowingOrGlobal />}
           ListHeaderComponent={

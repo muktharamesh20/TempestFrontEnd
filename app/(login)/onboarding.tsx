@@ -33,11 +33,11 @@ const styles = StyleSheet.create({
 const TypewriterTextRotator = () => {
   const texts = [
     'lets you be your authentic self',
-    'celebrates your everyday effort — not just the highlights',
+    'celebrates your everyday — not just the highlights',
     'shows the true you — you are what you check off',
     'motivates you to accomplish your goals',
     'allows you to share your day like never before',
-    'gives you fine-grain control over privacy'
+    'gives you fine-grain control over your privacy'
   ];
 
   const colors = [
