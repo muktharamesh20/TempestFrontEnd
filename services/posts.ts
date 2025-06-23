@@ -559,6 +559,18 @@ export async function addCommentToPost(postId: string, commentDetails: types.Com
     }
 }
 
+export async function deleteCommentFromPost(comment_id: string, databaseClient: SupabaseClient<Database>): Promise<void> {
+    const {error} = await databaseClient
+        .from('post_to_comment')
+        .delete()
+        .eq('id', comment_id)
+
+    if (error){
+        console.error('Error adding comment to post:', error.message);
+        throw error;
+    }
+}
+
 export async function replyToComment(commentId: string, replyDetails: { content: string; authorId: string }, databaseClient: SupabaseClient<Database>): Promise<void> {
     // const { error } = await databaseClient
     //     .from('comment_replies')

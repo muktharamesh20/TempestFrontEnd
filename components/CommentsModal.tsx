@@ -3,6 +3,7 @@ import { getUserId, SB_STORAGE_CONFIG } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   FlatList,
   Image,
   KeyboardAvoidingView,
@@ -20,117 +21,105 @@ import { Comment } from '@/services/utils';
 interface CommentsModalProps {
   visible: boolean;
   comments: Comment[];
+  postOwnerId: string;
   onClose: () => void;
   onPostComment: (text: string, parent?: Comment) => void;
+  onDeleteComment: (id: string) => void;
+  onBlockPersonFromCommenting: (person_id: string) => void;
 }
 
 const timeSince = (timestamp: Date) => {
   const now = Date.now();
   const secondsPast = Math.floor((now - timestamp.getTime()) / 1000);
 
-  if (secondsPast < 60) {
-    return `${secondsPast}s ago`;
-  }
-  if (secondsPast < 3600) {
-    return `${Math.floor(secondsPast / 60)}m ago`;
-  }
-  if (secondsPast < 86400) {
-    return `${Math.floor(secondsPast / 3600)}h ago`;
-  }
-  if (secondsPast < 2592000) {
-    return `${Math.floor(secondsPast / 86400)}d ago`;
-  }
+  if (secondsPast < 60) return `${secondsPast}s ago`;
+  if (secondsPast < 3600) return `${Math.floor(secondsPast / 60)}m ago`;
+  if (secondsPast < 86400) return `${Math.floor(secondsPast / 3600)}h ago`;
+  if (secondsPast < 2592000) return `${Math.floor(secondsPast / 86400)}d ago`;
   return `${Math.floor(secondsPast / 2592000)}mo ago`;
 };
-
-const ReplyItem = ({ reply }: { reply: Comment }) => {
-  const [replyImageUrl, setReplyImageUrl] = useState('');
-
-  useEffect(() => {
-    const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${reply.authorId}.jpg`;
-    const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
-
-    Image.prefetch(profilePicUrl)
-      .then(() => setReplyImageUrl(profilePicUrl))
-      .catch(() => setReplyImageUrl(defaultPicUrl));
-  }, [reply.authorId]);
-
-  return (
-    <View key={reply.id} style={styles.replyContainer}>
-      <Image source={{ uri: replyImageUrl }} style={styles.avatarSmall} />
-      <View style={styles.replyContent}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={styles.author}>{reply.author}</Text>
-          <Text style={styles.timeText}> • {timeSince(reply.timeCreated)}</Text>
-        </View>
-        <Text>{reply.content}</Text>
-      </View>
-    </View>
-  );
-};
-
 
 const CommentItem = ({
   comment,
   replies,
   onReply,
+  currentUserId,
+  postOwnerId,
+  onDelete,
+  onBlock,
 }: {
   comment: Comment;
   replies: Comment[];
   onReply: (c: Comment) => void;
+  currentUserId: string;
+  postOwnerId: string;
+  onDelete: (id: string) => void;
+  onBlock: (person_id: string) => void;
 }) => {
   const [showAllReplies, setShowAllReplies] = useState(false);
-
   const sortedReplies = replies.slice().sort((a, b) => a.timeCreated.getTime() - b.timeCreated.getTime());
-  const [imageUrl, setImageUrl] = useState('');
-
   const displayedReplies = showAllReplies ? sortedReplies : sortedReplies.slice(0, 1);
-  const hasMoreReplies = sortedReplies.length > 1;
+  const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
     const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${comment.authorId}.jpg`;
     const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
-
-    // Check if the profile picture exists
     Image.prefetch(profilePicUrl)
-      .then(() => setImageUrl(profilePicUrl)) // If it exists, use it
-      .catch(() => setImageUrl(defaultPicUrl)); // Otherwise, use the default
+      .then(() => setImageUrl(profilePicUrl))
+      .catch(() => setImageUrl(defaultPicUrl));
   }, [comment.authorId]);
 
+  const handleLongPress = () => {
+    if (comment.authorId === currentUserId || postOwnerId === currentUserId) {
+      Alert.alert('Delete Comment', 'Are you sure you want to delete this comment?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => onDelete(comment.id) },
+      ]);
+    }
+  };
+
   return (
-    <View style={{ marginBottom: 10, paddingRight: 10}}>
-      {/* Main Comment */}
-      <View style={{ flexDirection: 'row' }}>
-        <Image source={{ uri: imageUrl }} style={styles.avatar} />
-        <View style={styles.commentContent}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={styles.author}>{comment.author}</Text>
-            <Text style={styles.timeText}> • {timeSince(comment.timeCreated)}</Text>
+    <View style={{ marginBottom: 10, paddingRight: 10 }}>
+      {(comment.authorId === currentUserId || postOwnerId === currentUserId) ?
+      <TouchableOpacity onLongPress={handleLongPress} delayLongPress={300}>
+        <View style={{ flexDirection: 'row' }}>
+          <Image source={{ uri: imageUrl }} style={styles.avatar} />
+          <View style={styles.commentContent}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.author}>{comment.author}</Text>
+              <Text style={styles.timeText}> • {timeSince(comment.timeCreated)}</Text>
+            </View>
+            <Text>{comment.content}</Text>
           </View>
-          <Text>{comment.content}</Text>
         </View>
+      </TouchableOpacity>
+      : 
+      <View style={{ flexDirection: 'row' }}>
+      <Image source={{ uri: imageUrl }} style={styles.avatar} />
+      <View style={styles.commentContent}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={styles.author}>{comment.author}</Text>
+          <Text style={styles.timeText}> • {timeSince(comment.timeCreated)}</Text>
+        </View>
+        <Text>{comment.content}</Text>
       </View>
+    </View>}
 
-      {/* Replies */}
       <View style={{ marginLeft: 24, marginTop: 3 }}>
-      {displayedReplies.map((reply) => (
-  <ReplyItem key={reply.id} reply={reply} />
-))}
+        {displayedReplies.map((reply) => (
+          <ReplyItem
+            key={reply.id}
+            reply={reply}
+            currentUserId={currentUserId}
+            postOwnerId={postOwnerId}
+            onDelete={onDelete}
+          />
+        ))}
 
-
-
-        {hasMoreReplies && !showAllReplies && (
-          <TouchableOpacity onPress={() => setShowAllReplies(true)}>
+        {replies.length > 1 && (
+          <TouchableOpacity onPress={() => setShowAllReplies(!showAllReplies)}>
             <Text style={{ color: '#888888', fontSize: 13, marginTop: 4, marginLeft: 35 }}>
-              Show more replies ({sortedReplies.length - 1})
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {hasMoreReplies && showAllReplies && (
-          <TouchableOpacity onPress={() => setShowAllReplies(false)}>
-            <Text style={{ color: '#888888', fontSize: 13, marginTop: 4, marginLeft: 35 }}>
-              Hide replies
+              {showAllReplies ? 'Hide replies' : `Show more replies (${replies.length - 1})`}
             </Text>
           </TouchableOpacity>
         )}
@@ -145,16 +134,74 @@ const CommentItem = ({
   );
 };
 
+const ReplyItem = ({
+  reply,
+  currentUserId,
+  postOwnerId,
+  onDelete,
+}: {
+  reply: Comment;
+  currentUserId: string;
+  postOwnerId: string;
+  onDelete: (id: string) => void;
+}) => {
+  const [replyImageUrl, setReplyImageUrl] = useState('');
+
+  useEffect(() => {
+    const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${reply.authorId}.jpg`;
+    const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+    Image.prefetch(profilePicUrl)
+      .then(() => setReplyImageUrl(profilePicUrl))
+      .catch(() => setReplyImageUrl(defaultPicUrl));
+  }, [reply.authorId]);
+
+  const handleLongPress = () => {
+    if (reply.authorId === currentUserId || postOwnerId === currentUserId) {
+      Alert.alert('Delete Reply', 'Are you sure you want to delete this reply?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => onDelete(reply.id) },
+      ]);
+    }
+  };
+
+  return (
+    <TouchableOpacity onLongPress={handleLongPress} delayLongPress={300}>
+      <View style={styles.replyContainer}>
+        <Image source={{ uri: replyImageUrl }} style={styles.avatarSmall} />
+        <View style={styles.replyContent}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={styles.author}>{reply.author}</Text>
+            <Text style={styles.timeText}> • {timeSince(reply.timeCreated)}</Text>
+          </View>
+          <Text>{reply.content}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+// ... rest of the file remains unchanged
+
+
 export default function CommentsModal({
   visible,
   comments,
   onClose,
   onPostComment,
+  postOwnerId,
+  onDeleteComment,
+  onBlockPersonFromCommenting,
 }: CommentsModalProps): React.JSX.Element {
   const insets = useSafeAreaInsets();
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState<Comment | null>(null);
   const [imageUrl, setImageUrl] = useState('');
+  const [currentUserId, setCurrentUserId] = useState('');
+
+  useEffect(() => {
+    getUserId().then((res) => setCurrentUserId(res[0]));
+  }, []);
+
 
   const sortedComments = comments //.slice().sort((a, b) => a.timeCreated - b.timeCreated);
 
@@ -218,7 +265,15 @@ export default function CommentsModal({
             data={topLevelComments}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <CommentItem comment={item} replies={repliesByParent[item.id] || []} onReply={setReplyTo} />
+              <CommentItem
+      comment={item}
+      replies={repliesByParent[item.id] || []}
+      onReply={setReplyTo}
+      currentUserId={currentUserId}
+      postOwnerId={postOwnerId}
+      onDelete={onDeleteComment}
+      onBlock = {onBlockPersonFromCommenting}
+    />
             )}
             contentContainerStyle={{ paddingBottom: 80 }}
           />
@@ -263,7 +318,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     paddingHorizontal: 16,
     paddingTop: 10,
-    maxHeight: '90%',
+    maxHeight: '60%',
+    minHeight: '60%'
   },
   dragHandle: {
     width: 40,

@@ -7,7 +7,7 @@ import { StoryCardDetails } from "@/components/StoryCard";
 import StoryCarosel from "@/components/StoryCarosel";
 import { supabase } from "@/constants/supabaseClient";
 import { getUserId } from "@/services/api";
-import { addCommentToPost, getAllComments, getAllLikes, getFeedNew } from "@/services/posts";
+import { addCommentToPost, deleteCommentFromPost, getAllComments, getAllLikes, getFeedNew } from "@/services/posts";
 import useFetch from "@/services/useFetch";
 import { Comment, generateUUID } from "@/services/utils";
 import { useIsFocused } from "@react-navigation/native";
@@ -122,6 +122,15 @@ export default function Home() {
   //change where the posts are coming from
   const [globalToggle, setGlobalToggle] = useState(false);
 
+  const handleDeletedComment = (comment_id: string) => {
+    deleteCommentFromPost(comment_id, supabase);
+    setCommentData(commentData.filter(((value) => (value.id !== comment_id))));
+  }
+
+  const handleBlockedPerson = (person_id: string) => {
+    throw new Error('unimplemented');
+  }
+
   return (
 
       <View className="flex flex-col flex-1 gap-0 bg-primary h-full w-full">
@@ -148,6 +157,9 @@ export default function Home() {
         comments={commentData}
         onClose={closeModal}
         onPostComment={dealWithSentComment}
+        postOwnerId={(posts.filter((value) => value.postId === modalPostId))[0]!.personID}
+        onDeleteComment = {handleDeletedComment}
+        onBlockPersonFromCommenting={handleBlockedPerson}
       />
       }
 
