@@ -23,6 +23,7 @@
     "@rneui/themed": "^4.0.0-rc.8",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.8",
+    "bad-words": "^4.0.0",
     "cookie-parser": "^1.4.7",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",

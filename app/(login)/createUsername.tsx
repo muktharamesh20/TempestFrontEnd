@@ -1,6 +1,7 @@
 import { supabase } from '@/constants/supabaseClient';
 import { getUserId } from '@/services/api';
 import { changeUsername } from '@/services/usersettings';
+import { Filter } from 'bad-words';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
@@ -38,6 +39,7 @@ const SetUsername = ({ closeFunction }: { closeFunction: Dispatch<SetStateAction
   }, []);
 
   const handleContinue = async () => {
+    const filter = new Filter();
     if (!username || username.length < 3 || username.length >= 15) {
       Alert.alert('Username must be at least 3 characters and less than 15.');
       return;
@@ -48,6 +50,10 @@ const SetUsername = ({ closeFunction }: { closeFunction: Dispatch<SetStateAction
         Alert.alert('Username must only contain letters, underscores, and periods.');
         return;
     }
+    if(filter.isProfane(username)){
+      Alert.alert("This username may violate community guidelines.")
+      return;
+    } 
     try {
         const { data, error } = await supabase.auth.getUser();
         if (error || !data.user) {

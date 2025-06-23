@@ -163,7 +163,7 @@ export default function CommentsModal({
     if (comment.parentId) {
       acc[comment.parentId] = acc[comment.parentId] || [];
       acc[comment.parentId].push(comment);
-    }
+    } 
     return acc;
   }, {});
 

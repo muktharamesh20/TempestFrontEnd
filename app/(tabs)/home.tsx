@@ -11,10 +11,11 @@ import { addCommentToPost, getAllComments, getAllLikes, getFeedNew } from "@/ser
 import useFetch from "@/services/useFetch";
 import { Comment, generateUUID } from "@/services/utils";
 import { useIsFocused } from "@react-navigation/native";
+import { Filter } from 'bad-words';
 import { addDays } from "date-fns";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { FlatList, View } from "react-native";
+import { Alert, FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
@@ -23,6 +24,7 @@ export default function Home() {
   const isFocused = useIsFocused();
   const userId = getUserId().then((value) => value[0]);
   const username = getUserId().then((value) => value[1]);
+  const filter = new Filter();
 
   //modal stuff
   const [modalVisible, setModalVisible] = useState(false);
@@ -42,25 +44,23 @@ export default function Home() {
   };
 
   const dealWithSentComment = async (text: string, parentId: Comment | undefined) => {
-      const newComment = {
-      id: generateUUID(),
-      author: await username,
-      authorId: await userId,
-      content: text,
-      avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-      parentId: parentId?.id,
-      timeCreated: new Date(Date.now())}
-      
-      console.log(newComment)
-      if(modalPostId){
-        addCommentToPost(modalPostId, newComment, supabase);
-      }
-      setCommentData([...commentData, newComment])
-    
-      if (parentId) {
-        // post reply logic
+      if(filter.isProfane(text)){
+        Alert.alert("This message may violate community guidelines.")
       } else {
-        // post top-level comment logic
+      const newComment = {
+        id: generateUUID(),
+        author: await username,
+        authorId: await userId,
+        content: text,
+        avatar: "https://randomuser.me/api/portraits/men/2.jpg",
+        parentId: parentId?.id,
+        timeCreated: new Date(Date.now())}
+        
+        console.log(newComment)
+        if(modalPostId){
+          addCommentToPost(modalPostId, newComment, supabase);
+        }
+        setCommentData([...commentData, newComment])
       }
   }
 
