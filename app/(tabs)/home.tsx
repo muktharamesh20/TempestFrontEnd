@@ -22,6 +22,7 @@ export default function Home() {
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
   const userId = getUserId().then((value) => value[0]);
+  const username = getUserId().then((value) => value[1]);
 
   //modal stuff
   const [modalVisible, setModalVisible] = useState(false);
@@ -43,7 +44,7 @@ export default function Home() {
   const dealWithSentComment = async (text: string, parentId: Comment | undefined) => {
       const newComment = {
       id: generateUUID(),
-      author: await userId,
+      author: await username,
       authorId: await userId,
       content: text,
       avatar: "https://randomuser.me/api/portraits/men/2.jpg",
