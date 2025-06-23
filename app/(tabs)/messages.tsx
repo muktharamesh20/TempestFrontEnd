@@ -1,9 +1,9 @@
-import CommentsModal from '@/components/CommentsModal';
-import { getUserId } from '@/services/api';
-import { generateUUID } from '@/services/utils';
+import Avatar from '@/components/supabaseAvatar';
+import { supabase } from '@/constants/supabaseClient';
+import { resetUserId } from '@/services/api';
 import { addDays } from 'date-fns';
 import React, { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Alert, Button, Text, View } from 'react-native';
 
 const messages = () => {
   const [showComments, setShowComments] = useState(true);
@@ -62,13 +62,20 @@ const messages = () => {
   ];
 
 const [comment, setComment]=useState(commentData)
+const [userIdAvatar, setUserId] = React.useState<string | null>(null)
 
-  const userId = getUserId().then((value) => value[0]);;
+  React.useEffect(() => {
+    const fetchUserId = async () => {
+      const response = await supabase.auth.getUser()
+      setUserId(response.data.user?.id ?? null)
+    }
+    fetchUserId()
+  }, [])
 
   return (
     <View>
       <Text>messages</Text>
-      <CommentsModal
+      {/* <CommentsModal
   visible={showComments}
   comments={comment}
   onClose={() => setShowComments(false)}
@@ -91,10 +98,29 @@ const [comment, setComment]=useState(commentData)
       // post top-level comment logic
     }
   }}
-/>
+/> */}
+
+<Avatar 
+        size={100} 
+        url={userIdAvatar}
+        onUpload={(url: string) => console.log('Avatar uploaded:', url)} 
+      />
+      <Button title="Sign Out" onPress={handleSignOut} />
 
     </View>
   )
+}
+
+const handleSignOut = async () => {
+  console.log("here")
+  await resetUserId();
+  const { error } = await supabase.auth.signOut()
+  console.log("also here")
+  if (error) {
+    Alert.alert('Sign out error', error.message)
+  } else {
+    Alert.alert('Signed out', 'You have been signed out.')
+  }
 }
 
 export default messages
