@@ -1,34 +1,27 @@
 import { numbers } from '@/constants/numbers';
+import { getUserId, SB_STORAGE_CONFIG } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    FlatList,
-    Image,
-    KeyboardAvoidingView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import Modal from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-interface Comment {
-  id: string;
-  author: string;
-  content: string;
-  avatar: string;
-  parentId?: string;
-  timeCreated: Date; // Unix timestamp in milliseconds
-}
+import { Comment } from '@/services/utils';
 
 interface CommentsModalProps {
   visible: boolean;
   comments: Comment[];
   onClose: () => void;
   onPostComment: (text: string, parent?: Comment) => void;
-  currentUserAvatar: string;
 }
 
 const timeSince = (timestamp: Date) => {
@@ -50,6 +43,33 @@ const timeSince = (timestamp: Date) => {
   return `${Math.floor(secondsPast / 2592000)}mo ago`;
 };
 
+const ReplyItem = ({ reply }: { reply: Comment }) => {
+  const [replyImageUrl, setReplyImageUrl] = useState('');
+
+  useEffect(() => {
+    const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${reply.authorId}.jpg`;
+    const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+
+    Image.prefetch(profilePicUrl)
+      .then(() => setReplyImageUrl(profilePicUrl))
+      .catch(() => setReplyImageUrl(defaultPicUrl));
+  }, [reply.authorId]);
+
+  return (
+    <View key={reply.id} style={styles.replyContainer}>
+      <Image source={{ uri: replyImageUrl }} style={styles.avatarSmall} />
+      <View style={styles.replyContent}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={styles.author}>{reply.author}</Text>
+          <Text style={styles.timeText}> • {timeSince(reply.timeCreated)}</Text>
+        </View>
+        <Text>{reply.content}</Text>
+      </View>
+    </View>
+  );
+};
+
+
 const CommentItem = ({
   comment,
   replies,
@@ -62,15 +82,26 @@ const CommentItem = ({
   const [showAllReplies, setShowAllReplies] = useState(false);
 
   const sortedReplies = replies.slice().sort((a, b) => a.timeCreated.getTime() - b.timeCreated.getTime());
+  const [imageUrl, setImageUrl] = useState('');
 
   const displayedReplies = showAllReplies ? sortedReplies : sortedReplies.slice(0, 1);
   const hasMoreReplies = sortedReplies.length > 1;
+
+  useEffect(() => {
+    const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${comment.authorId}.jpg`;
+    const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+
+    // Check if the profile picture exists
+    Image.prefetch(profilePicUrl)
+      .then(() => setImageUrl(profilePicUrl)) // If it exists, use it
+      .catch(() => setImageUrl(defaultPicUrl)); // Otherwise, use the default
+  }, [comment.authorId]);
 
   return (
     <View style={{ marginBottom: 10, paddingRight: 10}}>
       {/* Main Comment */}
       <View style={{ flexDirection: 'row' }}>
-        <Image source={{ uri: comment.avatar }} style={styles.avatar} />
+        <Image source={{ uri: imageUrl }} style={styles.avatar} />
         <View style={styles.commentContent}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={styles.author}>{comment.author}</Text>
@@ -82,18 +113,11 @@ const CommentItem = ({
 
       {/* Replies */}
       <View style={{ marginLeft: 24, marginTop: 3 }}>
-        {displayedReplies.map((reply) => (
-          <View key={reply.id} style={styles.replyContainer}>
-            <Image source={{ uri: reply.avatar }} style={styles.avatarSmall} />
-            <View style={styles.replyContent}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={styles.author}>{reply.author}</Text>
-                <Text style={styles.timeText}> • {timeSince(reply.timeCreated)}</Text>
-              </View>
-              <Text>{reply.content}</Text>
-            </View>
-          </View>
-        ))}
+      {displayedReplies.map((reply) => (
+  <ReplyItem key={reply.id} reply={reply} />
+))}
+
+
 
         {hasMoreReplies && !showAllReplies && (
           <TouchableOpacity onPress={() => setShowAllReplies(true)}>
@@ -126,11 +150,11 @@ export default function CommentsModal({
   comments,
   onClose,
   onPostComment,
-  currentUserAvatar,
 }: CommentsModalProps): React.JSX.Element {
   const insets = useSafeAreaInsets();
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState<Comment | null>(null);
+  const [imageUrl, setImageUrl] = useState('');
 
   const sortedComments = comments //.slice().sort((a, b) => a.timeCreated - b.timeCreated);
 
@@ -142,6 +166,23 @@ export default function CommentsModal({
     }
     return acc;
   }, {});
+
+  useEffect(() => {
+    const fetchProfilePic = async () => {
+      try {
+        const userId = await getUserId();
+        const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${userId}.jpg`;
+        await Image.prefetch(profilePicUrl);
+        setImageUrl(profilePicUrl);
+      } catch {
+        const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+        setImageUrl(defaultPicUrl);
+      }
+    };
+  
+    fetchProfilePic();
+  }, []);
+  
 
   const handlePost = () => {
     if (text.trim()) {
@@ -155,13 +196,13 @@ export default function CommentsModal({
     <Modal
       isVisible={visible}
       onSwipeComplete={onClose}
-      swipeDirection="down"
+    //   swipeDirection="down"
       onBackdropPress={onClose}
       style={styles.modal}
       propagateSwipe
     >
       <KeyboardAvoidingView style={styles.container} behavior={'padding'}>
-        <View style={styles.dragHandle} />
+        {/* <View style={styles.dragHandle} /> */}
         <View style={styles.header}>
           <View style={{ width: 24 }} />
           <Text style={styles.title}>Comments</Text>
@@ -193,7 +234,7 @@ export default function CommentsModal({
         )}
 
         <View style={[styles.inputContainer, { paddingBottom: insets.bottom }]}>
-          <Image source={{ uri: currentUserAvatar }} style={styles.avatar} />
+          <Image source={{ uri: imageUrl }} style={styles.avatar} />
           <TextInput
             value={text}
             onChangeText={setText}
@@ -245,7 +286,8 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     color: '#666',
-    marginTop: 30,
+    marginTop: 20,
+    marginBottom: 20
   },
   commentContent: {
     flex: 1,
@@ -303,11 +345,11 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     marginLeft: 10,
-    maxHeight: 130,
+    maxHeight: 140,
     fontSize: 15,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: numbers.primaryColor,
     color: numbers.secondaryColor,
-    borderWidth: 0,
+    borderWidth: 1,
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 10,

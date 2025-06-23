@@ -43,6 +43,61 @@ export async function getAllLikedPosts(user: types.User, databaseClient: Supabas
     return {posts: await types.createPostTypeWithData(data.map(record => record.post)), album_name: 'Liked'};
 }
 
+export async function getAllLikes(
+    postId: string,
+    databaseClient: SupabaseClient<Database>
+  ): Promise<types.Like[]> {
+    const { data, error } = await databaseClient
+      .from('people_to_liked')
+      .select('person_id, usersettings!person_id (username)')
+      .eq('post_id', postId);
+  
+    if (error) {
+      console.error('Error fetching likes:', error.message);
+      throw error;
+    }
+    console.log(data)
+    // Await all avatars because createAvatarLink returns Promise<string>
+    const likes = data.map((value) => {return ({
+        id: value.person_id,
+        username: value.usersettings.username ?? '',
+        avatar: value.person_id
+      })});
+    console.log(likes)
+  
+    return likes;
+  }
+
+  export async function getAllComments(postId: string, databaseClient: SupabaseClient<Database>): 
+  Promise<types.Comment[]> {
+    const {data, error} = await databaseClient
+        .from('post_to_comment')
+        .select('id, person_id, usersettings!person_id (username), comment_content, reply_to, created_at')
+        .eq('post_id', postId);
+
+    if (error) {
+        console.error('Error fetching comments:', error.message);
+        throw error;
+    }
+
+    const comments = await Promise.all(
+        data.map((value) => ({
+            id:value.id,
+            author:value.usersettings.username ?? '',
+            authorId:value.person_id,
+            content:value.comment_content,
+            avatar:value.id,
+            parentId:value.reply_to || undefined,
+            timeCreated:new Date(value.created_at)
+        }))
+    )
+
+    return comments
+        
+  }
+  
+  
+
 export async function savePost(post: types.Post, user: types.User, databaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await databaseClient
         .from('people_to_saved')

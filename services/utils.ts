@@ -4,7 +4,23 @@ import { getUserId } from "./api";
 
 export type Post = {image: Image, caption: Text, categories: Category, ownerId: UserId, id: PostId, createdAt: Date, likeCount:number
 , likedByMe: boolean, inspiredCount: number, comments: MainComment[], linkedObject: Event | Todo};
-export interface postDetails {
+
+export type Like = {
+    id: string;
+    username: string;
+    avatar: string;
+  }
+  export type Comment = {
+    id: string;
+    author: string;
+    authorId: string;
+    content: string;
+    avatar: string;
+    parentId?: string;
+    timeCreated: Date; // Unix timestamp in milliseconds
+  }
+
+  export type postDetails = {
     postId: string;
     personID: string;
     username: string;
@@ -19,6 +35,7 @@ export interface postDetails {
     comments: number; // New prop for comments
     alreadyLiked: boolean;
     alreadySaved: boolean;
+    
 }
 export type MainComment = {id: CommentId, owner: User, content: Text, createdAt: Date, replies: ReplyComment[], deleted: boolean};
 export type ReplyComment = {id: CommentId, owner: User, content: Text, createdAt: Date, replyTo: MainComment};

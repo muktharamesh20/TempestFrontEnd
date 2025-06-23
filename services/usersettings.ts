@@ -1,5 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
+import { Image } from 'react-native';
 import { Database } from '../databasetypes';
+import { SB_STORAGE_CONFIG } from './api';
 import * as types from './utils.js';
 
 
@@ -21,6 +23,19 @@ export async function changeUsername(newUsername: string, userId: string, supaba
         console.error('Error changing username:', error.message);
         throw error;
     }
+}
+
+export async function createAvatarLink(userId: string): Promise<string> {
+    const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${userId}.jpg`;
+    const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+  
+    // Check if the profile picture exists
+    if(await Image.prefetch(profilePicUrl)) {
+        return profilePicUrl
+    }
+
+    //if it doesn't use the default
+    return defaultPicUrl
 }
 
 /**
