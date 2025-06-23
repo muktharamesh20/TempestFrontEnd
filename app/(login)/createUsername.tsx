@@ -1,16 +1,17 @@
 import { supabase } from '@/constants/supabaseClient';
+import { getUserId } from '@/services/api';
 import { changeUsername } from '@/services/usersettings';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import {
-    Alert,
-    Animated,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Animated,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -51,11 +52,13 @@ const SetUsername = ({ closeFunction }: { closeFunction: Dispatch<SetStateAction
         const { data, error } = await supabase.auth.getUser();
         if (error || !data.user) {
           Alert.alert('No session detected.');
+          supabase.auth.signOut()
           return;
         }
         const userId = data.user.id;
         await changeUsername(username.trim(), userId, supabase);
         closeFunction(false);
+        getUserId();
       } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : 'This username is already taken. Please choose another.';
         Alert.alert(errorMessage);

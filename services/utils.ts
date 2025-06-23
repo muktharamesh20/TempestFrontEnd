@@ -133,6 +133,15 @@ export async function createEventTypeWithData(eventDetails: EventDetails): Promi
     throw new NotImplementedError('createEventTypeWithData');
 }
 
+export function generateUUID(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (char) {
+      const random = Math.random() * 16 | 0;
+      const value = char === 'x' ? random : (random & 0x3 | 0x8);
+      return value.toString(16);
+    });
+  }
+  
+
 type TodoDetails = { 
     actual_time_taken: number | null;
     assigned_by: string;
@@ -186,7 +195,7 @@ type oldDetails = { created_at: string; description: string | null; event_id: st
 
 export async function createPostDetailsTypeWithData(postDetails: { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; comment_count: number;  username: string; alreadyliked: boolean; alreadysaved: boolean }[]): Promise<postDetails[]> {
     async function convertPost(post: oldDetails ): Promise<postDetails>{
-        return {postId: post.id, personID: post.owner_id, username: post.username, thoughts: post.description ?? '', taskOrEventName: post.title, myPost:post.owner_id === (await getUserId()), taskID: post.todo_id ?? undefined, eventID: post.event_id ?? undefined, hashtags: undefined, timeCreated: new Date(post.created_at), likes:post.liked_count, comments: post.comment_count, alreadyLiked: post.alreadyliked, alreadySaved: post.alreadysaved}
+        return {postId: post.id, personID: post.owner_id, username: post.username, thoughts: post.description ?? '', taskOrEventName: post.title, myPost:post.owner_id === (await getUserId().then((value) => value[0])), taskID: post.todo_id ?? undefined, eventID: post.event_id ?? undefined, hashtags: undefined, timeCreated: new Date(post.created_at), likes:post.liked_count, comments: post.comment_count, alreadyLiked: post.alreadyliked, alreadySaved: post.alreadysaved}
     }
     
     return Promise.all(postDetails.map(convertPost))

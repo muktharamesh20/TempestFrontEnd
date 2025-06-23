@@ -21,7 +21,7 @@ export async function unlikePost(postId: string, databaseClient: SupabaseClient<
         .from('people_to_liked')
         .delete()
         .eq('post_id', postId)
-        .eq('person_id', await getUserId());
+        .eq('person_id', await getUserId().then((value) => value[0]));
 
     // if (error) {
     //     console.error('Error unliking post:', error.message);

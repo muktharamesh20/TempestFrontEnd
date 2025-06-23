@@ -5,12 +5,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
-import { Image, Text, TextInput, TextStyle, TouchableOpacity, View } from 'react-native';
+import { Image, Modal, Text, TextInput, TextStyle, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { supabase } from '@/constants/supabaseClient';
 import React, { useEffect, useState } from 'react';
 import { Alert, AppState } from 'react-native';
+import AgeCheck from './ageCheck';
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -36,6 +37,7 @@ const login = () => {
   const router = useRouter();
   const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
+  const [ageCheckVisible, setAgeCheckVisible] = useState(false);
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -145,6 +147,13 @@ const login = () => {
           <Text className='text-primary text-lg font-semibold'>Help</Text>
         </TouchableOpacity>
       </View>
+
+      <Modal 
+        visible = {ageCheckVisible}
+        transparent
+      >
+        <AgeCheck closeFunction = {setAgeCheckVisible}/>
+      </Modal>
 
       {/** Entire start block */}
       <View
@@ -281,7 +290,7 @@ const login = () => {
           <Text style={{ ...baseTextStyle, fontSize: 18, fontWeight: '600', color: 'white' }}>
             Don't have an account?{' '}
           </Text>
-          <TouchableOpacity onPress={() => router.push('/login')}>
+          <TouchableOpacity onPress={() => setAgeCheckVisible(true)}>
             <Text style={{ ...baseTextStyle, fontSize: 18, fontWeight: 'bold', color: 'white', textDecorationLine: 'underline' }}>
               Sign up
             </Text>

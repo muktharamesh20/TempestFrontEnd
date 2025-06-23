@@ -13,16 +13,26 @@ export const SB_STORAGE_CONFIG = {
 //https://vjdjrmuhojwprugppufd.supabase.co/storage/v1/object/public/profile-images//blank-profile-pic.jpg
 
 export async function getUserId() {
-    const currUserId = await AsyncStorage.getItem('userId');
+    const currUserId = (await AsyncStorage.getItem('userId'))?.split(',');
     if(currUserId){
-        return currUserId
+        console.log(currUserId)
+        return [currUserId[0], currUserId[1]]
     }
     if((await (supabase.auth.getSession())).data.session){
         const actualUserId = (await supabase.auth.getUser()).data.user?.id
-        if (actualUserId){
-            await AsyncStorage.setItem('userId', actualUserId);
-            return actualUserId
-        } 
+        if(actualUserId){
+            const actualUsername = (await supabase.from('usersettings').select('username').eq('id', actualUserId)).data;
+            if (actualUsername) {
+                const username = actualUsername[0].username;
+                if (username){
+                    await AsyncStorage.setItem('userId', `${actualUserId},${username}`);
+                    console.log('done!', actualUserId, username)
+                    return [actualUserId, username]
+                } else {
+                    throw new Error('Need to set username?')
+                }
+            }
+        }
     }
     supabase.auth.signOut()
     throw new Error('No session detected!')

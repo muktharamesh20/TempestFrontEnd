@@ -9,7 +9,7 @@ import { supabase } from "@/constants/supabaseClient";
 import { getUserId } from "@/services/api";
 import { getAllComments, getAllLikes, getFeedNew } from "@/services/posts";
 import useFetch from "@/services/useFetch";
-import { Comment } from "@/services/utils";
+import { Comment, generateUUID } from "@/services/utils";
 import { useIsFocused } from "@react-navigation/native";
 import { addDays } from "date-fns";
 import { StatusBar } from "expo-status-bar";
@@ -21,7 +21,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function Home() {
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
-  const userId = getUserId();
+  const userId = getUserId().then((value) => value[0]);
 
   //modal stuff
   const [modalVisible, setModalVisible] = useState(false);
@@ -42,7 +42,7 @@ export default function Home() {
 
   const dealWithSentComment = async (text: string, parentId: Comment | undefined) => {
       const newComment = {
-      id: '1',
+      id: generateUUID(),
       author: await userId,
       authorId: await userId,
       content: text,

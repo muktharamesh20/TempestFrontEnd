@@ -170,7 +170,7 @@ export default function CommentsModal({
   useEffect(() => {
     const fetchProfilePic = async () => {
       try {
-        const userId = await getUserId();
+        const userId = await getUserId().then((value) => value[0]);;
         const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${userId}.jpg`;
         await Image.prefetch(profilePicUrl);
         setImageUrl(profilePicUrl);

@@ -1,5 +1,6 @@
 import CommentsModal from '@/components/CommentsModal';
 import { getUserId } from '@/services/api';
+import { generateUUID } from '@/services/utils';
 import { addDays } from 'date-fns';
 import React, { useState } from 'react';
 import { Text, View } from 'react-native';
@@ -62,7 +63,7 @@ const messages = () => {
 
 const [comment, setComment]=useState(commentData)
 
-  const userId = getUserId();
+  const userId = getUserId().then((value) => value[0]);;
 
   return (
     <View>
@@ -74,7 +75,7 @@ const [comment, setComment]=useState(commentData)
   onPostComment={async (text, parentId) => {
       
     const newComment = {
-    id: await userId,
+    id: generateUUID(),
     author: await userId,
     authorId: await userId,
     content: text,
