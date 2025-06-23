@@ -1,7 +1,7 @@
 import { icons } from '@/constants/icons';
 import { supabase } from '@/constants/supabaseClient';
 import { SB_STORAGE_CONFIG } from '@/services/api';
-import { likePost, unlikePost } from '@/services/posts';
+import { likePost, savePost, unlikePost, unSavePost } from '@/services/posts';
 import { Ionicons } from '@expo/vector-icons'; // Import icons from Expo Vector Icons
 import { formatDistanceToNow } from 'date-fns';
 import { default as React, useEffect, useState } from 'react';
@@ -73,6 +73,11 @@ const PostCard = ({post, onOpenModal}: postCardProps ) => {
     };
 
     const handleSavedPress = () => {
+        if(isSaved){
+            unSavePost(post.postId, supabase)
+        } else {
+            savePost(post.postId, supabase)
+        }
         setIsSaved(!isSaved); // Toggle save state
     }
 

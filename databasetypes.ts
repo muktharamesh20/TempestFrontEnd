@@ -809,7 +809,7 @@ export type Database = {
           post_id: string
         }
         Insert: {
-          person_id: string
+          person_id?: string
           post_id: string
         }
         Update: {

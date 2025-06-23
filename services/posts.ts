@@ -98,10 +98,10 @@ export async function getAllLikes(
   
   
 
-export async function savePost(post: types.Post, user: types.User, databaseClient: SupabaseClient<Database>): Promise<void> {
+export async function savePost(postId: string, databaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await databaseClient
         .from('people_to_saved')
-        .insert({ post_id: post.id, person_id: user.user_id });
+        .upsert({ post_id: postId});
 
     if (error) {
         console.error('Error saving post:', error.message);
@@ -109,12 +109,12 @@ export async function savePost(post: types.Post, user: types.User, databaseClien
     }
 }
 
-export async function unSavePost(post: types.Post, user: types.User, databaseClient: SupabaseClient<Database>): Promise<void> {
+export async function unSavePost(postId: string, databaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await databaseClient
         .from('people_to_saved')
         .delete()
-        .eq('post_id', post.id)
-        .eq('user_id', user.user_id );
+        .eq('post_id', postId)
+        .eq('person_id', (await getUserId())[0] );
 
     if (error) {
         console.error('Error unsaving post:', error.message);
