@@ -7,7 +7,7 @@ import { StoryCardDetails } from "@/components/StoryCard";
 import StoryCarosel from "@/components/StoryCarosel";
 import { supabase } from "@/constants/supabaseClient";
 import { getUserId } from "@/services/api";
-import { getAllComments, getAllLikes, getFeedNew } from "@/services/posts";
+import { addCommentToPost, getAllComments, getAllLikes, getFeedNew } from "@/services/posts";
 import useFetch from "@/services/useFetch";
 import { Comment, generateUUID } from "@/services/utils";
 import { useIsFocused } from "@react-navigation/native";
@@ -52,6 +52,9 @@ export default function Home() {
       timeCreated: new Date(Date.now())}
       
       console.log(newComment)
+      if(modalPostId){
+        addCommentToPost(modalPostId, newComment, supabase);
+      }
       setCommentData([...commentData, newComment])
     
       if (parentId) {
@@ -139,7 +142,6 @@ export default function Home() {
           scrollToOverflowEnabled={false}
         />
         {modalVisible && modalType == "comments" &&
-        
 
         <CommentsModal
         visible={modalVisible}

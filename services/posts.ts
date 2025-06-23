@@ -540,7 +540,7 @@ export async function getFeedNew(databaseClient: SupabaseClient<Database>): Prom
     return {posts: await types.createPostDetailsTypeWithData(data)};
 }
 
-export async function addCommentToPost(post: types.Post, commentDetails: { content: string; authorId: string }, databaseClient: SupabaseClient<Database>): Promise<types.Post> {
+export async function addCommentToPost(postId: string, commentDetails: types.Comment, databaseClient: SupabaseClient<Database>): Promise<void> {
     // const { error } = await databaseClient
     //     .from('comments')
     //     .insert({ post_id: post.id, ...commentDetails });
@@ -549,7 +549,14 @@ export async function addCommentToPost(post: types.Post, commentDetails: { conte
     //     console.error('Error adding comment to post:', error.message);
     //     throw error;
     // }
-    throw new Error('unimplemented');
+    const {error} = await databaseClient
+            .from('post_to_comment')
+            .insert({id: commentDetails.id, comment_content:commentDetails.content, post_id: postId, person_id:commentDetails.authorId, reply_to: commentDetails.parentId})
+
+   if (error){
+        console.error('Error adding comment to post:', error.message);
+        throw error;
+    }
 }
 
 export async function replyToComment(commentId: string, replyDetails: { content: string; authorId: string }, databaseClient: SupabaseClient<Database>): Promise<void> {
