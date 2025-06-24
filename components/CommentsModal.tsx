@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
+  AlertButton,
   FlatList,
   Image,
   KeyboardAvoidingView,
@@ -70,13 +71,35 @@ const CommentItem = ({
   }, [comment.authorId]);
 
   const handleLongPress = () => {
-    if (comment.authorId === currentUserId || postOwnerId === currentUserId) {
-      Alert.alert('Delete Comment', 'Are you sure you want to delete this comment?', [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => onDelete(comment.id) },
-      ]);
+    const isOwnComment = comment.authorId === currentUserId;
+    const isPostOwner = postOwnerId === currentUserId;
+    const isOtherUser = comment.authorId !== currentUserId;
+  
+    if (isOwnComment || isPostOwner) {
+      const actions: AlertButton[] = [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => onDelete(comment.id),
+        },
+      ];
+  
+      if (isPostOwner && isOtherUser) {
+        actions.push({
+          text: 'Block user from commenting in future',
+          style: 'cancel',
+          onPress: () => onBlock(comment.authorId),
+        });
+      }
+  
+      Alert.alert('Comment Options', 'Choose an action:', actions);
     }
   };
+  
 
   return (
     <View style={{ marginBottom: 10, paddingRight: 10 }}>
@@ -318,7 +341,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     paddingHorizontal: 16,
     paddingTop: 10,
-    maxHeight: '60%',
+    maxHeight: '80%',
     minHeight: '60%'
   },
   dragHandle: {

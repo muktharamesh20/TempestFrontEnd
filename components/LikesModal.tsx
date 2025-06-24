@@ -79,7 +79,7 @@ const LikesModal = ({ visible, likes, onClose }: LikesModalProps): React.JSX.Ele
       <KeyboardAvoidingView
         style={styles.container}
         behavior={'padding'}
-        keyboardVerticalOffset={-5}
+        keyboardVerticalOffset={0}
       >
         <View style={styles.container}>
           <View style={styles.header}>
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     maxHeight: '90%',
-    minHeight: '30%'
+    minHeight: '60%'
   },
   header: {
     flexDirection: 'row',

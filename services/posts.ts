@@ -571,6 +571,17 @@ export async function deleteCommentFromPost(comment_id: string, databaseClient: 
     }
 }
 
+export async function blockPersonFromCommenting(person_id: string, databaseClient: SupabaseClient<Database>): Promise<void> {
+    const {error} = await databaseClient
+        .from('person_to_blocked')
+        .upsert({blocked_id: person_id})
+
+    if (error){
+        console.error('Error blocking person from commenting:', error.message);
+        throw error;
+    }
+}
+
 export async function replyToComment(commentId: string, replyDetails: { content: string; authorId: string }, databaseClient: SupabaseClient<Database>): Promise<void> {
     // const { error } = await databaseClient
     //     .from('comment_replies')

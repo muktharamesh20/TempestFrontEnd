@@ -7,7 +7,7 @@ import { StoryCardDetails } from "@/components/StoryCard";
 import StoryCarosel from "@/components/StoryCarosel";
 import { supabase } from "@/constants/supabaseClient";
 import { getUserId } from "@/services/api";
-import { addCommentToPost, deleteCommentFromPost, getAllComments, getAllLikes, getFeedNew } from "@/services/posts";
+import { addCommentToPost, blockPersonFromCommenting, deleteCommentFromPost, getAllComments, getAllLikes, getFeedNew } from "@/services/posts";
 import useFetch from "@/services/useFetch";
 import { Comment, generateUUID } from "@/services/utils";
 import { useIsFocused } from "@react-navigation/native";
@@ -128,7 +128,7 @@ export default function Home() {
   }
 
   const handleBlockedPerson = (person_id: string) => {
-    throw new Error('unimplemented');
+    blockPersonFromCommenting(person_id, supabase);
   }
 
   return (

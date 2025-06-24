@@ -903,6 +903,36 @@ export type Database = {
           },
         ]
       }
+      person_to_blocked: {
+        Row: {
+          blocked_id: string
+          person_id: string
+        }
+        Insert: {
+          blocked_id: string
+          person_id?: string
+        }
+        Update: {
+          blocked_id?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "person_to_blocked_blocked_id_fkey"
+            columns: ["blocked_id"]
+            isOneToOne: false
+            referencedRelation: "usersettings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "person_to_blocked_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "usersettings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post: {
         Row: {
           created_at: string
@@ -1307,31 +1337,19 @@ export type Database = {
       usersettings: {
         Row: {
           bio: string | null
-          email: string | null
-          first_name: string | null
           id: string
-          last_name: string | null
-          middle_name: string | null
           public_or_private: string
           username: string | null
         }
         Insert: {
           bio?: string | null
-          email?: string | null
-          first_name?: string | null
           id?: string
-          last_name?: string | null
-          middle_name?: string | null
           public_or_private?: string
           username?: string | null
         }
         Update: {
           bio?: string | null
-          email?: string | null
-          first_name?: string | null
           id?: string
-          last_name?: string | null
-          middle_name?: string | null
           public_or_private?: string
           username?: string | null
         }
