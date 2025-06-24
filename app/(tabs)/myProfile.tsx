@@ -1,5 +1,5 @@
 import ProfileHeader from '@/components/ProfileHeader';
-import { SB_STORAGE_CONFIG } from '@/services/api';
+import { getUserId, SB_STORAGE_CONFIG } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
@@ -15,8 +15,6 @@ interface PostPreview {
 
 interface UserProfile {
   username: string;
-  firstName: string;
-  lastName: string;
   bio: string;
   personID: string;
 }
@@ -51,35 +49,49 @@ export default function MyProfile() {
   const [postRows, setPostRows] = useState<PostPreview[][]>([]);
   const [activeTab, setActiveTab] = useState<'posts' | 'saved'>('posts');
   const isFocused = useIsFocused();
+  const [profilePicture, setImageUrl] = useState('');
 
   useEffect(() => {
-    setUser({
-      username: 'muktha001',
-      firstName: 'Muktha',
-      lastName: 'Patel',
-      bio: 'Building cool stuff. MIT ’28.',
-      personID: 'uuid-of-user',
-    });
+    const fetchUserAndPosts = async () => {
+      try {
+        const userDetails = await getUserId();
 
-    // Simulate grouped posts into rows of 5
-    const dummyPosts = Array.from({ length: 30 }, (_, i) => ({
-      postId: `${i + 1}`,
-      imageUrl: `${SB_STORAGE_CONFIG.BASE_URL}post${(i % 3) + 1}.jpg`,
-      likes: 100 + i,
-      comments: 10 + i,
-    }));
+        setUser({
+          username: userDetails[1], // Assuming getUserId returns [id, username]
+          bio: 'Building cool stuff. MIT ’28.',
+          personID: userDetails[0],
+        });
 
-    const grouped = [];
-    for (let i = 0; i < dummyPosts.length; i += 5) {
-      grouped.push(dummyPosts.slice(i, i + 5));
+        // Simulate grouped posts into rows of 5
+        const dummyPosts = Array.from({ length: 30 }, (_, i) => ({
+          postId: `${i + 1}`,
+          imageUrl: `${SB_STORAGE_CONFIG.BASE_URL}post${(i % 3) + 1}.jpg`,
+          likes: 100 + i,
+          comments: 10 + i,
+        }));
+
+        const grouped = [];
+        for (let i = 0; i < dummyPosts.length; i += 5) {
+          grouped.push(dummyPosts.slice(i, i + 5));
+        }
+
+        setPostRows(grouped);
+      } catch (error) {
+        console.error('Error fetching user or posts:', error);
+      }
+    };
+
+    if (isFocused) {
+    const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${user?.personID}.jpg`;
+    const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+      fetchUserAndPosts();
+      Image.prefetch(profilePicUrl)
+      .then(() => setImageUrl(profilePicUrl))
+      .catch(() => setImageUrl(defaultPicUrl));
     }
-
-    setPostRows(grouped);
-  }, []);
+  }, [isFocused]);
 
   if (!user) return <Text>Loading...</Text>;
-
-  const profilePic = `${SB_STORAGE_CONFIG.BASE_URL}${user.personID}.jpg`;
 
   const renderRow = ({ item: row }: { item: PostPreview[] }) => (
     <View>
@@ -131,7 +143,7 @@ export default function MyProfile() {
               {/* Profile Info */}
               <View className="flex-row px-4 items-center pt-4">
                 <Image
-                  source={{ uri: profilePic }}
+                  source={{ uri: profilePicture }}
                   className="w-[80px] h-[80px] rounded-full border"
                   resizeMode="cover"
                 />
@@ -154,7 +166,7 @@ export default function MyProfile() {
               {/* Name + Bio */}
               <View className="px-4 pt-2">
                 <Text className="font-semibold text-sm">
-                  {user.firstName} {user.lastName}
+                  {user.username}
                 </Text>
                 <Text className="text-sm text-black">{user.bio}</Text>
               </View>

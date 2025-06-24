@@ -1,5 +1,5 @@
 import { numbers } from '@/constants/numbers';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     LayoutChangeEvent,
     Pressable,
@@ -208,6 +208,41 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
       );
     });
   };
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+  const interval = setInterval(() => {
+    setCurrentTime(new Date());
+  }, 60 * 1000); // update every minute
+
+  return () => clearInterval(interval);
+}, []);
+
+
+  const renderCurrentTimeLine = ({extraMargin} : {extraMargin: number}) => {
+    const dayStart = new Date();
+    dayStart.setHours(0, 0, 0, 0);
+  
+    const minutesSinceStart =
+      (currentTime.getHours() * 60 + currentTime.getMinutes());
+    const top = (minutesSinceStart / 60) * hourHeight + extraMargin;
+  
+    return (
+      <View
+        style={[
+          styles.currentTimeLine,
+          {
+            top: top,
+            marginLeft: 5,
+            width: containerWidth,
+          },
+        ]}
+      >
+        <View style={styles.currentTimeDot} />
+        <View style={styles.currentTimeBar} />
+      </View>
+    );
+  };
   
   
   
@@ -368,6 +403,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
               </View>
             ))}
             {renderEvents()}
+            {renderCurrentTimeLine({extraMargin: 0})}
           </View>
         </ScrollView>
       </Animated.View>
@@ -451,6 +487,23 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
     fontSize: 12,
+  },currentTimeLine: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  currentTimeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: numbers.accentColor,
+    marginRight: 4,
+  },
+  currentTimeBar: {
+    height: 1,
+    backgroundColor: numbers.accentColor,
+    flex: 1,
   },
 });
 

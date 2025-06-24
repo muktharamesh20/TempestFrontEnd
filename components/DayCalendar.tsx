@@ -283,7 +283,12 @@ const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, han
 export default DayCalendar;
 
 
-const sampleEvents = [
+const sampleEvents: ({
+  title: string;
+  start: Date;
+  end: Date;
+  color: string;
+})[] = [
   {
     title: 'Morning Run',
     start: new Date('2025-06-24T06:00:00'),
@@ -343,13 +348,13 @@ const sampleEvents = [
     start: new Date('2025-06-24T16:00:00'),
     end: new Date('2025-06-24T17:00:00'),
     color: '#3F51B5',
-  },
-  {
-    title: 'Evening Yoga',
-    start: new Date('2025-06-23T19:00:00'),
-    end: new Date('2025-06-24T20:00:00'),
-    color: '#E91E63',
-  },{
+  }
+  // {
+  //   title: 'Evening Yoga',
+  //   start: new Date('2025-06-23T19:00:00'),
+  //   end: new Date('2025-06-24T20:00:00'),
+  //   color: '#E91E63',},
+  ,{
     title: 'Evening Yoga',
     start: new Date('2025-06-24T19:00:00'),
     end: new Date('2025-06-25T20:00:00'),
@@ -360,22 +365,24 @@ const sampleEvents = [
     start: new Date('2025-06-22T19:00:00'),
     end: new Date('2025-06-26T20:00:00'),
     color: '#E91E63',
-  },{
-    title: 'Evening Yoga',
-    start: new Date('2025-06-22T19:00:00'),
-    end: new Date('2025-06-26T20:00:00'),
-    color: '#E91E63',
-  },{
-    title: 'Evening Yoga',
-    start: new Date('2025-06-22T19:00:00'),
-    end: new Date('2025-06-26T20:00:00'),
-    color: '#E91E63',
-  },{
-    title: 'Evening Yoga',
-    start: new Date('2025-06-22T19:00:00'),
-    end: new Date('2025-06-26T20:00:00'),
-    color: '#E91E63',
-  },
+  }
+  //{
+  //   title: 'Evening Yoga',
+  //   start: new Date('2025-06-22T19:00:00'),
+  //   end: new Date('2025-06-26T20:00:00'),
+  //   color: '#E91E63',
+  // },
+  // {
+  //   title: 'Evening Yoga',
+  //   start: new Date('2025-06-22T19:00:00'),
+  //   end: new Date('2025-06-26T20:00:00'),
+  //   color: '#E91E63',
+  // },{
+  //   title: 'Evening Yoga',
+  //   start: new Date('2025-06-22T19:00:00'),
+  //   end: new Date('2025-06-26T20:00:00'),
+  //   color: '#E91E63',
+  // },
 ];
 
 

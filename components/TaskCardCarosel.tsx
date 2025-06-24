@@ -20,7 +20,7 @@ const TaskCardCarosel = ({ taskCards }: StoryCaroselProps) => {
 
   return (
     <ScrollView
-      className="pl-2 pt-3 mb-0 flex-1 w-full h-full pb-3"
+      className="pl-2 pt-3 mb-0 flex-1 w-full h-full pb-3 "
       horizontal
       showsHorizontalScrollIndicator={false}
     >

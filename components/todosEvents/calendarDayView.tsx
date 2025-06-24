@@ -1,5 +1,5 @@
 import { numbers } from '@/constants/numbers';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   LayoutChangeEvent,
   Pressable,
@@ -49,6 +49,15 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
 }) => {
   const [hourHeight, setHourHeight] = useState<number>(INITIAL_HEIGHT);
   const baseHeight = useSharedValue(INITIAL_HEIGHT);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCurrentTime(new Date());
+  }, 120 * 1000); // update every 2 minutes
+
+  return () => clearInterval(interval);
+}, []);
 
   const [containerWidth, setContainerWidth] = useState<number>(0);
 
@@ -91,305 +100,6 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     const end = new Date(event.end);
     return start <= dayStart && end >= dayEnd;
   };
-
-  // Separate all-day events and timed events
-  // const renderEvents = () => {
-  //   const dayStart = new Date();
-  //   dayStart.setHours(0, 0, 0, 0);
-  //   const dayEnd = new Date();
-  //   dayEnd.setHours(23, 59, 59, 999);
-
-  //   // Separate all-day and timed events
-  //   const allDayEvents = events.filter((event) => {
-  //     const start = new Date(event.start);
-  //     const end = new Date(event.end);
-  //     return start <= dayStart && end >= dayEnd;
-  //   });
-
-  //   const timedEvents = events.filter((event) => {
-  //     const start = new Date(event.start);
-  //     const end = new Date(event.end);
-  //     return !(start <= dayStart && end >= dayEnd);
-  //   });
-
-    
-
-  //   // Calculate dynamic total height for all-day events stack
-  //   const allDayStackHeight = allDayEvents.length * ALL_DAY_EVENT_SINGLE_HEIGHT;
-
-  //   // Render all-day events stacked at the top, full width, no left margin
-  //   const allDayEventComponents = allDayEvents.map((event, index) => {
-  //     const top = index * ALL_DAY_EVENT_SINGLE_HEIGHT; // stack each event vertically
-  //     const width = containerWidth; // full width
-  //     const fontSize = getFontSize(hourHeight, 11, 14);
-
-  //     return (
-  //       <Pressable
-  //         key={`allday-${index}`}
-  //         style={[
-  //           styles.event,
-  //           {
-  //             top,
-  //             height: ALL_DAY_EVENT_SINGLE_HEIGHT,
-  //             left: 0, // full width, no left margin
-  //             width,
-  //             right: undefined,
-  //           },
-  //         ]}
-  //         onPress={() => onEventPress(event)}
-  //       >
-  //         <View
-  //           style={[styles.colorStrip, { backgroundColor: event.color || '#999' }]}
-  //         />
-  //         <View style={styles.eventContent}>
-  //           <Text style={[styles.eventTitle, { fontSize }]} numberOfLines={1}>
-  //             {event.title}
-  //           </Text>
-  //         </View>
-  //       </Pressable>
-  //     );
-  //   });
-
-  //   // Group timed events as before
-  //   const sortedTimedEvents = [...timedEvents].sort(
-  //     (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
-  //   );
-
-  //   const groups: EventItem[][] = [];
-
-  //   sortedTimedEvents.forEach((event) => {
-  //     const eventStart = new Date(event.start).getTime();
-  //     const eventEnd = new Date(event.end).getTime();
-
-  //     let added = false;
-  //     for (const group of groups) {
-  //       if (
-  //         group.some(
-  //           (e) =>
-  //             !(
-  //               new Date(e.end).getTime() <= eventStart ||
-  //               new Date(e.start).getTime() >= eventEnd
-  //             )
-  //         )
-  //       ) {
-  //         group.push(event);
-  //         added = true;
-  //         break;
-  //       }
-  //     }
-  //     if (!added) {
-  //       groups.push([event]);
-  //     }
-  //   });
-
-  //   // Render timed events positioned below the all-day stack
-  //   const timedEventComponents = sortedTimedEvents.map((event, index) => {
-  //     const group = groups.find((g) => g.includes(event))!;
-  //     const groupSize = group.length;
-  //     const columnIndex = group.indexOf(event);
-
-  //     const start = new Date(event.start);
-  //     const end = new Date(event.end);
-
-  //     // Start time offset by the height of all-day events stack
-  //     const top =
-  //       (start.getHours() + start.getMinutes() / 60) * hourHeight +
-  //       allDayStackHeight + 5;
-
-  //     const height =
-  //       ((end.getTime() - start.getTime()) / (1000 * 60 * 60)) * hourHeight;
-
-  //     const totalAvailableWidth = containerWidth - EVENT_LEFT_START - 10;
-  //     const eventWidth = groupSize > 0 ? totalAvailableWidth / groupSize : totalAvailableWidth;
-  //     const left = EVENT_LEFT_START + eventWidth * columnIndex;
-
-  //     const fontSizeTitle = getFontSize(hourHeight, 11, 17);
-  //     const fontSizeTime = getFontSize(hourHeight, 11, 17);
-
-  //     return (
-  //       <Pressable
-  //         key={`timed-${index}`}
-  //         style={[
-  //           styles.event,
-  //           {
-  //             top,
-  //             height,
-  //             left,
-  //             width: eventWidth,
-  //             right: undefined,
-  //           },
-  //         ]}
-  //         onPress={() => onEventPress(event)}
-  //       >
-  //         <View
-  //           style={[styles.colorStrip, { backgroundColor: event.color || '#999' }]}
-  //         />
-  //         <View style={styles.eventContent}>
-  //           <Text style={[styles.eventTitle, { fontSize: fontSizeTitle }]}>
-  //             {event.title}
-  //           </Text>
-  //           {hourHeight >= SHOW_TIME_THRESHOLD && (
-  //             <Text style={[styles.eventTime, { fontSize: fontSizeTime }]}>
-  //               {`${start.getHours()}:${start.getMinutes().toString().padStart(2, '0')} - ${end.getHours()}:${end.getMinutes().toString().padStart(2, '0')}`}
-  //             </Text>
-  //           )}
-  //         </View>
-  //       </Pressable>
-  //     );
-  //   });
-
-  //   return [...allDayEventComponents, ...timedEventComponents];
-  // };
-
-  // const renderEvents = () => {
-  //   const dayStart = new Date();
-  //   dayStart.setHours(0, 0, 0, 0);
-  //   const dayEnd = new Date();
-  //   dayEnd.setHours(23, 59, 59, 999);
-  
-  //   const allDayEvents = events.filter((event) => {
-  //     const start = new Date(event.start);
-  //     const end = new Date(event.end);
-  //     return start <= dayStart && end >= dayEnd;
-  //   });
-  
-  //   const timedEvents = events.filter((event) => {
-  //     const start = new Date(event.start);
-  //     const end = new Date(event.end);
-  //     return !(start <= dayStart && end >= dayEnd);
-  //   });
-  
-  //   const allDayStackHeight = allDayEvents.length * ALL_DAY_EVENT_SINGLE_HEIGHT;
-  
-  //   const allDayEventComponents = allDayEvents.map((event, index) => {
-  //     const top = index * ALL_DAY_EVENT_SINGLE_HEIGHT;
-  //     const width = containerWidth;
-  //     const fontSize = getFontSize(hourHeight, 11, 14);
-  
-  //     return (
-  //       <Pressable
-  //         key={`allday-${index}`}
-  //         style={[
-  //           styles.event,
-  //           {
-  //             top,
-  //             height: ALL_DAY_EVENT_SINGLE_HEIGHT,
-  //             left: 0,
-  //             width,
-  //             right: undefined,
-  //           },
-  //         ]}
-  //         onPress={() => onEventPress(event)}
-  //       >
-  //         <View
-  //           style={[styles.colorStrip, { backgroundColor: event.color || '#999' }]}
-  //         />
-  //         <View style={styles.eventContent}>
-  //           <Text style={[styles.eventTitle, { fontSize }]} numberOfLines={1}>
-  //             {event.title}
-  //           </Text>
-  //         </View>
-  //       </Pressable>
-  //     );
-  //   });
-  
-  //   const sortedTimedEvents = [...timedEvents].sort(
-  //     (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
-  //   );
-  
-  //   const groups: EventItem[][] = [];
-  
-  //   sortedTimedEvents.forEach((event) => {
-  //     const eventStart = new Date(event.start).getTime();
-  //     const eventEnd = new Date(event.end).getTime();
-  
-  //     let added = false;
-  //     for (const group of groups) {
-  //       if (
-  //         group.some(
-  //           (e) =>
-  //             !(
-  //               new Date(e.end).getTime() <= eventStart ||
-  //               new Date(e.start).getTime() >= eventEnd
-  //             )
-  //         )
-  //       ) {
-  //         group.push(event);
-  //         added = true;
-  //         break;
-  //       }
-  //     }
-  //     if (!added) {
-  //       groups.push([event]);
-  //     }
-  //   });
-  
-  //   const timedEventComponents = sortedTimedEvents.map((event, index) => {
-  //     const group = groups.find((g) => g.includes(event))!;
-  //     const groupSize = group.length;
-  //     const columnIndex = group.indexOf(event);
-  
-  //     const start = new Date(event.start);
-  //     const end = new Date(event.end);
-  
-  //     const visibleStart = new Date(Math.max(start.getTime(), dayStart.getTime()));
-  //     const visibleEnd = new Date(Math.min(end.getTime(), dayEnd.getTime()));
-  
-  //     const top =
-  //       ((visibleStart.getHours() + visibleStart.getMinutes() / 60) * hourHeight) +
-  //       allDayStackHeight +
-  //       5;
-  
-  //     const durationHours =
-  //       (visibleEnd.getTime() - visibleStart.getTime()) / (1000 * 60 * 60);
-  //     const height = durationHours * hourHeight;
-  
-  //     const totalAvailableWidth = containerWidth - EVENT_LEFT_START - 10;
-  //     const eventWidth = groupSize > 0 ? totalAvailableWidth / groupSize : totalAvailableWidth;
-  //     const left = EVENT_LEFT_START + eventWidth * columnIndex;
-  
-  //     const fontSizeTitle = getFontSize(hourHeight, 11, 17);
-  //     const fontSizeTime = getFontSize(hourHeight, 11, 17);
-  
-  //     return (
-  //       <Pressable
-  //         key={`timed-${index}`}
-  //         style={[
-  //           styles.event,
-  //           {
-  //             top,
-  //             height,
-  //             left,
-  //             width: eventWidth,
-  //             right: undefined,
-  //           },
-  //         ]}
-  //         onPress={() => onEventPress(event)}
-  //       >
-  //         <View
-  //           style={[styles.colorStrip, { backgroundColor: event.color || '#999' }]}
-  //         />
-  //         <View style={styles.eventContent}>
-  //           <Text style={[styles.eventTitle, { fontSize: fontSizeTitle }]}>
-  //             {event.title}
-  //           </Text>
-  //           {hourHeight >= SHOW_TIME_THRESHOLD && (
-  //             <Text style={[styles.eventTime, { fontSize: fontSizeTime }]}>
-  //               {`${start.getHours().toString().padStart(2, '0')}:${start.getMinutes()
-  //                 .toString()
-  //                 .padStart(2, '0')} - ${end.getHours().toString().padStart(2, '0')}:${end
-  //                 .getMinutes()
-  //                 .toString()
-  //                 .padStart(2, '0')}`}
-  //             </Text>
-  //           )}
-  //         </View>
-  //       </Pressable>
-  //     );
-  //   });
-  
-  //   return [...allDayEventComponents, ...timedEventComponents];
-  // };
 
   const renderEvents = () => {
     const dayStart = new Date();
@@ -588,6 +298,31 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
   
     return [...allDayEventComponents, ...timedEventComponents];
   };
+
+  const renderCurrentTimeLine = ({extraMargin} : {extraMargin: number}) => {
+    const dayStart = new Date();
+    dayStart.setHours(0, 0, 0, 0);
+  
+    const minutesSinceStart =
+      (currentTime.getHours() * 60 + currentTime.getMinutes());
+    const top = (minutesSinceStart / 60) * hourHeight + extraMargin;
+  
+    return (
+      <View
+        style={[
+          styles.currentTimeLine,
+          {
+            top: top,
+            marginLeft: 5,
+            width: containerWidth,
+          },
+        ]}
+      >
+        <View style={styles.currentTimeDot} />
+        <View style={styles.currentTimeBar} />
+      </View>
+    );
+  };
   
   
   const buildOverlappingGroups = (events: EventItem[]) => {
@@ -642,6 +377,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
         {/* Container height: all-day section + 24 hours * hourHeight */}
         <View style={{ height: allDayStackHeight + hourHeight * 24 }}>
           <View style={styles.hourContainer}>
+            
             {/* Hour labels shifted down by all-day height */}
             {hours.map((hour, idx) => (
               <View
@@ -652,7 +388,12 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
               </View>
             ))}
 
-            {renderEvents()}
+            {/*timeLabel*/}
+            <View onLayout={onLayout} style={{ flex: 1 }}>
+              {renderCurrentTimeLine({extraMargin: (allDayEventsCount + 20)})}
+              {renderEvents()}
+            </View>
+
           </View>
         </View>
       </Animated.View>
@@ -711,7 +452,8 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderTopWidth: 1,
+    borderColor: numbers.divider,
     backgroundColor: '#f9f9f9',
     flexDirection: 'row',
     alignItems: 'center',
@@ -721,6 +463,23 @@ const styles = StyleSheet.create({
   allDayText: {
     fontWeight: 'bold',
     color: '#222',
+  },currentTimeLine: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  currentTimeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'blue',
+    marginRight: 4,
+  },
+  currentTimeBar: {
+    height: 1,
+    backgroundColor: 'blue',
+    flex: 1,
   },
 });
 
@@ -744,3 +503,40 @@ const doesEventIntersectDay = (start: Date, end: Date, dayStart: Date, dayEnd: D
 const isAllDayEvent = (start: Date, end: Date, dayStart: Date, dayEnd: Date) =>
   start <= dayStart && end >= dayEnd;
 export default CalendarDayView;
+
+
+
+import { format } from 'date-fns';
+
+export const CurrentTimeIndicator = ({ day }: { day: Date }) => {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 60 * 1000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
+
+  // Only show line if viewing today
+  const isToday = format(now, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
+  if (!isToday) return null;
+
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const totalMinutes = hour * 60 + minute;
+
+  const topPosition = (totalMinutes / 60) * 60; // 60px = 1 hour (adjust if different)
+
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        top: topPosition,
+        left: 0,
+        right: 0,
+        height: 2,
+        backgroundColor: 'blue',
+        zIndex: 10,
+      }}
+    />
+  );
+};

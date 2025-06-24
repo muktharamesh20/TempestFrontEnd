@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   },
   dropdownWrapper: {
     flex: 1,
-    marginHorizontal: 4,
+    marginHorizontal: 2,
     backgroundColor: '#1A466B',
     borderRadius: 10,
     overflow: 'hidden',
