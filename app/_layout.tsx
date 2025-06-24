@@ -6,6 +6,7 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Modal, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import SetUsername from "./(login)/createUsername";
 import './globals.css';
 
@@ -91,13 +92,16 @@ export default function RootLayout() {
   // Optional loading indicator while checking session or username
   if (loading) {
     return (
+      <GestureHandlerRootView style={{ flex: 1 }}> {/* ✅ WRAP THIS TOO */}
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator />
       </View>
+      </GestureHandlerRootView>
     );
   }
 
   return (
+    <GestureHandlerRootView>
     <>
       <Stack>
         <Stack.Screen
@@ -125,5 +129,6 @@ export default function RootLayout() {
         </LinearGradient>
       </Modal>
     </>
+    </GestureHandlerRootView>
   );
 }

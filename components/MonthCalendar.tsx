@@ -13,8 +13,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CalendarDrawer, { drawerProps } from './CalendarDrawer'; // Adjust the import path as needed
+import { TaskCardDetails } from './TaskCard';
+import TaskCardCarosel from './TaskCardCarosel';
+import CalendarMonthView from './todosEvents/calendarMonthView';
 
 interface calendarProps {
   viewingDate: Date;
@@ -229,6 +233,18 @@ const MonthCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, h
 
     </View>
 
+          {/* Main Content Area */}
+          <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor}}>
+      {/* Placeholder for main content */}
+      {/* <Text className="text-black text-lg">Main content goes here</Text> */}
+      {/* <DayViewCalendar day={focusedDay} categoriesShown = {categories}/> */}
+      <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
+      <CalendarMonthView
+      events={sampleEvents}
+      onEventPress={(event) => console.log('Pressed event:', event)}
+      />
+    </ScrollView>
+
      {/* Overlay and Drawer */}
      {menuOpen && (
         <>
@@ -277,3 +293,157 @@ const MonthCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, h
 };
 
 export default MonthCalendar;
+
+
+const sampleEvents = [
+  {
+    title: 'Morning Run',
+    start: new Date('2025-06-24T06:00:00'),
+    end: new Date('2025-06-24T07:00:00'),
+    color: '#4CAF50',
+  },
+  {
+    title: 'Team Stand-up Meeting',
+    start: new Date('2025-06-24T09:15:00'),
+    end: new Date('2025-06-24T09:30:00'),
+    color: '#2196F3',
+  },
+  {
+    title: 'Morning Run',
+    start: new Date('2025-06-24T06:00:00'),
+    end: new Date('2025-06-24T07:00:00'),
+    color: '#4CAF50',
+  },
+  {
+    title: 'Team Stand-up Meeting',
+    start: new Date('2025-06-24T09:00:00'),
+    end: new Date('2025-06-24T09:30:00'),
+    color: '#2196F3',
+  },
+  {
+    title: 'Morning Run',
+    start: new Date('2025-06-24T06:00:00'),
+    end: new Date('2025-06-24T07:00:00'),
+    color: '#4CAF50',
+  },
+  {
+    title: 'Team Stand-up Meeting',
+    start: new Date('2025-06-24T09:20:00'),
+    end: new Date('2025-06-24T09:35:00'),
+    color: '#2196F3',
+  },
+  {
+    title: 'Work Session: UI Design',
+    start: new Date('2025-06-24T10:00:00'),
+    end: new Date('2025-06-24T12:00:00'),
+    color: '#FFC107',
+  },
+  {
+    title: 'Lunch with Sarah',
+    start: new Date('2025-06-24T12:30:00'),
+    end: new Date('2025-06-24T13:30:00'),
+    color: '#FF5722',
+  },
+  {
+    title: 'Doctor Appointment',
+    start: new Date('2025-06-24T15:00:00'),
+    end: new Date('2025-06-24T15:45:00'),
+    color: '#9C27B0',
+  },
+  {
+    title: 'Project Review Call',
+    start: new Date('2025-06-24T16:00:00'),
+    end: new Date('2025-06-24T17:00:00'),
+    color: '#3F51B5',
+  },
+  {
+    title: 'Evening Yoga',
+    start: new Date('2025-06-24T19:00:00'),
+    end: new Date('2025-06-24T20:00:00'),
+    color: '#E91E63',
+  },{
+    title: 'Morning Workout',
+    start: new Date('2025-06-23T06:30:00'),
+    end: new Date('2025-06-23T07:30:00'),
+    color: '#4CAF50',
+  },
+  {
+    title: 'Team Standup',
+    start: new Date('2025-06-24T09:00:00'),
+    end: new Date('2025-06-24T09:30:00'),
+    color: '#2196F3',
+  },
+  {
+    title: 'Lunch with Alex',
+    start: new Date('2025-06-25T12:00:00'),
+    end: new Date('2025-06-25T13:00:00'),
+    color: '#FFC107',
+  },
+  {
+    title: 'Project Meeting',
+    start: new Date('2025-06-25T15:00:00'),
+    end: new Date('2025-06-25T16:30:00'),
+    color: '#9C27B0',
+  },
+  {
+    title: 'Dentist Appointment',
+    start: new Date('2025-06-26T11:00:00'),
+    end: new Date('2025-06-26T11:45:00'),
+    color: '#E91E63',
+  },
+  {
+    title: 'Date Night',
+    start: new Date('2025-06-27T19:00:00'),
+    end: new Date('2025-06-27T21:30:00'),
+    color: '#F44336',
+  },
+  {
+    title: 'Weekend Hike',
+    start: new Date('2025-06-29T08:00:00'),
+    end: new Date('2025-06-29T10:00:00'),
+    color: '#3F51B5',
+  },{
+    title: 'Date Night',
+    start: new Date('2025-06-28T19:00:00'),
+    end: new Date('2025-06-28T21:30:00'),
+    color: '#F44336',
+  },
+];
+
+
+
+const storyCardDetails1: TaskCardDetails = { 
+  personID: "1", 
+  taskID: "h", 
+  groupName: "Gym ofc 🏋️", 
+  taskName: "little rhea kid gym day", 
+  mytask: true, 
+  backlog: false, 
+  dueDay: new Date("2025-06-19T00:00:00Z"),
+  accomplished: false,
+}
+
+const storyCardDetails2: TaskCardDetails = { 
+  personID: "2", 
+  eventID: "g",
+  username: "umamageswari", 
+  groupName: "Gym ofc 🏋️", 
+  taskName: "little rhea kid gym day", 
+  mytask: true, 
+  backlog: false, 
+  dueDay: new Date("2025-06-17T00:00:00Z"), 
+  accomplished: true,
+}
+
+const storyCardDetails3: TaskCardDetails = { 
+  personID: "2", 
+  taskID: "g",
+  username: "umamageswari", 
+  groupName: "Gym ofc 🏋️", 
+  taskName: "little rhea kid gym day", 
+  mytask: false, 
+  backlog: true,
+  accomplished: false,
+}
+
+

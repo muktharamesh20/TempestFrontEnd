@@ -1,3 +1,4 @@
+import { numbers } from '@/constants/numbers';
 import { Link } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   innerBox: {
-    backgroundColor: '#F9F8F5',
+    backgroundColor: numbers.primaryColor,
     borderRadius: 10,
   }
 });
