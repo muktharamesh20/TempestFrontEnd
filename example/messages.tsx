@@ -1,5 +1,4 @@
 import Avatar from '@/components/supabaseAvatar';
-import EventModal from '@/components/todosEvents/eventModal';
 import { supabase } from '@/constants/supabaseClient';
 import { resetUserId } from '@/services/api';
 import { addDays } from 'date-fns';
@@ -73,13 +72,9 @@ const [userIdAvatar, setUserId] = React.useState<string | null>(null)
     fetchUserId()
   }, [])
 
-  const [showModal, setShowModal] = useState(true);
-
   return (
     <View>
       <Text>messages</Text>
-      <EventModal visible={showModal} onClose={() => setShowModal(false)} />
-
       {/* <CommentsModal
   visible={showComments}
   comments={comment}
