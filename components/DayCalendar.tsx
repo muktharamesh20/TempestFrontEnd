@@ -230,6 +230,7 @@ const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, han
       <CalendarDayView
       events={sampleEvents}
       onEventPress={(event) => console.log('Pressed event:', event)}
+      day = {focusedDay}
       />
     </ScrollView>
 
@@ -317,7 +318,7 @@ const sampleEvents: ({
     title: 'Morning Run',
     start: new Date('2025-06-24T06:00:00'),
     end: new Date('2025-06-24T07:00:00'),
-    color: '#4CAF50',
+    color: '#2196F3',
   },
   {
     title: 'Team Stand-up Meeting',

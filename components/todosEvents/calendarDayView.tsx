@@ -28,6 +28,7 @@ interface EventItem {
 interface CalendarDayViewProps {
   events: EventItem[];
   onEventPress: (event: EventItem) => void;
+  day: Date;
 }
 
 const hours = Array.from({ length: 24 }, (_, i) =>
@@ -46,6 +47,7 @@ const ALL_DAY_EVENT_SINGLE_HEIGHT = 24;
 const CalendarDayView: React.FC<CalendarDayViewProps> = ({
   events,
   onEventPress,
+  day
 }) => {
   const [hourHeight, setHourHeight] = useState<number>(INITIAL_HEIGHT);
   const baseHeight = useSharedValue(INITIAL_HEIGHT);
@@ -101,31 +103,44 @@ useEffect(() => {
     return start <= dayStart && end >= dayEnd;
   };
 
-  const renderEvents = () => {
-    const dayStart = new Date();
+  const renderEvents = (numEvents: number, setNumStack: React.Dispatch<React.SetStateAction<number>>) => {
+    const dayStart = new Date(day);
     dayStart.setHours(0, 0, 0, 0);
-    const dayEnd = new Date();
+    const dayEnd = new Date(day);
     dayEnd.setHours(23, 59, 59, 999);
+
+    const eventsForTheDay = events.filter(event => {
+      const start = new Date(event.start);
+      const end = new Date(event.end);
+      return end >= dayStart && start <= dayEnd;
+    });
+    
   
-    const allDayEvents = events.filter((event) => {
+    const allDayEvents = eventsForTheDay.filter(event => {
       const start = new Date(event.start);
       const end = new Date(event.end);
       return start <= dayStart && end >= dayEnd;
     });
+    
   
-    const timedEvents = events.filter((event) => {
+    const timedEvents = eventsForTheDay.filter(event => {
       const start = new Date(event.start);
       const end = new Date(event.end);
       return !(start <= dayStart && end >= dayEnd);
     });
+    
   
     const allDayStackHeight = allDayEvents.length * ALL_DAY_EVENT_SINGLE_HEIGHT;
+    if (allDayEvents.length !== numEvents){
+      setNumStack(allDayEvents.length);
+    }
+    
   
     const allDayEventComponents = allDayEvents.map((event, index) => {
       const top = index * ALL_DAY_EVENT_SINGLE_HEIGHT;
       const width = containerWidth;
       const fontSize = getFontSize(hourHeight, 11, 14);
-  
+      
       return (
         <Pressable
           key={`allday-${index}`}
@@ -370,6 +385,9 @@ useEffect(() => {
   }).length;
 
   const allDayStackHeight = allDayEventsCount * ALL_DAY_EVENT_SINGLE_HEIGHT;
+  console.log(allDayEventsCount)
+
+  const[numEvents, setNumStack] = useState(0);
 
   return (
     <PinchGestureHandler onGestureEvent={pinchHandler}>
@@ -382,7 +400,7 @@ useEffect(() => {
             {hours.map((hour, idx) => (
               <View
                 key={idx}
-                style={[styles.hourBlock, { height: hourHeight, top: allDayStackHeight + idx * hourHeight + 5 }]}
+                style={[styles.hourBlock, { height: hourHeight, top: numEvents * ALL_DAY_EVENT_SINGLE_HEIGHT + idx * hourHeight + 5  }]}
               >
                 <Text style={styles.hourLabel}>{hour}</Text>
               </View>
@@ -391,7 +409,7 @@ useEffect(() => {
             {/*timeLabel*/}
             <View onLayout={onLayout} style={{ flex: 1 }}>
               {renderCurrentTimeLine({extraMargin: (allDayEventsCount + 20)})}
-              {renderEvents()}
+              {renderEvents(numEvents, setNumStack)}
             </View>
 
           </View>
