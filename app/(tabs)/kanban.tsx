@@ -27,7 +27,7 @@ const kanban = () => {
 
       {/* <TodoModal visible={showModal} onClose={() => setShowModal(false)} />  */}
 
-      <Text className="font-bold text-3xl text-center text-white self-center mb-0">Kanban</Text>
+      <Text className="font-bold text-3xl text-center text-white self-center mb-0">Task Board</Text>
 
 
       <KanbanPage

@@ -35,6 +35,7 @@ export type Like = {
     comments: number; // New prop for comments
     alreadyLiked: boolean;
     alreadySaved: boolean;
+    archived: boolean;
     
 }
 export type MainComment = {id: CommentId, owner: User, content: Text, createdAt: Date, replies: ReplyComment[], deleted: boolean};
@@ -190,12 +191,12 @@ export async function createPostTypeWithData(postDetails: { created_at: string; 
     throw new NotImplementedError('createPostTypeWithData');
 }
 
-type oldDetails = { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; comment_count: number;  username: string; alreadyliked: boolean; alreadysaved: boolean};
+type oldDetails = { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; comment_count: number;  username: string; alreadyliked: boolean; alreadysaved: boolean; archived: boolean};
 
 
-export async function createPostDetailsTypeWithData(postDetails: { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; comment_count: number;  username: string; alreadyliked: boolean; alreadysaved: boolean }[]): Promise<postDetails[]> {
+export async function createPostDetailsTypeWithData(postDetails: { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; comment_count: number;  username: string; alreadyliked: boolean; alreadysaved: boolean, archived:boolean; }[]): Promise<postDetails[]> {
     async function convertPost(post: oldDetails ): Promise<postDetails>{
-        return {postId: post.id, personID: post.owner_id, username: post.username, thoughts: post.description ?? '', taskOrEventName: post.title, myPost:post.owner_id === (await getUserId().then((value) => value[0])), taskID: post.todo_id ?? undefined, eventID: post.event_id ?? undefined, hashtags: undefined, timeCreated: new Date(post.created_at), likes:post.liked_count, comments: post.comment_count, alreadyLiked: post.alreadyliked, alreadySaved: post.alreadysaved}
+        return {postId: post.id, personID: post.owner_id, username: post.username, thoughts: post.description ?? '', taskOrEventName: post.title, myPost:post.owner_id === (await getUserId().then((value) => value[0])), taskID: post.todo_id ?? undefined, eventID: post.event_id ?? undefined, hashtags: undefined, timeCreated: new Date(post.created_at), likes:post.liked_count, comments: post.comment_count, alreadyLiked: post.alreadyliked, alreadySaved: post.alreadysaved, archived: post.archived }
     }
     
     return Promise.all(postDetails.map(convertPost))

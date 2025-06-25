@@ -540,6 +540,19 @@ export async function getFeedNew(databaseClient: SupabaseClient<Database>): Prom
     return {posts: await types.createPostDetailsTypeWithData(data)};
 }
 
+
+export async function changeArchiveSettings(postId: string, archive:boolean, databaseClient: SupabaseClient<Database>): Promise<void>{
+    const {error} = await databaseClient
+                .from('post')
+                .update({'archived': archive})
+                .eq('id', postId)
+
+    if (error) {
+        console.error('Error updating archive settings:', error.message);
+        throw error;
+    }
+}
+
 export async function addCommentToPost(postId: string, commentDetails: types.Comment, databaseClient: SupabaseClient<Database>): Promise<void> {
     // const { error } = await databaseClient
     //     .from('comments')

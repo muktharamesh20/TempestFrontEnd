@@ -935,6 +935,7 @@ export type Database = {
       }
       post: {
         Row: {
+          archived: boolean
           created_at: string
           description: string | null
           event_id: string | null
@@ -948,6 +949,7 @@ export type Database = {
           todo_id: string | null
         }
         Insert: {
+          archived?: boolean
           created_at?: string
           description?: string | null
           event_id?: string | null
@@ -961,6 +963,7 @@ export type Database = {
           todo_id?: string | null
         }
         Update: {
+          archived?: boolean
           created_at?: string
           description?: string | null
           event_id?: string | null
@@ -1434,6 +1437,7 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           id: string
+          archived: boolean
           created_at: string
           description: string
           todo_id: string

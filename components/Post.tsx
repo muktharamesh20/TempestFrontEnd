@@ -1,29 +1,13 @@
 import { icons } from '@/constants/icons';
 import { supabase } from '@/constants/supabaseClient';
 import { SB_STORAGE_CONFIG } from '@/services/api';
-import { likePost, savePost, unlikePost, unSavePost } from '@/services/posts';
+import { changeArchiveSettings, likePost, savePost, unlikePost, unSavePost } from '@/services/posts';
+import { postDetails } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons'; // Import icons from Expo Vector Icons
 import { formatDistanceToNow } from 'date-fns';
 import { default as React, useEffect, useState } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
-
-export interface postDetails {
-    postId: string;
-    personID: string;
-    username: string;
-    thoughts: string;
-    taskOrEventName: string;
-    myPost: boolean;
-    taskID?: string;
-    eventID?: string;
-    hashtags?: string[];
-    timeCreated: Date;
-    likes: number; // New prop for likes
-    comments: number; // New prop for comments
-    alreadyLiked: boolean;
-    alreadySaved: boolean;
-    
-}
+import PostOptionsModal from './postModal';
 
 export interface postCardProps {
     post: postDetails;
@@ -37,6 +21,8 @@ const PostCard = ({post, onOpenModal}: postCardProps ) => {
     const [isLiked, setIsLiked] = useState(post.alreadyLiked); // State for the heart icon
     const [isSaved, setIsSaved] = useState(post.alreadySaved); // State for the bookmark icon
     const [likeCount, setLikeCount] = useState(post.likes); // State for the number of likes
+    const [showOptionsModal, setShowOptionsModal] = useState(false);
+
 
     useEffect(() => {
       const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${post.personID}.jpg`;
@@ -96,8 +82,11 @@ const PostCard = ({post, onOpenModal}: postCardProps ) => {
             </View>
 
             {post.myPost &&
-                <Image source = {icons.threeDots} className='w-[24px] h-[24px] self-center'/>
+            <TouchableOpacity onPress={() => setShowOptionsModal(true)}>
+            <Image source={icons.threeDots} className='w-[24px] h-[24px] self-center' />
+            </TouchableOpacity>
             }
+
 
             {!post.myPost &&
                 <Text className = "p-1 border border-black rounded-md text-lg mr-[-4]">Inspired By</Text>
@@ -203,6 +192,24 @@ const PostCard = ({post, onOpenModal}: postCardProps ) => {
             <Text className='text-sm text-secondary mt-[-3px] capitalize px-4 pt-1'>{getRelativeTime(post.timeCreated)}</Text>
 
             <Text className="text-xs text-secondary px-4 pb-2">View all comments</Text>
+
+            <PostOptionsModal
+            visible={showOptionsModal}
+            onClose={() => setShowOptionsModal(false)}
+            onArchiveToggle={() => {
+                // Call your archive/unarchive function here
+                post.archived = !post.archived;
+                changeArchiveSettings(post.postId, post.archived, supabase)
+                console.log(post.postId, 'archive toggle');
+            }}
+            onDelete={() => {
+                // Call your delete logic here
+                console.log(post.postId, 'deleted');
+            }}
+            isArchived={false /* optionally track this per-post */}
+            post={post}
+            />
+
         </View>
 
     </View>
