@@ -1,7 +1,9 @@
 import { numbers } from '@/constants/numbers';
 import { Calendar, CheckCircle, Clock, List, Plus, SortAsc } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Dimensions, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { TabBar, TabView } from 'react-native-tab-view';
 
 export interface TaskCardDetails {
   taskID?: string;
@@ -24,18 +26,25 @@ const TABS = ['Backlog', 'To Do', 'Done', 'Events'] as const;
 type Tab = typeof TABS[number];
 
 const addOptionIcons = [
-  <Plus color="white" size={18} />,
-  <List color="white" size={18} />,
-  <Calendar color="white" size={18} />,
-  <CheckCircle color="white" size={18} />
-];
-const sortOptionIcons = [
-  <SortAsc color="white" size={18} />,
-  <Clock color="white" size={18} />,
-  <CheckCircle color="white" size={18} />
-];
+    <Plus color="white" size={18} />,
+    <List color="white" size={18} />,
+    <Calendar color="white" size={18} />,
+    <CheckCircle color="white" size={18} />
+  ];
+  const sortOptionIcons = [
+    <SortAsc color="white" size={18} />,
+    <Clock color="white" size={18} />,
+    <CheckCircle color="white" size={18} />
+  ];
+
+const initialLayout = { width: Dimensions.get('window').width };
 
 const KanbanPage = ({ taskCards }: KanbanProps) => {
+  const [index, setIndex] = useState(1); // default to "To Do"
+  const [routes] = useState(
+    TABS.map(tab => ({ key: tab, title: tab }))
+  );
+
   const [activeTab, setActiveTab] = useState<Tab>('To Do');
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showSortOptions, setShowSortOptions] = useState(false);
@@ -64,70 +73,72 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
     Events: taskCards.filter(task => task.eventID),
   };
 
-  const renderTabs = () => (
-    <View className="flex-row justify-around pt-4 pb-2 border-b border-gray-200 bg-secondary">
-      {TABS.map(tab => (
-        <TouchableOpacity key={tab} onPress={() => setActiveTab(tab)}>
-          <Text className={`px-3 pb-1 text-lg font-semibold ${activeTab === tab ? 'border-b-2 border-white text-white' : 'text-white'}`}>
-            {tab}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-
-  const renderTaskList = () => {
-    const tasks = filteredTasks[activeTab];
+  const renderTaskList = (tab: Tab) => {
+    const tasks = filteredTasks[tab];
     if (tasks.length === 0) {
-      return <Text className="text-center text-gray-400 mt-4 bg-primary">No tasks</Text>;
+      return <Text className="text-center text-gray-400 mt-4">No tasks</Text>;
     }
 
     return (
-      <View className="px-4 py-2">
-        {tasks.map(task => (
-          <View
-            key={task.taskID ?? task.eventID}
-            className="rounded-lg p-3 mb-3"
-            style={{ backgroundColor: task.color || '#E5E7EB' }}
-          >
-            <Text className="text-xl font-bold text-white mb-1" numberOfLines={1}>
-              {task.taskName || 'Untitled Task'}
-            </Text>
-            {task.groupName && (
-              <Text className="text-base text-white" numberOfLines={1}>
-                {task.groupName}
+        <ScrollView className="px-4 py-2">
+          {tasks.map(task => (
+            <View
+              key={task.taskID ?? task.eventID}
+              className="rounded-lg p-3 mb-3"
+              style={{ backgroundColor: task.color || '#E5E7EB' }}
+            >
+              <Text className="text-xl font-bold text-white mb-1" numberOfLines={1}>
+                {task.taskName || 'Untitled Task'}
               </Text>
-            )}
-            {task.dueDay && (
-                <Text className="text-base text-white mt-1">
-                    {task.eventID ? 'Starts: ' : 'Due: '}
-                    {task.dueDay?.toDateString() === new Date().toDateString()
-                    ? `Today at ${task.dueDay?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                    : task.dueDay.toDateString() === new Date(new Date().setDate(new Date().getDate() + 1)).toDateString()
-                    ? `Tomorrow at ${task.dueDay?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                    : task.dueDay < new Date()
-                    ? (
-                        <Text className="text-red">
-                            {task.dueDay.toLocaleDateString()} at {task.dueDay.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </Text>
-                        )
-                    : `${task.dueDay.toLocaleDateString()} at ${task.dueDay.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+              {task.groupName && (
+                <Text className="text-base text-white" numberOfLines={1}>
+                  {task.groupName}
                 </Text>
-                )}
-          </View>
-        ))}
-      </View>
-    );
+              )}
+              {task.dueDay && (
+                <Text className="text-base text-white mt-1">
+                  {task.eventID ? 'Starts: ' : 'Due: '}
+                  {task.dueDay.toLocaleDateString()} at {task.dueDay.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+              )}
+            </View>
+          ))}
+        </ScrollView>
+      );
+  };
+
+  const renderScene = ({ route }: { route: { key: string } }) => {
+    return renderTaskList(route.key as Tab);
   };
 
   return (
     <TouchableWithoutFeedback onPress={closeMenus}>
-      <View className="flex-1 bg-primary">
-        {renderTabs()}
-        <ScrollView className="flex-1">{renderTaskList()}</ScrollView>
+    <View className="flex-1 bg-primary">
+      <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={initialLayout}
+        swipeEnabled={true}
+        renderTabBar={props => (
+          <TabBar
+            {...props}
+            indicatorStyle={{
+                backgroundColor: 'white',
+                height: 3,
+                marginBottom: 7, 
+              }}
+              
+            style={{ backgroundColor: numbers.secondaryColor, marginBottom: 7}}
+            //labelStyle={{ color: 'white', fontWeight: '600' }}
+            activeColor="white"
+            inactiveColor="#d1d5db"
+          />
+        )}
+      />
 
-        {/* Floating Pill Button and expanded options */}
-        <View className="absolute bottom-6 right-6 items-end" style={{ zIndex: 2 }}>
+      {/* Floating Pill Button and expanded options */}
+      <View className="absolute bottom-6 right-6 items-end" style={{ zIndex: 2 }}>
           {(showAddOptions || showSortOptions) && (
             <View className="mb-2 rounded-lg px-0 py-0" style={{ minWidth: 140 }}>
               {(showAddOptions
@@ -194,8 +205,8 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-    </TouchableWithoutFeedback>
+    </View>
+     </TouchableWithoutFeedback>
   );
 };
 
