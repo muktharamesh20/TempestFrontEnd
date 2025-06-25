@@ -178,7 +178,7 @@ const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, han
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return Math.abs(gestureState.dx) > 50 && Math.abs(gestureState.dy)/Math.abs(gestureState.dx) < 0.05 && Math.abs(gestureState.dy) < 10 ;
+        return Math.abs(gestureState.dx) > 50 && Math.abs(gestureState.dy)/Math.abs(gestureState.dx) < 0.05 && Math.abs(gestureState.dy) < 15 ;
       },
       onPanResponderRelease: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
         if (gestureState.dx > 20 ) {
@@ -338,17 +338,20 @@ const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, han
     {/*underlay, the actual calendar itself*/}
         
     {/* Main Content Area */}
-    <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor}}  {...panResponder.panHandlers}>
-      {/* Placeholder for main content */}
-      {/* <Text className="text-black text-lg">Main content goes here</Text> */}
-      {/* <DayViewCalendar day={focusedDay} categoriesShown = {categories}/> */}
-      <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
-      <CalendarDayView
+    <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor }}>
+  {/* Static, non-panResponder section */}
+  <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
+
+  {/* Section with pan responder attached */}
+  <View {...panResponder.panHandlers}>
+    <CalendarDayView
       events={sampleEvents}
       onEventPress={(event) => console.log('Pressed event:', event)}
-      day = {focusedDay}
-      />
-    </ScrollView>
+      day={focusedDay}
+    />
+  </View>
+</ScrollView>
+
 
      {/* Overlay and Drawer */}
      {menuOpen && (

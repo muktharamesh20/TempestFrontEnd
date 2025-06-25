@@ -173,7 +173,7 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return Math.abs(gestureState.dx) > 200 && Math.abs(gestureState.dy)/Math.abs(gestureState.dx) < 0.05 && Math.abs(gestureState.dy) < 4 ;
+        return Math.abs(gestureState.dx) > 50 && Math.abs(gestureState.dy)/Math.abs(gestureState.dx) < 0.05 && Math.abs(gestureState.dy) < 15 ;
       },
       onPanResponderRelease: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
         console.log('swipe detected')
@@ -188,7 +188,7 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
             scrollToDate(newDate);
             return newDate;
           });
-        } else if (gestureState.dx < -50) {
+        } else if (gestureState.dx < -20) {
           // Swiped left — go to next day
           // setFocusedDay((prev) => addDays(prev, 1));
           // setViewingDateFunc(addDays(focusedDay, 1));
@@ -346,16 +346,18 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
     </View>
 
             {/* Main Content Area */}
-            <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor}}  {...panResponder.panHandlers}>
+            <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor}}>
       {/* Placeholder for main content */}
       {/* <Text className="text-black text-lg">Main content goes here</Text> */}
       {/* <DayViewCalendar day={focusedDay} categoriesShown = {categories}/> */}
       <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
-      <CalendarWeekView
-      events={sampleEvents}
-      onEventPress={(event) => console.log('Pressed event:', event)}
-      {...panResponder.panHandlers}
-      />
+
+      <View  {...panResponder.panHandlers} >
+        <CalendarWeekView
+        events={sampleEvents}
+        onEventPress={(event) => console.log('Pressed event:', event)}
+        />
+      </View>
     </ScrollView>
 
      {/* Overlay and Drawer */}
