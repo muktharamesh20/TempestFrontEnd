@@ -530,6 +530,11 @@ const sampleEvents = [
     start: new Date('2025-06-22T19:00:00'),
     end: new Date('2025-06-26T20:00:00'),
     color: '#E91E63',
+  },{
+    title: 'Evening Yoga',
+    start: new Date('2025-06-22T19:00:00'),
+    end: new Date('2025-06-26T20:00:00'),
+    color: '#E91E63',
   },
   // {
   //   title: 'Evening Yogaaa',

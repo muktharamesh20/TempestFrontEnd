@@ -58,7 +58,7 @@ const interpolateFontSize = (
   if (height >= maxH) return maxFont;
   return minFont + ((height - minH) / (maxH - minH)) * (maxFont - minFont);
 };
-const baseHeight = useSharedValue(INITIAL_HEIGHT);
+
 const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
   events,
   onEventPress,
@@ -66,6 +66,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
   hourHeight,
   setHourHeight
 }) => {
+  const baseHeight = useSharedValue(INITIAL_HEIGHT);
 
   // Get start of week (Sunday)
 const getStartOfWeek = (date: Date) => {
@@ -84,6 +85,7 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
 });
 
   const [containerWidth, setContainerWidth] = useState<number>(0);
+  let maxStack = -1;
 
   const onLayout = (e: LayoutChangeEvent) => {
     setContainerWidth(e.nativeEvent.layout.width);
@@ -106,7 +108,7 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
   });
 
   // Render all-day or multi-day events as slivers on top spanning across days
-  const renderAllDayEvents = (stackIDX: number, setStackIndex: React.Dispatch<React.SetStateAction<number>>) => {
+  const renderAllDayEvents = () => {
     if (containerWidth === 0) return null;
   
     const TOTAL_LEFT_MARGIN = 35;
@@ -114,7 +116,7 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
     const adjustedColumnWidth = adjustedContainerWidth / 7;
   
     const EVENT_HEIGHT = 20;
-    const VERTICAL_MARGIN = 4;
+    const VERTICAL_MARGIN = 2;
   
     const isFullDay = (start: Date, end: Date) => {
       const s = new Date(start);
@@ -163,6 +165,8 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       endDay: number;
       stackIndex: number;
     }[] = [];
+
+    
   
     events
     .filter((event) => {
@@ -197,12 +201,8 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       ) {
         stackIndex++;
       }
-
-    if (stackIndex + 1 > stackIDX){
-        setStackIndex(stackIndex + 1)
-    }
       
-  
+      maxStack = Math.max(maxStack, stackIndex)
       placedEvents.push({ event, startDay, endDay, stackIndex });
     });
   
@@ -419,8 +419,6 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
     });
   };
 
-  const [stackIDX, setStackIndex] = useState(0);
-
   
   return (
     <PinchGestureHandler onGestureEvent={pinchHandler}>
@@ -428,11 +426,11 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
   
         {/* All-day / Multi-day events bar on top */}
         <View style={styles.allDayEventsContainer}>
-          {renderAllDayEvents(stackIDX, setStackIndex)}
+          {renderAllDayEvents()}
         </View>
   
         {/* Main scrollable calendar */}
-          <View style={styles.bodyContainer}>
+          <View style={{...styles.bodyContainer, marginTop: 22*(maxStack + 1) - 2}}>
             {hours.map((hour, idx) => (
               <View key={idx} style={[styles.hourRow, { height: hourHeight }]}>
                 <Text style={styles.hourLabel}>{hour}</Text>
@@ -511,8 +509,8 @@ const styles = StyleSheet.create({
   },
   allDayEvent: {
     position: 'absolute',
-    top: 4,
-    height: 22,
+    top: 2,
+    height: 20,
     borderRadius: 6,
     paddingHorizontal: 6,
     justifyContent: 'center',
@@ -522,7 +520,8 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
     fontSize: 12,
-  },currentTimeLine: {
+  },
+  currentTimeLine: {
     position: 'absolute',
     flexDirection: 'row',
     alignItems: 'center',
@@ -532,31 +531,15 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: numbers.accentColor,
+    backgroundColor: 'blue',
     marginRight: 4,
   },
   currentTimeBar: {
     height: 1,
-    backgroundColor: numbers.accentColor,
+    backgroundColor: 'blue',
     flex: 1,
     marginRight:5
   },
 });
-
-function isFullDayEvent(start: Date, end: Date) {
-    const durationMs = end.getTime() - start.getTime();
-    return (
-      start.getHours() === 0 &&
-      start.getMinutes() === 0 &&
-      start.getSeconds() === 0 &&
-      start.getMilliseconds() === 0 &&
-      durationMs === 24 * 60 * 60 * 1000 &&
-      end.getHours() === 0 &&
-      end.getMinutes() === 0 &&
-      end.getSeconds() === 0 &&
-      end.getMilliseconds() === 0
-    );
-  }
-  
 
 export default CalendarWeekView;
