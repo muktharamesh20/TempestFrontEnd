@@ -9,11 +9,14 @@ import {
   Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  PanResponder,
+  PanResponderGestureState,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { GestureResponderEvent } from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CalendarDrawer, { drawerProps } from './CalendarDrawer'; // Adjust the import path as needed
 import { TaskCardDetails } from './TaskCard';
@@ -78,20 +81,134 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
     });
   };
 
-  const scrollToDate = (date: Date) => {
-    const targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfWeek(date), 'yyyy-MM-dd'));
-    if (targetIndex !== -1) {
-      scrollToIndex(targetIndex);
-      setFocusedDay(date);
-    } else {
-      console.warn("Date not found in the current week data.");
+  // const scrollToDate = (date: Date) => {
+  //   const targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfWeek(date), 'yyyy-MM-dd'));
+  //   if (targetIndex !== -1) {
+  //     scrollToIndex(targetIndex);
+  //     setFocusedDay(date);
+  //   } else {
+  //     console.warn("Date not found in the current week data.");
+  //   }
+  // };
+
+
+
+  const extendDataToIncludeDate = (targetDate: Date) => {
+    let newData = [...data];
+    const targetSunday = startOfWeek(targetDate, { weekStartsOn: 0 });
+  
+    while (targetSunday < newData[0]) {
+      const prevSunday = addDays(newData[0], -7);
+      newData = [prevSunday, ...newData];
     }
+  
+    while (targetSunday > newData[newData.length - 1]) {
+      const nextSunday = addDays(newData[newData.length - 1], 7);
+      newData = [...newData, nextSunday];
+    }
+  
+    setData(newData);
+    return newData;
   };
+  
+  const scrollToDate = (date: Date) => {
+    let newData = data;
+    const targetSunday = startOfWeek(date, { weekStartsOn: 0 });
+  
+    // If targetSunday not in data, extend data (regular extend)
+    if (!data.some(d => format(d, 'yyyy-MM-dd') === format(targetSunday, 'yyyy-MM-dd'))) {
+      newData = extendDataToIncludeDate(date);
+    }
+  
+    let targetIndex = newData.findIndex(d => format(d, 'yyyy-MM-dd') === format(targetSunday, 'yyyy-MM-dd'));
+  
+    if (targetIndex === -1) {
+      console.warn("Date not found even after extending data.");
+      return;
+    }
+  
+    // Preload adjacent pages if targetIndex is near the start or end
+    const lastIndex = newData.length - 1;
+  
+    // If target is at second-to-last or last page, extend forwards
+    if (targetIndex >= lastIndex - 1) {
+      // Extend forwards by adding one or two more Sundays
+      let extended = false;
+      while (newData.length < targetIndex + 3) { // preload at least 2 more pages forward
+        const nextSunday = addDays(newData[newData.length - 1], 7);
+        newData = [...newData, nextSunday];
+        extended = true;
+      }
+      if (extended) {
+        setData(newData);
+      }
+    }
+  
+    // If target is at first or second page, extend backwards
+    if (targetIndex <= 1) {
+      let extended = false;
+      while (targetIndex <= 1) {
+        const prevSunday = addDays(newData[0], -7);
+        newData = [prevSunday, ...newData];
+        targetIndex++; // shift target index right since we added at front
+        extended = true;
+      }
+      if (extended) {
+        setData(newData);
+      }
+    }
+  
+    scrollToIndex(targetIndex);
+    setFocusedDay(date);
+    setSunday(newData[targetIndex]);
+    setViewingDateFunc(date);
+  };
+  
+  
 
   const getIndexOfDate = (date: Date) => {
     const targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfWeek(date), 'yyyy-MM-dd'));
     return targetIndex !== -1 ? targetIndex : 1;
   };
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        return Math.abs(gestureState.dx) > 200 && Math.abs(gestureState.dy)/Math.abs(gestureState.dx) < 0.05 && Math.abs(gestureState.dy) < 4 ;
+      },
+      onPanResponderRelease: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+        console.log('swipe detected')
+        if (gestureState.dx > 20) {
+          // Swiped right — go to previous day
+          // setFocusedDay((prev) => addDays(prev, -1));
+          // setViewingDateFunc(addDays(focusedDay, -1));
+          //scrollToDate(addDays(focusedDay,-1))
+          setFocusedDay((prev) => {
+            const newDate = addDays(prev, -7);
+            setViewingDateFunc(newDate);
+            scrollToDate(newDate);
+            return newDate;
+          });
+        } else if (gestureState.dx < -50) {
+          // Swiped left — go to next day
+          // setFocusedDay((prev) => addDays(prev, 1));
+          // setViewingDateFunc(addDays(focusedDay, 1));
+          //scrollToDate(addDays(focusedDay,1))
+          setFocusedDay((prev) => {
+            const newDate = addDays(prev, 7);
+            setViewingDateFunc(newDate);
+            scrollToDate(newDate);
+            return newDate;
+          });
+        }
+      },
+    })
+  ).current;
+  
+
+  // const getIndexOfDate = (date: Date) => {
+  //   const targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfWeek(date), 'yyyy-MM-dd'));
+  //   return targetIndex !== -1 ? targetIndex : 1;
+  // };
 
   const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const newIndex = Math.round(event.nativeEvent.contentOffset.x / screenWidth);
@@ -229,7 +346,7 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
     </View>
 
             {/* Main Content Area */}
-            <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor}}>
+            <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor}}  {...panResponder.panHandlers}>
       {/* Placeholder for main content */}
       {/* <Text className="text-black text-lg">Main content goes here</Text> */}
       {/* <DayViewCalendar day={focusedDay} categoriesShown = {categories}/> */}
@@ -237,6 +354,7 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
       <CalendarWeekView
       events={sampleEvents}
       onEventPress={(event) => console.log('Pressed event:', event)}
+      {...panResponder.panHandlers}
       />
     </ScrollView>
 
