@@ -1,21 +1,20 @@
 import { numbers } from '@/constants/numbers';
 import React, { useEffect, useState } from 'react';
 import {
-    LayoutChangeEvent,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  LayoutChangeEvent,
+  Pressable,
+  StyleSheet,
+  Text,
+  View
 } from 'react-native';
 import {
-    PinchGestureHandler,
-    PinchGestureHandlerGestureEvent,
+  PinchGestureHandler,
+  PinchGestureHandlerGestureEvent,
 } from 'react-native-gesture-handler';
 import Animated, {
-    runOnJS,
-    useAnimatedGestureHandler,
-    useSharedValue,
+  runOnJS,
+  useAnimatedGestureHandler,
+  useSharedValue,
 } from 'react-native-reanimated';
 
 interface EventItem {
@@ -29,6 +28,9 @@ interface EventItem {
 interface CalendarWeekViewProps {
   events: EventItem[];
   onEventPress: (event: EventItem) => void;
+  focusedDay: Date; // <- New prop
+  hourHeight: number;
+  setHourHeight: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const hours = Array.from({ length: 24 }, (_, i) =>
@@ -56,13 +58,30 @@ const interpolateFontSize = (
   if (height >= maxH) return maxFont;
   return minFont + ((height - minH) / (maxH - minH)) * (maxFont - minFont);
 };
-
+const baseHeight = useSharedValue(INITIAL_HEIGHT);
 const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
   events,
   onEventPress,
+  focusedDay,
+  hourHeight,
+  setHourHeight
 }) => {
-  const [hourHeight, setHourHeight] = useState<number>(INITIAL_HEIGHT);
-  const baseHeight = useSharedValue(INITIAL_HEIGHT);
+
+  // Get start of week (Sunday)
+const getStartOfWeek = (date: Date) => {
+  const day = new Date(date);
+  const diff = day.getDate() - day.getDay(); // Sunday = 0
+  day.setDate(diff);
+  day.setHours(0, 0, 0, 0);
+  return day;
+};
+
+const startOfWeek = getStartOfWeek(focusedDay);
+const weekDates = Array.from({ length: 7 }, (_, i) => {
+  const d = new Date(startOfWeek);
+  d.setDate(d.getDate() + i);
+  return d;
+});
 
   const [containerWidth, setContainerWidth] = useState<number>(0);
 
@@ -145,7 +164,16 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
       stackIndex: number;
     }[] = [];
   
-    events.forEach((event) => {
+    events
+    .filter((event) => {
+      const start = new Date(event.start);
+      const end = new Date(event.end);
+      return (
+        end >= weekDates[0] && start < new Date(weekDates[6].getTime() + 86400000)
+      );
+    })
+    .forEach((event) => {
+  
       const start = new Date(event.start);
       const end = new Date(event.end);
   
@@ -256,7 +284,16 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
       dayIndex: number;
     }[] = [];
   
-    events.forEach((event) => {
+    events
+    .filter((event) => {
+      const start = new Date(event.start);
+      const end = new Date(event.end);
+      return (
+        end >= weekDates[0] && start < new Date(weekDates[6].getTime() + 86400000)
+      );
+    })
+    .forEach((event) => {
+  
       const start = new Date(event.start);
       const end = new Date(event.end);
   
@@ -395,7 +432,6 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
         </View>
   
         {/* Main scrollable calendar */}
-        <ScrollView contentContainerStyle={{ height: hourHeight * 24, marginTop: 20*stackIDX}}>
           <View style={styles.bodyContainer}>
             {hours.map((hour, idx) => (
               <View key={idx} style={[styles.hourRow, { height: hourHeight }]}>
@@ -405,7 +441,6 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
             {renderEvents()}
             {renderCurrentTimeLine({extraMargin: 0})}
           </View>
-        </ScrollView>
       </Animated.View>
     </PinchGestureHandler>
   );
@@ -504,6 +539,7 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: numbers.accentColor,
     flex: 1,
+    marginRight:5
   },
 });
 

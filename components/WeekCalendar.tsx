@@ -21,7 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CalendarDrawer, { drawerProps } from './CalendarDrawer'; // Adjust the import path as needed
 import { TaskCardDetails } from './TaskCard';
 import TaskCardCarosel from './TaskCardCarosel';
-import CalendarWeekView from './todosEvents/calendarWeekView';
+import MultiWeekCalendar from './todosEvents/multiWeekCalendarView';
 
 interface calendarProps {
   viewingDate: Date;
@@ -352,12 +352,19 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
       {/* <DayViewCalendar day={focusedDay} categoriesShown = {categories}/> */}
       <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
 
-      <View  {...panResponder.panHandlers} >
+      {/* <View  {...panResponder.panHandlers} >
         <CalendarWeekView
         events={sampleEvents}
         onEventPress={(event) => console.log('Pressed event:', event)}
         />
-      </View>
+      </View> */}
+        <MultiWeekCalendar
+        currFocusedDay={focusedDay}
+        changeViewingDate={setFocusedDay}
+        events={sampleEvents}
+        onEventPress={(event) => console.log('Pressed event:', event)}
+        />
+      
     </ScrollView>
 
      {/* Overlay and Drawer */}

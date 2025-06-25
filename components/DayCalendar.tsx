@@ -21,7 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CalendarDrawer, { drawerProps } from './CalendarDrawer'; // Adjust the import path as needed
 import { TaskCardDetails } from './TaskCard';
 import TaskCardCarosel from './TaskCardCarosel';
-import CalendarDayView from './todosEvents/calendarDayView';
+import MultiDayCalendar from './todosEvents/multiDayCalendarView';
 
 interface calendarProps {
   viewingDate: Date;
@@ -343,13 +343,22 @@ const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, han
   <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
 
   {/* Section with pan responder attached */}
-  <View {...panResponder.panHandlers}>
-    <CalendarDayView
+  {/* <View {...panResponder.panHandlers}> */}
+    {/* <CalendarDayView
       events={sampleEvents}
       onEventPress={(event) => console.log('Pressed event:', event)}
       day={focusedDay}
-    />
-  </View>
+    /> */}
+    <View>
+    <MultiDayCalendar
+  events={sampleEvents}
+  currFocusedDay={focusedDay}
+  onEventPress={() => console.log('Tapped event', event)}
+  changeViewingDate={(date) => {setFocusedDay(date); scrollToDate(date)}}
+/>
+</View>
+
+  {/* </View> */}
 </ScrollView>
 
 

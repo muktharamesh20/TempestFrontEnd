@@ -17,7 +17,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 
-interface EventItem {
+export interface EventItem {
   title: string;
   start: string | Date;
   end: string | Date;
@@ -29,6 +29,8 @@ interface CalendarDayViewProps {
   events: EventItem[];
   onEventPress: (event: EventItem) => void;
   day: Date;
+  hourHeight: number
+  setHourHeight:React.Dispatch<React.SetStateAction<number>>
 }
 
 const hours = Array.from({ length: 24 }, (_, i) =>
@@ -47,9 +49,10 @@ const ALL_DAY_EVENT_SINGLE_HEIGHT = 24;
 const CalendarDayView: React.FC<CalendarDayViewProps> = ({
   events,
   onEventPress,
-  day
+  day,
+  hourHeight,
+  setHourHeight
 }) => {
-  const [hourHeight, setHourHeight] = useState<number>(INITIAL_HEIGHT);
   const baseHeight = useSharedValue(INITIAL_HEIGHT);
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -498,6 +501,7 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: 'blue',
     flex: 1,
+    marginRight:5
   },
 });
 
