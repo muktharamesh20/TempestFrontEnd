@@ -4,7 +4,7 @@ import MonthCalendar from '@/components/MonthCalendar';
 import WeekCalendar from '@/components/WeekCalendar';
 import { useIsFocused } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 const calendar = () => {
@@ -28,19 +28,23 @@ const calendar = () => {
     );
   };
 
+  const INITIAL_HEIGHT = 60;
+
+  const [hourHeight, setHourHeight] = useState<number>(INITIAL_HEIGHT);
+
   
   return (
     <View className="flex flex-col flex-1 gap-0 bg-primary h-full w-full">
     {view === 'day' && (
       <>
         {isFocused ? <StatusBar style="light" /> : null}
-        <DayCalendar viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} />
+        <DayCalendar viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} />
       </>
     )}
     {view === 'week' && (
       <>
         {isFocused ? <StatusBar style="light" /> : null}
-        <WeekCalendar viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} />
+        <WeekCalendar viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight}/>
       </>
     )}
     {view === 'month' && (

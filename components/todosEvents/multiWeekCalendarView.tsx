@@ -15,6 +15,8 @@ interface multiWeekCalendarView {
   onEventPress: (event: EventItem) => void;
   currFocusedDay: Date;
   changeViewingDate: (date: Date) => void
+  hourHeight: number;
+  setHourHeight: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const MultiWeekCalendar: React.FC<multiWeekCalendarView> = ({
@@ -22,6 +24,8 @@ const MultiWeekCalendar: React.FC<multiWeekCalendarView> = ({
   onEventPress,
   currFocusedDay,
   changeViewingDate,
+  hourHeight,
+  setHourHeight
 }) => {
   const [centerDate, setCenterDate] = useState(currFocusedDay);
   const scrollRef = useRef<ScrollView>(null);
@@ -61,7 +65,6 @@ const MultiWeekCalendar: React.FC<multiWeekCalendarView> = ({
   ];
 
   const INITIAL_HEIGHT = 60;
-  const [hourHeight, setHourHeight] = useState<number>(INITIAL_HEIGHT);
 
   return (
     <ScrollView

@@ -29,6 +29,8 @@ interface calendarProps {
   categories: drawerProps[];
   handleCategoryToggle: (categoryId: string, newValue: boolean) => void;
   setView: (view: 'day' | 'week' | 'month') => void;
+  hourHeight: number;
+  setHourHeight: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const createWeekDaysArray = (day: Date) => {
@@ -53,7 +55,7 @@ const createWeekDaysArray = (day: Date) => {
   return sundays;
 };
 
-const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle }: calendarProps) => {
+const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, hourHeight, setHourHeight }: calendarProps) => {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
@@ -355,6 +357,8 @@ const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, han
   currFocusedDay={focusedDay}
   onEventPress={() => console.log('Tapped event', event)}
   changeViewingDate={(date) => {setFocusedDay(date); scrollToDate(date)}}
+  hourHeight = {hourHeight}
+  setHourHeight = {setHourHeight}
 />
 </View>
 

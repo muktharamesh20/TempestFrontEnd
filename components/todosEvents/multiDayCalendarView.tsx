@@ -13,7 +13,9 @@ interface MultiDayCalendarProps {
   events: EventItem[];
   onEventPress: (event: EventItem) => void;
   currFocusedDay: Date;
-  changeViewingDate: (date: Date) => void
+  changeViewingDate: (date: Date) => void;
+  hourHeight: number;
+  setHourHeight: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const MultiDayCalendar: React.FC<MultiDayCalendarProps> = ({
@@ -21,6 +23,8 @@ const MultiDayCalendar: React.FC<MultiDayCalendarProps> = ({
   onEventPress,
   currFocusedDay,
   changeViewingDate,
+  hourHeight,
+  setHourHeight
 }) => {
   const [centerDate, setCenterDate] = useState(currFocusedDay);
   const scrollRef = useRef<ScrollView>(null);
@@ -60,7 +64,6 @@ const MultiDayCalendar: React.FC<MultiDayCalendarProps> = ({
   ];
 
   const INITIAL_HEIGHT = 60;
-  const [hourHeight, setHourHeight] = useState<number>(INITIAL_HEIGHT);
 
   return (
     <ScrollView

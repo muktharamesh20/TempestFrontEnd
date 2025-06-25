@@ -9,14 +9,11 @@ import {
   Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  PanResponder,
-  PanResponderGestureState,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { GestureResponderEvent } from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CalendarDrawer, { drawerProps } from './CalendarDrawer'; // Adjust the import path as needed
 import { TaskCardDetails } from './TaskCard';
@@ -29,6 +26,8 @@ interface calendarProps {
   categories: drawerProps[];
   handleCategoryToggle: (categoryId: string, newValue: boolean) => void;
   setView: (view: 'day' | 'week' | 'month') => void;
+  hourHeight: number;
+  setHourHeight: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const createWeekDaysArray = (day: Date) => {
@@ -47,7 +46,7 @@ const createWeekDaysArray = (day: Date) => {
   return sundays;
 };
 
-const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle }: calendarProps) => {
+const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, hourHeight, setHourHeight }: calendarProps) => {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
@@ -80,18 +79,6 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
       animated: false,
     });
   };
-
-  // const scrollToDate = (date: Date) => {
-  //   const targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfWeek(date), 'yyyy-MM-dd'));
-  //   if (targetIndex !== -1) {
-  //     scrollToIndex(targetIndex);
-  //     setFocusedDay(date);
-  //   } else {
-  //     console.warn("Date not found in the current week data.");
-  //   }
-  // };
-
-
 
   const extendDataToIncludeDate = (targetDate: Date) => {
     let newData = [...data];
@@ -170,45 +157,6 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
     const targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfWeek(date), 'yyyy-MM-dd'));
     return targetIndex !== -1 ? targetIndex : 1;
   };
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return Math.abs(gestureState.dx) > 50 && Math.abs(gestureState.dy)/Math.abs(gestureState.dx) < 0.05 && Math.abs(gestureState.dy) < 15 ;
-      },
-      onPanResponderRelease: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        console.log('swipe detected')
-        if (gestureState.dx > 20) {
-          // Swiped right — go to previous day
-          // setFocusedDay((prev) => addDays(prev, -1));
-          // setViewingDateFunc(addDays(focusedDay, -1));
-          //scrollToDate(addDays(focusedDay,-1))
-          setFocusedDay((prev) => {
-            const newDate = addDays(prev, -7);
-            setViewingDateFunc(newDate);
-            scrollToDate(newDate);
-            return newDate;
-          });
-        } else if (gestureState.dx < -20) {
-          // Swiped left — go to next day
-          // setFocusedDay((prev) => addDays(prev, 1));
-          // setViewingDateFunc(addDays(focusedDay, 1));
-          //scrollToDate(addDays(focusedDay,1))
-          setFocusedDay((prev) => {
-            const newDate = addDays(prev, 7);
-            setViewingDateFunc(newDate);
-            scrollToDate(newDate);
-            return newDate;
-          });
-        }
-      },
-    })
-  ).current;
-  
-
-  // const getIndexOfDate = (date: Date) => {
-  //   const targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfWeek(date), 'yyyy-MM-dd'));
-  //   return targetIndex !== -1 ? targetIndex : 1;
-  // };
 
   const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const newIndex = Math.round(event.nativeEvent.contentOffset.x / screenWidth);
@@ -229,6 +177,7 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
     }
 
     setViewingDateFunc(data[newIndex]);
+    setFocusedDay(data[newIndex])
   };
 
   const today = new Date();
@@ -299,7 +248,7 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
           keyExtractor={(item) => item.toISOString()}
           onMomentumScrollEnd={handleScrollEnd}
           renderItem={({ item }) => {
-            const weekdays = Array.from({ length: 7 }, (_, i) => addDays(item, i));
+            const weekdays: Date[] = Array.from({ length: 7 }, (_, i) => addDays(item, i));
 
             return (
               <View
@@ -323,7 +272,13 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
                   return (
                     <TouchableOpacity
                       key={index}
-                      onPress={() => isValid(date) && setFocusedDay(date)}
+                      onPress={() => {
+                        if (!isValid(date)) return;
+                        setFocusedDay(date);
+                        setViewingDateFunc(date);
+                        console.log('pressed!', date);
+                        setView('day');
+                      }}                      
                       className={`flex items-center justify-center w-[50px] gap-[5px] py-5 rounded ${
                         'bg-transparent'
                       }`}
@@ -359,10 +314,12 @@ const WeekCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, ha
         />
       </View> */}
         <MultiWeekCalendar
-        currFocusedDay={focusedDay}
-        changeViewingDate={setFocusedDay}
+        currFocusedDay={viewingDate}
+        changeViewingDate={(date) => {setViewingDateFunc(date); scrollToDate(date)}}
         events={sampleEvents}
         onEventPress={(event) => console.log('Pressed event:', event)}
+        hourHeight={hourHeight}
+        setHourHeight={setHourHeight}
         />
       
     </ScrollView>
