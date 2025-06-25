@@ -1,7 +1,7 @@
 import { icons } from '@/constants/icons';
 import { supabase } from '@/constants/supabaseClient';
 import { SB_STORAGE_CONFIG } from '@/services/api';
-import { changeArchiveSettings, likePost, savePost, unlikePost, unSavePost } from '@/services/posts';
+import { changeArchiveSettings, deletePost, likePost, savePost, unlikePost, unSavePost } from '@/services/posts';
 import { postDetails } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons'; // Import icons from Expo Vector Icons
 import { formatDistanceToNow } from 'date-fns';
@@ -12,9 +12,10 @@ import PostOptionsModal from './postModal';
 export interface postCardProps {
     post: postDetails;
     onOpenModal: (postId: string, type: 'likes' | 'comments')=>void;
+    deleteFromFeed: () => void;
 }
 
-const PostCard = ({post, onOpenModal}: postCardProps ) => {
+const PostCard = ({post, onOpenModal, deleteFromFeed}: postCardProps ) => {
     const [imageUrl, setImageUrl] = useState('');
     const [showFullText, setShowFullText] = useState(true); // State to toggle full text
     const [isTextTruncated, setIsTextTruncated] = useState(false); // State to check if text is truncated
@@ -204,7 +205,9 @@ const PostCard = ({post, onOpenModal}: postCardProps ) => {
             }}
             onDelete={() => {
                 // Call your delete logic here
+                deletePost(post.postId, supabase);
                 console.log(post.postId, 'deleted');
+                deleteFromFeed();
             }}
             isArchived={false /* optionally track this per-post */}
             post={post}

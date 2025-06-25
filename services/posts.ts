@@ -157,7 +157,7 @@ export async function inspiredByPost(post: types.Post, databaseClient: SupabaseC
  * @param postDetails the details of the post to create, including title, content, and authorId
  * @param databaseClient the Supabase client to use for the database operations
  */
-export async function createPost(postDetails: { description: string | null; event_id: string | null; owner_id: string; title: string; todo_id: string | null}, databaseClient: SupabaseClient<Database>): Promise<void> {
+export async function createPost(postDetails: { description: string | null; event_id: string | null; owner_id: string; title: string; todo_id: string | null; archived: boolean | undefined}, databaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await databaseClient
         .from('post')
         .insert({ ...postDetails, imageLink: "doesn't matter" });
@@ -174,11 +174,11 @@ export async function createPost(postDetails: { description: string | null; even
  * @param post the post to delete
  * @param databaseClient the Supabase client to use for the database operations
  */
-export async function deletePost(post: types.Post, databaseClient: SupabaseClient<Database>): Promise<void> {
+export async function deletePost(postId: string, databaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await databaseClient
         .from('post')
         .delete()
-        .eq('id', post.id);
+        .eq('id', postId);
 
     if (error) {
         console.error('Error deleting post:', error.message);
@@ -186,47 +186,6 @@ export async function deletePost(post: types.Post, databaseClient: SupabaseClien
     }
 }
 
-/**
- *  Archives a post. Requires that you own the post, and it's not already archived
- * 
- * @param post the post to archive
- * @param databaseClient the Supabase client to use for the database operations
- */
-export async function archivePost(post: types.Post, databaseClient: SupabaseClient<Database>): Promise<types.Post> {
-    const { data, error } = await databaseClient
-        .from('post_to_viewership_tags')
-        .insert({ post_id: post.id, vt_id: '3f60393f-ac00-475b-a27c-4f906ae5497f' }).select('post_id, post!post_id (*)');
-
-    if (error) {
-        console.error('Error archiving post:', error.message);
-        throw error;
-    }
-
-    return post;
-}
-
-/**
- * Unarchives a post. Requires that you own the post, and it's already archived
- * 
- * @param post the post to unarchive
- * @param databaseClient the Supabase client to use for the database operations
- * @returns the unarchived post
- */
-export async function unarchivePost(post: types.Post, databaseClient: SupabaseClient<Database>): Promise<types.Post> {
-    const { data, error } = await databaseClient
-    .from('post_to_viewership_tags')
-    .delete()
-    .eq('post_id', post.id)
-    .eq('vt_id', '3f60393f-ac00-475b-a27c-4f906ae5497f')
-    .select('post_id, post!post_id (*)');
-
-    if (error) {
-        console.error('Error archiving post:', error.message);
-        throw error;
-    }
-
-    return post;
-}
 
 /**
  * the function retrieves the viewership tags of a post.  Requires that you own the post.
