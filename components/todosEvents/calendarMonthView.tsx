@@ -1,4 +1,5 @@
 import { EventDetailsForNow } from '@/services/utils';
+import { addMinutes } from 'date-fns';
 import React from 'react';
 import {
   Dimensions,
@@ -17,6 +18,8 @@ interface CalendarMonthViewProps {
   year?: number;
   month?: number; // 0-based month, default current month
   maxVisibleEvents?: number;
+  setView: (view: "day" | "week" | "month") => void;
+  setViewingDateFunc: (date: Date) => void;
 }
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -32,6 +35,8 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
   year,
   month,
   maxVisibleEvents = MAX_VISIBLE_EVENTS_DEFAULT,
+  setView,
+  setViewingDateFunc
 }) => {
   const today = new Date();
   const viewYear = year ?? today.getFullYear();
@@ -68,6 +73,12 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
 
   const cellWidth = SCREEN_WIDTH / DAYS_IN_WEEK;
 
+  function dealWithDayPressed(date: Date): void {
+      setViewingDateFunc(addMinutes(date, date.getTimezoneOffset()));
+      console.log('pressed!', addMinutes(date, date.getTimezoneOffset()).toLocaleDateString());
+      setView('day');
+  }
+
   const renderDayCell = (day: number | null, index: number) => {
     if (!day) {
       return <View key={index} style={[styles.dayCell, { width: cellWidth }]} />;
@@ -81,7 +92,7 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
 
     return (
       <View key={index} style={[styles.dayCell, { width: cellWidth }]}>
-        <Pressable onPress={() => console.log(`date pressed: ${dateStr}`)}>
+        <Pressable onPress={() => dealWithDayPressed(new Date(dateStr))}>
           <Text style={styles.dayNumber}>{day}</Text>
         </Pressable>
 
@@ -100,7 +111,7 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
           {overflowCount > 0 && (
             <Pressable
               style={[styles.eventSliver, styles.overflowSliver]}
-              onPress={() => onEventPress({ overflow: true, day, count: overflowCount })}
+              onPress={() => dealWithDayPressed(new Date(dateStr))}
             >
               <Text style={styles.overflowText}>+{overflowCount}</Text>
             </Pressable>

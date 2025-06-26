@@ -19,7 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CalendarDrawer, { drawerProps } from './CalendarDrawer'; // Adjust the import path as needed
 import { TaskCardDetails } from './TaskCard';
 import TaskCardCarosel from './TaskCardCarosel';
-import CalendarMonthView from './todosEvents/calendarMonthView';
+import MultiMonthView from './todosEvents/multiMonthCalendar';
 
 interface calendarProps {
   events: EventDetailsForNow[];
@@ -78,6 +78,10 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
     setViewingDateFunc(initialDay);
   }, []); // only run on first mount
 
+  useEffect(() =>{
+    scrollToDate(focusedDay)
+  }, [focusedDay])
+
   const scrollToIndex = (index: number) => {
     flatListRef.current?.scrollToOffset({
       offset: index * screenWidth,
@@ -86,7 +90,11 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
   };
 
   const scrollToDate = (date: Date) => {
-    const targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfYear(date), 'yyyy-MM-dd'));
+    let targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfYear(date), 'yyyy-MM-dd'));
+
+    if(date.getMonth() >= 6){
+      targetIndex += 1;
+    }
     if (targetIndex !== -1) {
       scrollToIndex(targetIndex);
       setFocusedDay(date);
@@ -241,10 +249,11 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
       {/* <Text className="text-black text-lg">Main content goes here</Text> */}
       {/* <DayViewCalendar day={focusedDay} categoriesShown = {categories}/> */}
       <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
-      <CalendarMonthView
+      {/* <CalendarMonthView
       events={events}
       onEventPress={(event) => console.log('Pressed event:', event)}
-      />
+      /> */}
+      <MultiMonthView events={events} onEventPress={(event) => console.log('Pressed event:', event)} setView={setView} focusedDay={focusedDay} setViewingDateFunc={setViewingDateFunc} setFocusedDay={setFocusedDay}/>
     </ScrollView>
 
      {/* Overlay and Drawer */}

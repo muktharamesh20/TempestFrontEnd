@@ -241,10 +241,4 @@ const sampleEvents: EventDetailsForNow[] = [
     repeat_schedule: 'none', 
     days: []
   },
-  // {
-  //   title: 'Evening Yogaaa',
-  //   start: new Date('2025-06-25T19:00:00'),
-  //   end: new Date('2025-06-26T20:00:00'),
-  //   color: '#E91E63',
-  // },
 ];
