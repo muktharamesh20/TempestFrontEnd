@@ -1,5 +1,6 @@
 import { icons } from '@/constants/icons';
 import { numbers } from '@/constants/numbers';
+import { EventDetailsForNow } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
 import { addDays, endOfWeek, format, isValid, startOfWeek } from 'date-fns';
 import React, { useEffect, useRef, useState } from 'react';
@@ -24,6 +25,7 @@ import TaskCardCarosel from './TaskCardCarosel';
 import MultiDayCalendar from './todosEvents/multiDayCalendarView';
 
 interface calendarProps {
+  events: EventDetailsForNow[];
   viewingDate: Date;
   setViewingDateFunc: (date: Date) => void;
   categories: drawerProps[];
@@ -55,7 +57,7 @@ const createWeekDaysArray = (day: Date) => {
   return sundays;
 };
 
-const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, hourHeight, setHourHeight }: calendarProps) => {
+const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, hourHeight, setHourHeight }: calendarProps) => {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
@@ -353,9 +355,9 @@ const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, han
     /> */}
     <View>
     <MultiDayCalendar
-  events={sampleEvents}
+  events={events}
   currFocusedDay={focusedDay}
-  onEventPress={() => console.log('Tapped event', event)}
+  onEventPress={(event) => console.log('Tapped event', event)}
   changeViewingDate={(date) => {setFocusedDay(date); scrollToDate(date)}}
   hourHeight = {hourHeight}
   setHourHeight = {setHourHeight}
@@ -414,110 +416,6 @@ const DayCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, han
 };
 
 export default DayCalendar;
-
-
-const sampleEvents: ({
-  title: string;
-  start: Date;
-  end: Date;
-  color: string;
-})[] = [
-  {
-    title: 'Morning Run',
-    start: new Date('2025-06-24T06:00:00'),
-    end: new Date('2025-06-24T07:00:00'),
-    color: '#4CAF50',
-  },
-  {
-    title: 'Team Stand-up Meeting',
-    start: new Date('2025-06-24T09:15:00'),
-    end: new Date('2025-06-24T09:30:00'),
-    color: '#2196F3',
-  },
-  {
-    title: 'Morning Run',
-    start: new Date('2025-06-24T06:00:00'),
-    end: new Date('2025-06-24T07:00:00'),
-    color: '#4CAF50',
-  },
-  {
-    title: 'Team Stand-up Meeting',
-    start: new Date('2025-06-24T09:00:00'),
-    end: new Date('2025-06-24T09:30:00'),
-    color: '#2196F3',
-  },
-  {
-    title: 'Morning Run',
-    start: new Date('2025-06-24T06:00:00'),
-    end: new Date('2025-06-24T07:00:00'),
-    color: '#2196F3',
-  },
-  {
-    title: 'Team Stand-up Meeting',
-    start: new Date('2025-06-24T09:20:00'),
-    end: new Date('2025-06-24T09:35:00'),
-    color: '#2196F3',
-  },
-  {
-    title: 'Work Session: UI Design',
-    start: new Date('2025-06-24T10:00:00'),
-    end: new Date('2025-06-24T12:00:00'),
-    color: '#FFC107',
-  },
-  {
-    title: 'Lunch with Sarah',
-    start: new Date('2025-06-24T12:30:00'),
-    end: new Date('2025-06-24T13:30:00'),
-    color: '#FF5722',
-  },
-  {
-    title: 'Doctor Appointment',
-    start: new Date('2025-06-24T15:00:00'),
-    end: new Date('2025-06-24T15:45:00'),
-    color: '#9C27B0',
-  },
-  {
-    title: 'Project Review Call',
-    start: new Date('2025-06-24T16:00:00'),
-    end: new Date('2025-06-24T17:00:00'),
-    color: '#3F51B5',
-  }
-  // {
-  //   title: 'Evening Yoga',
-  //   start: new Date('2025-06-23T19:00:00'),
-  //   end: new Date('2025-06-24T20:00:00'),
-  //   color: '#E91E63',},
-  ,{
-    title: 'Evening Yoga',
-    start: new Date('2025-06-24T19:00:00'),
-    end: new Date('2025-06-25T20:00:00'),
-    color: '#E91E63',
-  },
-  {
-    title: 'Evening Yoga',
-    start: new Date('2025-06-22T19:00:00'),
-    end: new Date('2025-06-26T20:00:00'),
-    color: '#E91E63',
-  }
-  //{
-  //   title: 'Evening Yoga',
-  //   start: new Date('2025-06-22T19:00:00'),
-  //   end: new Date('2025-06-26T20:00:00'),
-  //   color: '#E91E63',
-  // },
-  // {
-  //   title: 'Evening Yoga',
-  //   start: new Date('2025-06-22T19:00:00'),
-  //   end: new Date('2025-06-26T20:00:00'),
-  //   color: '#E91E63',
-  // },{
-  //   title: 'Evening Yoga',
-  //   start: new Date('2025-06-22T19:00:00'),
-  //   end: new Date('2025-06-26T20:00:00'),
-  //   color: '#E91E63',
-  // },
-];
-
 
 
 const storyCardDetails1: TaskCardDetails = { 

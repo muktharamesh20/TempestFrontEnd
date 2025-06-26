@@ -1,25 +1,18 @@
+import { EventDetailsForNow } from '@/services/utils';
 import React from 'react';
 import {
-    Dimensions,
-    FlatList,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  Dimensions,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 
-interface EventItem {
-  title: string;
-  start: string | Date;
-  end: string | Date;
-  color?: string;
-  [key: string]: any;
-}
-
 interface CalendarMonthViewProps {
-  events: EventItem[];
+  events: EventDetailsForNow[];
   onEventPress: (
-    event: EventItem | { overflow: true; day: number; count: number }
+    event: EventDetailsForNow | { overflow: true; day: number; count: number }
   ) => void;
   year?: number;
   month?: number; // 0-based month, default current month
@@ -63,7 +56,7 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
   });
 
   // Group events by day (day number in month)
-  const eventsByDay: Record<number, EventItem[]> = {};
+  const eventsByDay: Record<number, EventDetailsForNow[]> = {};
   events.forEach((event) => {
     const startDate = new Date(event.start);
     if (startDate.getFullYear() === viewYear && startDate.getMonth() === viewMonth) {

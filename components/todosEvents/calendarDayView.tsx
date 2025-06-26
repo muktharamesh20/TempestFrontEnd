@@ -17,17 +17,10 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 
-export interface EventItem {
-  title: string;
-  start: string | Date;
-  end: string | Date;
-  color?: string;
-  [key: string]: any;
-}
 
 interface CalendarDayViewProps {
-  events: EventItem[];
-  onEventPress: (event: EventItem) => void;
+  events: EventDetailsForNow[];
+  onEventPress: (event: EventDetailsForNow) => void;
   day: Date;
   hourHeight: number
   setHourHeight:React.Dispatch<React.SetStateAction<number>>
@@ -100,7 +93,7 @@ useEffect(() => {
   });
 
   // Determine if event is all-day: start <= 00:00 AND end >= 23:59 on the same day
-  const isAllDayEvent = (event: EventItem, dayStart: Date, dayEnd: Date) => {
+  const isAllDayEvent = (event: EventDetailsForNow, dayStart: Date, dayEnd: Date) => {
     const start = new Date(event.start);
     const end = new Date(event.end);
     return start <= dayStart && end >= dayEnd;
@@ -175,7 +168,7 @@ useEffect(() => {
     );
   
     // Build graph: for each event, track which other events it overlaps with
-    const overlapGraph: Map<EventItem, EventItem[]> = new Map();
+    const overlapGraph: Map<EventDetailsForNow, EventDetailsForNow[]> = new Map();
     sortedTimedEvents.forEach((e) => overlapGraph.set(e, []));
   
     for (let i = 0; i < sortedTimedEvents.length; i++) {
@@ -198,7 +191,7 @@ useEffect(() => {
   
     // Assign columns to events so no overlapping events share the same column
     // We'll use a greedy coloring algorithm where each column is a color
-    const eventColumns = new Map<EventItem, number>();
+    const eventColumns = new Map<EventDetailsForNow, number>();
     
     sortedTimedEvents.forEach((event) => {
       const usedColumns = new Set<number>();
@@ -218,12 +211,12 @@ useEffect(() => {
   
     // Calculate max columns needed in each connected cluster of overlapping events
     // We'll do a BFS to find clusters and max column count inside each cluster
-    const visited = new Set<EventItem>();
-    const eventClusterMaxCols = new Map<EventItem, number>();
+    const visited = new Set<EventDetailsForNow>();
+    const eventClusterMaxCols = new Map<EventDetailsForNow, number>();
   
-    function bfsCluster(start: EventItem) {
+    function bfsCluster(start: EventDetailsForNow) {
       const queue = [start];
-      const clusterEvents: EventItem[] = [];
+      const clusterEvents: EventDetailsForNow[] = [];
       visited.add(start);
   
       while (queue.length > 0) {
@@ -343,9 +336,9 @@ useEffect(() => {
   };
   
   
-  const buildOverlappingGroups = (events: EventItem[]) => {
+  const buildOverlappingGroups = (events: EventDetailsForNow[]) => {
   const sorted = [...events].sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-  const groups: EventItem[][] = [];
+  const groups: EventDetailsForNow[][] = [];
 
   for (const event of sorted) {
     const start = new Date(event.start).getTime();
@@ -411,7 +404,7 @@ useEffect(() => {
 
             {/*timeLabel*/}
             <View onLayout={onLayout} style={{ flex: 1 }}>
-              {renderCurrentTimeLine({extraMargin: (allDayEventsCount + 20)})}
+              {renderCurrentTimeLine({extraMargin: (numEvents * ALL_DAY_EVENT_SINGLE_HEIGHT + 5)})}
               {renderEvents(numEvents, setNumStack)}
             </View>
 
@@ -528,6 +521,7 @@ export default CalendarDayView;
 
 
 
+import { EventDetailsForNow } from '@/services/utils';
 import { format } from 'date-fns';
 
 export const CurrentTimeIndicator = ({ day }: { day: Date }) => {

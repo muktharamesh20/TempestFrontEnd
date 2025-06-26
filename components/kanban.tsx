@@ -76,6 +76,9 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
   const renderTaskList = (tab: Tab) => {
     const tasks = filteredTasks[tab];
     if (tasks.length === 0) {
+      if (tab === 'Events'){
+        return <Text className="text-center text-gray-400 mt-4">No events</Text>;
+      }
       return <Text className="text-center text-gray-400 mt-4">No tasks</Text>;
     }
 

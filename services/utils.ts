@@ -113,7 +113,8 @@ export async function createGroupTypeWithData(groupDetails:
  * @param eventDetails
  * @param supabaseClient
  */
-interface EventDetails {
+export interface EventDetails {
+    color: string;
     description: string;
     end_date: string;
     end_repeat: string | null;
@@ -127,6 +128,16 @@ interface EventDetails {
     start_time: string;
     title: string;
     working_on_this_todo: string | null;
+}
+
+export interface EventDetailsForNow {
+    title: string;
+    start: Date;
+    end: Date;
+    color: string;
+    end_repeat: Date;
+    days: Number[]; //0 is sunday, 6 is saturday
+    repeat_schedule: 'weekly' | 'monthly' | 'biweekly' | 'daily' | 'none';
 }
 
 //created

@@ -1,4 +1,5 @@
 import { numbers } from '@/constants/numbers';
+import { EventDetailsForNow } from '@/services/utils';
 import React, { useEffect, useState } from 'react';
 import {
   LayoutChangeEvent,
@@ -17,17 +18,9 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 
-interface EventItem {
-  title: string;
-  start: string | Date;
-  end: string | Date;
-  color?: string;
-  [key: string]: any;
-}
-
 interface CalendarWeekViewProps {
-  events: EventItem[];
-  onEventPress: (event: EventItem) => void;
+  events: EventDetailsForNow[];
+  onEventPress: (event: EventDetailsForNow) => void;
   focusedDay: Date; // <- New prop
   hourHeight: number;
   setHourHeight: React.Dispatch<React.SetStateAction<number>>;
@@ -126,7 +119,7 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       return start <= dayStart && end >= nextDay;
     };
   
-    type Placed = { event: EventItem; startDay: number; endDay: number; stackIndex: number };
+    type Placed = { event: EventDetailsForNow; startDay: number; endDay: number; stackIndex: number };
     const placedEvents: Placed[] = [];
   
     events
@@ -242,7 +235,7 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
   const renderEvents = () => {
     /* ───────── collect per-day slices (timed only) ───────── */
     type Slice = {
-      event: EventItem;
+      event: EventDetailsForNow;
       sliceStart: Date;
       sliceEnd: Date;
       dayIndex: number; // 0–6, relative to startOfWeek

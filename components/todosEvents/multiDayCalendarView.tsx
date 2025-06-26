@@ -1,3 +1,4 @@
+import { EventDetailsForNow } from '@/services/utils';
 import { addDays } from 'date-fns';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -7,11 +8,11 @@ import {
   ScrollView,
   View,
 } from 'react-native';
-import CalendarDayView, { EventItem } from './calendarDayView';
+import CalendarDayView from './calendarDayView';
 
 interface MultiDayCalendarProps {
-  events: EventItem[];
-  onEventPress: (event: EventItem) => void;
+  events: EventDetailsForNow[];
+  onEventPress: (event: EventDetailsForNow) => void;
   currFocusedDay: Date;
   changeViewingDate: (date: Date) => void;
   hourHeight: number;

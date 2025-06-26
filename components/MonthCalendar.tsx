@@ -1,5 +1,6 @@
 import { icons } from '@/constants/icons';
 import { numbers } from '@/constants/numbers';
+import { EventDetailsForNow } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
 import { addMonths, format, isValid, startOfYear } from 'date-fns';
 import React, { useEffect, useRef, useState } from 'react';
@@ -21,6 +22,7 @@ import TaskCardCarosel from './TaskCardCarosel';
 import CalendarMonthView from './todosEvents/calendarMonthView';
 
 interface calendarProps {
+  events: EventDetailsForNow[];
   viewingDate: Date;
   setViewingDateFunc: (date: Date) => void;
   categories: drawerProps[];
@@ -48,7 +50,7 @@ const monthDiff = (date1: Date, date2: Date) => {
   return (date1.getFullYear() - date2.getFullYear()) * 12 + (date1.getMonth() - date2.getMonth());
 };
 
-const MonthCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle }: calendarProps) => {
+const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle }: calendarProps) => {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
@@ -240,7 +242,7 @@ const MonthCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, h
       {/* <DayViewCalendar day={focusedDay} categoriesShown = {categories}/> */}
       <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
       <CalendarMonthView
-      events={sampleEvents}
+      events={events}
       onEventPress={(event) => console.log('Pressed event:', event)}
       />
     </ScrollView>
@@ -294,121 +296,6 @@ const MonthCalendar = ({ setView, viewingDate, setViewingDateFunc, categories, h
 
 export default MonthCalendar;
 
-
-const sampleEvents = [
-  {
-    title: 'Morning Run',
-    start: new Date('2025-06-24T06:00:00'),
-    end: new Date('2025-06-24T07:00:00'),
-    color: '#4CAF50',
-  },
-  {
-    title: 'Team Stand-up Meeting',
-    start: new Date('2025-06-24T09:15:00'),
-    end: new Date('2025-06-24T09:30:00'),
-    color: '#2196F3',
-  },
-  {
-    title: 'Morning Run',
-    start: new Date('2025-06-24T06:00:00'),
-    end: new Date('2025-06-24T07:00:00'),
-    color: '#4CAF50',
-  },
-  {
-    title: 'Team Stand-up Meeting',
-    start: new Date('2025-06-24T09:00:00'),
-    end: new Date('2025-06-24T09:30:00'),
-    color: '#2196F3',
-  },
-  {
-    title: 'Morning Run',
-    start: new Date('2025-06-24T06:00:00'),
-    end: new Date('2025-06-24T07:00:00'),
-    color: '#4CAF50',
-  },
-  {
-    title: 'Team Stand-up Meeting',
-    start: new Date('2025-06-24T09:20:00'),
-    end: new Date('2025-06-24T09:35:00'),
-    color: '#2196F3',
-  },
-  {
-    title: 'Work Session: UI Design',
-    start: new Date('2025-06-24T10:00:00'),
-    end: new Date('2025-06-24T12:00:00'),
-    color: '#FFC107',
-  },
-  {
-    title: 'Lunch with Sarah',
-    start: new Date('2025-06-24T12:30:00'),
-    end: new Date('2025-06-24T13:30:00'),
-    color: '#FF5722',
-  },
-  {
-    title: 'Doctor Appointment',
-    start: new Date('2025-06-24T15:00:00'),
-    end: new Date('2025-06-24T15:45:00'),
-    color: '#9C27B0',
-  },
-  {
-    title: 'Project Review Call',
-    start: new Date('2025-06-24T16:00:00'),
-    end: new Date('2025-06-24T17:00:00'),
-    color: '#3F51B5',
-  },
-  {
-    title: 'Evening Yoga',
-    start: new Date('2025-06-24T19:00:00'),
-    end: new Date('2025-06-24T20:00:00'),
-    color: '#E91E63',
-  },{
-    title: 'Morning Workout',
-    start: new Date('2025-06-23T06:30:00'),
-    end: new Date('2025-06-23T07:30:00'),
-    color: '#4CAF50',
-  },
-  {
-    title: 'Team Standup',
-    start: new Date('2025-06-24T09:00:00'),
-    end: new Date('2025-06-24T09:30:00'),
-    color: '#2196F3',
-  },
-  {
-    title: 'Lunch with Alex',
-    start: new Date('2025-06-25T12:00:00'),
-    end: new Date('2025-06-25T13:00:00'),
-    color: '#FFC107',
-  },
-  {
-    title: 'Project Meeting',
-    start: new Date('2025-06-25T15:00:00'),
-    end: new Date('2025-06-25T16:30:00'),
-    color: '#9C27B0',
-  },
-  {
-    title: 'Dentist Appointment',
-    start: new Date('2025-06-26T11:00:00'),
-    end: new Date('2025-06-26T11:45:00'),
-    color: '#E91E63',
-  },
-  {
-    title: 'Date Night',
-    start: new Date('2025-06-27T19:00:00'),
-    end: new Date('2025-06-27T21:30:00'),
-    color: '#F44336',
-  },
-  {
-    title: 'Weekend Hike',
-    start: new Date('2025-06-29T08:00:00'),
-    end: new Date('2025-06-29T10:00:00'),
-    color: '#3F51B5',
-  },{
-    title: 'Date Night',
-    start: new Date('2025-06-28T19:00:00'),
-    end: new Date('2025-06-28T21:30:00'),
-    color: '#F44336',
-  },
-];
 
 
 
