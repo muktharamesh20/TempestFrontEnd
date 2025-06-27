@@ -73,14 +73,6 @@ const SetUsername = ({ closeFunction }: { closeFunction: Dispatch<SetStateAction
    
   };
 
-    
-
-    // Example: Save username to state or storage here
-    // await AsyncStorage.setItem('username', username);
-    // You can navigate or close the modal after saving
-    //router.navigate('/home'); // or your next step
-  
-
   return (
     <Animated.View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.6)', opacity: fadeAnim, justifyContent: 'center', alignItems: 'center', zIndex: 20 }]}>
       <Animated.View style={{ transform: [{ scale: scaleAnim }], width: '90%', borderRadius: 20, overflow: 'hidden' }}>

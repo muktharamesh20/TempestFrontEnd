@@ -11,7 +11,7 @@ const TaskCardCarosel = ({ taskCards }: StoryCaroselProps) => {
 
   if (sortedCards.length === 0) {
     return (
-    //nothing rendered
+      //nothing rendered
       <View className="w-full h-[0px] flex items-center justify-center">
         <Text className="text-gray-400 text-base font-medium">No tasks</Text>
       </View>

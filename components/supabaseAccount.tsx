@@ -78,12 +78,12 @@ export default function Account({ session }: { session: Session }) {
     <View style={styles.container}>
       <View>
         <Avatar
-            size={200}
-            url={avatarUrl}
-            onUpload={(url: string) => {
+          size={200}
+          url={avatarUrl}
+          onUpload={(url: string) => {
             setAvatarUrl(url)
             updateProfile({ username, website, avatar_url: url })
-            }}
+          }}
         />
       </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>

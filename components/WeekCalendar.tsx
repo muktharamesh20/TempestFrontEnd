@@ -87,40 +87,40 @@ const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, catego
   const extendDataToIncludeDate = (targetDate: Date) => {
     let newData = [...data];
     const targetSunday = startOfWeek(targetDate, { weekStartsOn: 0 });
-  
+
     while (targetSunday < newData[0]) {
       const prevSunday = addDays(newData[0], -7);
       newData = [prevSunday, ...newData];
     }
-  
+
     while (targetSunday > newData[newData.length - 1]) {
       const nextSunday = addDays(newData[newData.length - 1], 7);
       newData = [...newData, nextSunday];
     }
-  
+
     setData(newData);
     return newData;
   };
-  
+
   const scrollToDate = (date: Date) => {
     let newData = data;
     const targetSunday = startOfWeek(date, { weekStartsOn: 0 });
-  
+
     // If targetSunday not in data, extend data (regular extend)
     if (!data.some(d => format(d, 'yyyy-MM-dd') === format(targetSunday, 'yyyy-MM-dd'))) {
       newData = extendDataToIncludeDate(date);
     }
-  
+
     let targetIndex = newData.findIndex(d => format(d, 'yyyy-MM-dd') === format(targetSunday, 'yyyy-MM-dd'));
-  
+
     if (targetIndex === -1) {
       console.warn("Date not found even after extending data.");
       return;
     }
-  
+
     // Preload adjacent pages if targetIndex is near the start or end
     const lastIndex = newData.length - 1;
-  
+
     // If target is at second-to-last or last page, extend forwards
     if (targetIndex >= lastIndex - 1) {
       // Extend forwards by adding one or two more Sundays
@@ -134,7 +134,7 @@ const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, catego
         setData(newData);
       }
     }
-  
+
     // If target is at first or second page, extend backwards
     if (targetIndex <= 1) {
       let extended = false;
@@ -148,14 +148,14 @@ const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, catego
         setData(newData);
       }
     }
-  
+
     scrollToIndex(targetIndex);
     setFocusedDay(date);
     setSunday(newData[targetIndex]);
     setViewingDateFunc(date);
   };
-  
-  
+
+
 
   const getIndexOfDate = (date: Date) => {
     const targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfWeek(date), 'yyyy-MM-dd'));
@@ -208,7 +208,7 @@ const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, catego
           className="absolute w-full flex flex-row items-center bg-secondary px-4 z-50"
         >
           {/* Menu Button */}
-          <TouchableOpacity onPress={() => {setMenuOpen(true)}} className="p-2">
+          <TouchableOpacity onPress={() => { setMenuOpen(true) }} className="p-2">
             <Ionicons name="menu-outline" size={35} color="#ffffff" />
           </TouchableOpacity>
 
@@ -219,7 +219,7 @@ const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, catego
 
           {/* Calendar Icon with Today's Date */}
           <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center', marginRight: 4 }}>
-            <TouchableOpacity onPress={() => {scrollToDate(today); setViewingDateFunc(today)}} className="justify-center items-center">
+            <TouchableOpacity onPress={() => { scrollToDate(today); setViewingDateFunc(today) }} className="justify-center items-center">
               <Image source={icons.calendar} style={{ tintColor: '#ffffff', width: 24, height: 24 }} />
               <Text
                 style={{
@@ -282,10 +282,9 @@ const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, catego
                         setViewingDateFunc(date);
                         console.log('pressed!', date);
                         setView('day');
-                      }}                      
-                      className={`flex items-center justify-center w-[50px] gap-[5px] py-5 rounded ${
-                        'bg-transparent'
-                      }`}
+                      }}
+                      className={`flex items-center justify-center w-[50px] gap-[5px] py-5 rounded ${'bg-transparent'
+                        }`}
                     >
                       <Text className="text-lg font-semibold text-white">
                         {isValid(date) ? format(date, 'EEE') : '--'}
@@ -297,39 +296,30 @@ const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, catego
                   );
                 })}
               </View>
-          );
-        }}
-      />
-
-
-    </View>
-
-            {/* Main Content Area */}
-            <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor}}>
-      {/* Placeholder for main content */}
-      {/* <Text className="text-black text-lg">Main content goes here</Text> */}
-      {/* <DayViewCalendar day={focusedDay} categoriesShown = {categories}/> */}
-      <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
-
-      {/* <View  {...panResponder.panHandlers} >
-        <CalendarWeekView
-        events={sampleEvents}
-        onEventPress={(event) => console.log('Pressed event:', event)}
+            );
+          }}
         />
-      </View> */}
+
+
+      </View>
+
+      {/* Main Content Area */}
+      <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor }}>
+        <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
+
         <MultiWeekCalendar
-        currFocusedDay={viewingDate}
-        changeViewingDate={(date) => {setViewingDateFunc(date); scrollToDate(date)}}
-        events={events}
-        onEventPress={(event) => console.log('Pressed event:', event)}
-        hourHeight={hourHeight}
-        setHourHeight={setHourHeight}
+          currFocusedDay={viewingDate}
+          changeViewingDate={(date) => { setViewingDateFunc(date); scrollToDate(date) }}
+          events={events}
+          onEventPress={(event) => console.log('Pressed event:', event)}
+          hourHeight={hourHeight}
+          setHourHeight={setHourHeight}
         />
-      
-    </ScrollView>
 
-     {/* Overlay and Drawer */}
-     {menuOpen && (
+      </ScrollView>
+
+      {/* Overlay and Drawer */}
+      {menuOpen && (
         <>
           {/* Dark overlay */}
           <TouchableOpacity
@@ -366,12 +356,12 @@ const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, catego
             <CalendarDrawer
               categories={categories}
               handleCategoryToggle={handleCategoryToggle}
-              setView = {setView}
+              setView={setView}
             />
           </View>
         </>
       )}
-  </View>
+    </View>
   );
 };
 
@@ -379,36 +369,36 @@ export default WeekCalendar;
 
 
 
-const storyCardDetails1: TaskCardDetails = { 
-  personID: "1", 
-  taskID: "h", 
-  groupName: "Gym ofc 🏋️", 
-  taskName: "little rhea kid gym day", 
-  mytask: true, 
-  backlog: false, 
+const storyCardDetails1: TaskCardDetails = {
+  personID: "1",
+  taskID: "h",
+  groupName: "Gym ofc 🏋️",
+  taskName: "little rhea kid gym day",
+  mytask: true,
+  backlog: false,
   dueDay: new Date("2025-06-19T00:00:00Z"),
   accomplished: false,
 }
 
-const storyCardDetails2: TaskCardDetails = { 
-  personID: "2", 
+const storyCardDetails2: TaskCardDetails = {
+  personID: "2",
   eventID: "g",
-  username: "umamageswari", 
-  groupName: "Gym ofc 🏋️", 
-  taskName: "little rhea kid gym day", 
-  mytask: true, 
-  backlog: false, 
-  dueDay: new Date("2025-06-17T00:00:00Z"), 
+  username: "umamageswari",
+  groupName: "Gym ofc 🏋️",
+  taskName: "little rhea kid gym day",
+  mytask: true,
+  backlog: false,
+  dueDay: new Date("2025-06-17T00:00:00Z"),
   accomplished: true,
 }
 
-const storyCardDetails3: TaskCardDetails = { 
-  personID: "2", 
+const storyCardDetails3: TaskCardDetails = {
+  personID: "2",
   taskID: "g",
-  username: "umamageswari", 
-  groupName: "Gym ofc 🏋️", 
-  taskName: "little rhea kid gym day", 
-  mytask: false, 
+  username: "umamageswari",
+  groupName: "Gym ofc 🏋️",
+  taskName: "little rhea kid gym day",
+  mytask: false,
   backlog: true,
   accomplished: false,
 }

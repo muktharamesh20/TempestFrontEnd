@@ -74,7 +74,7 @@ const CommentItem = ({
     const isOwnComment = comment.authorId === currentUserId;
     const isPostOwner = postOwnerId === currentUserId;
     const isOtherUser = comment.authorId !== currentUserId;
-  
+
     if (isOwnComment || isPostOwner) {
       const actions: AlertButton[] = [
         {
@@ -87,7 +87,7 @@ const CommentItem = ({
           onPress: () => onDelete(comment.id),
         },
       ];
-  
+
       if (isPostOwner && isOtherUser) {
         actions.push({
           text: 'Block user from commenting in future',
@@ -95,16 +95,28 @@ const CommentItem = ({
           onPress: () => onBlock(comment.authorId),
         });
       }
-  
+
       Alert.alert('Comment Options', 'Choose an action:', actions);
     }
   };
-  
+
 
   return (
     <View style={{ marginBottom: 10, paddingRight: 10 }}>
       {(comment.authorId === currentUserId || postOwnerId === currentUserId) ?
-      <TouchableOpacity onLongPress={handleLongPress} delayLongPress={300}>
+        <TouchableOpacity onLongPress={handleLongPress} delayLongPress={300}>
+          <View style={{ flexDirection: 'row' }}>
+            <Image source={{ uri: imageUrl }} style={styles.avatar} />
+            <View style={styles.commentContent}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.author}>{comment.author}</Text>
+                <Text style={styles.timeText}> • {timeSince(comment.timeCreated)}</Text>
+              </View>
+              <Text>{comment.content}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+        :
         <View style={{ flexDirection: 'row' }}>
           <Image source={{ uri: imageUrl }} style={styles.avatar} />
           <View style={styles.commentContent}>
@@ -114,19 +126,7 @@ const CommentItem = ({
             </View>
             <Text>{comment.content}</Text>
           </View>
-        </View>
-      </TouchableOpacity>
-      : 
-      <View style={{ flexDirection: 'row' }}>
-      <Image source={{ uri: imageUrl }} style={styles.avatar} />
-      <View style={styles.commentContent}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={styles.author}>{comment.author}</Text>
-          <Text style={styles.timeText}> • {timeSince(comment.timeCreated)}</Text>
-        </View>
-        <Text>{comment.content}</Text>
-      </View>
-    </View>}
+        </View>}
 
       <View style={{ marginLeft: 24, marginTop: 3 }}>
         {displayedReplies.map((reply) => (
@@ -233,7 +233,7 @@ export default function CommentsModal({
     if (comment.parentId) {
       acc[comment.parentId] = acc[comment.parentId] || [];
       acc[comment.parentId].push(comment);
-    } 
+    }
     return acc;
   }, {});
 
@@ -249,10 +249,10 @@ export default function CommentsModal({
         setImageUrl(defaultPicUrl);
       }
     };
-  
+
     fetchProfilePic();
   }, []);
-  
+
 
   const handlePost = () => {
     if (text.trim()) {
@@ -266,7 +266,7 @@ export default function CommentsModal({
     <Modal
       isVisible={visible}
       onSwipeComplete={onClose}
-    //   swipeDirection="down"
+      //   swipeDirection="down"
       onBackdropPress={onClose}
       style={styles.modal}
       propagateSwipe
@@ -289,14 +289,14 @@ export default function CommentsModal({
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <CommentItem
-      comment={item}
-      replies={repliesByParent[item.id] || []}
-      onReply={setReplyTo}
-      currentUserId={currentUserId}
-      postOwnerId={postOwnerId}
-      onDelete={onDeleteComment}
-      onBlock = {onBlockPersonFromCommenting}
-    />
+                comment={item}
+                replies={repliesByParent[item.id] || []}
+                onReply={setReplyTo}
+                currentUserId={currentUserId}
+                postOwnerId={postOwnerId}
+                onDelete={onDeleteComment}
+                onBlock={onBlockPersonFromCommenting}
+              />
             )}
             contentContainerStyle={{ paddingBottom: 80 }}
           />

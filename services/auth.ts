@@ -2,22 +2,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthSessionMissingError, createClient, processLock, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '../databasetypes';
 
-
-//allows us to use process.env to get environment variables
-
-
 // Create a single supabase client for interacting with your database
 export function getSupabaseClient(): SupabaseClient<Database> {
   const supabase = createClient<Database>(
     process.env.EXPO_PUBLIC_SUPABASE_URL ?? (() => { throw new Error('EXPO_PUBLIC_SUPABASE_URL is not defined'); })(),
     process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? (() => { throw new Error('EXPO_PUBLIC_SUPABASE_ANON_KEY is not defined'); })(), {
-      auth: {
-        storage: AsyncStorage,
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: false,
-        lock: processLock,
-      },
+    auth: {
+      storage: AsyncStorage,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+      lock: processLock,
+    },
   });
   return supabase;
 }
@@ -30,47 +26,18 @@ export function getSupabaseClient(): SupabaseClient<Database> {
  * @throws Will throw an error if the user creation fails, e.g. if the email is already in use or the password is too weak.
  * @throws AuthWeakPasswordError if the password is too weak.
  */
-export async function createUser(email: string, password: string, supabaseClient: SupabaseClient<Database> ): Promise<void> {
-    const { data, error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-    });
+export async function createUser(email: string, password: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password,
+  });
 
-    if (error) {
-        console.error('Error creating user:', error.message);
-        throw error;
-    }
-
-    //console.log('User created successfully:', email);
+  if (error) {
+    console.error('Error creating user:', error.message);
+    throw error;
+  }
 }
 
-/**
- * Verifies a JWT token and returns the decoded user information.
- * 
- * @param token - The JWT token to verify.
- * @returns the decoded user information from the JWT token (has id attribute)
- * @throws Will throw an error if the JWT secret is not defined or if the token is invalid.
- */
-// export async function verifyToken(token: string): Promise<JwtPayload> {
-//     const decodedData = jwt.verify(token, process.env.JWT_SECRET ?? assert.fail('NEXT_PUBLIC_SUPABASE_JWT_SECRET is not defined'), { algorithms: ['HS256'] }) as JwtPayload;
-
-//     //console.log('current tiem:', Math.floor(Date.now() / 1000));
-//     //assert(decodedData.exp > Math.floor(Date.now() / 1000), 'Token has expired');
-//     return decodedData;
-// }
-
-/**
- * Decodes a JWT token without verifying its signature or that its expired (in string format).
- * 
- * @param token - The JWT token to decode.
- * @returns the payload of the JWT token as a JWT token.
- * @throws Will throw an error if the token cannot be decoded.
- */
-// export function decodeToken(token: string): Jwt {
-//     //const decodedData = jwt.decode(token, { complete: true })?? assert.fail('Failed to decode token');
-
-//     //return decodedData;
-// }
 
 /**
  * Tries to sign the user in with a username and password, and returns the access token and refresh token.
@@ -95,11 +62,6 @@ export async function signInAndGetToken(email: string, password: string, supabas
   const accessToken = data.session.access_token
   const refreshToken = data.session.refresh_token
 
-  //console.log('✅ Access Token:', accessToken)
-  //console.log('🔁 Refresh Token:', refreshToken)
-  //console.log(data.session)
-  //console.log('✅ signed in', email);
-
   return [accessToken, refreshToken, data.session.user.id];
 }
 
@@ -123,12 +85,6 @@ export async function signOut(token: string, supabaseClient: SupabaseClient<Data
     };
     throw revokeError;
   }
-  //if (error) {
-    //console.error('Sign out error:', error.message)
-    //throw error
-  //}
-
-  //console.log('✅ Successfully signed out')
 }
 
 /**
@@ -138,7 +94,7 @@ export async function signOut(token: string, supabaseClient: SupabaseClient<Data
  * @return A tuple containing the new access token and refresh token.
  */
 export async function useSupaBaseRefreshToken(refreshToken: string, supabaseClient: SupabaseClient<Database>): Promise<[string, string]> {
-  const { data, error } = await supabaseClient.auth.refreshSession({refresh_token: refreshToken});
+  const { data, error } = await supabaseClient.auth.refreshSession({ refresh_token: refreshToken });
 
   if (error) {
     console.error('Refresh token error:', error.message);
@@ -160,36 +116,33 @@ export async function useSupaBaseRefreshToken(refreshToken: string, supabaseClie
 
 
 export async function oathSignIn(supabaseClient: SupabaseClient<Database>): Promise<[string, string]> {
-    // This function is not implemented yet, but it will handle OAuth sign-in
-    // using the Supabase client.
-    supabaseClient.auth.signInWithOAuth({
-        provider: 'google', // or any other OAuth provider supported by Supabase
-        options: {
-            redirectTo: 'http://localhost:3000/auth/callback', // replace with your redirect URL after they are confirmed
-            scopes: 'email profile',
-        }
-    })
-    throw new Error('OAuth sign-in is not implemented yet.');
+  // This function is not implemented yet, but it will handle OAuth sign-in
+  // using the Supabase client.
+  supabaseClient.auth.signInWithOAuth({
+    provider: 'google', // or any other OAuth provider supported by Supabase
+    options: {
+      redirectTo: 'http://localhost:3000/auth/callback', // replace with your redirect URL after they are confirmed
+      scopes: 'email profile',
+    }
+  })
+  throw new Error('OAuth sign-in is not implemented yet.');
 }
 
 export async function changePassword(supabaseClient: SupabaseClient<Database>, newPassword: string): Promise<void> {
-    const { data, error } = await supabaseClient.auth.updateUser({
-        password: newPassword,
-    });
+  const { data, error } = await supabaseClient.auth.updateUser({
+    password: newPassword,
+  });
 
-    if (error) {
-        console.error('Error changing password:', error.message);
-        throw error;
-    }
-
-    //console.log('Password changed successfully:', data.user.email);
+  if (error) {
+    console.error('Error changing password:', error.message);
+    throw error;
+  }
 }
 
 export async function deleteAccount(supabaseClient: SupabaseClient<Database>): Promise<void> {
-    const { error } = await supabaseClient.functions.invoke('delete_user');
-    if (error) {
-        console.error('Error deleting account:', error.message);
-        throw error;
-    }
-    //console.log('Account deleted successfully');
+  const { error } = await supabaseClient.functions.invoke('delete_user');
+  if (error) {
+    console.error('Error deleting account:', error.message);
+    throw error;
+  }
 }

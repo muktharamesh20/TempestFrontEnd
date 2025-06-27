@@ -38,14 +38,14 @@ const MultiWeekCalendar: React.FC<multiWeekCalendarView> = ({
   useEffect(() => {
     scrollToCenter();
     if (centerDate != currFocusedDay) {
-        changeViewingDate(centerDate)
+      changeViewingDate(centerDate)
     }
   }, [centerDate, scrollToCenter]);
 
   useEffect(() => {
     if (centerDate != currFocusedDay) {
-        setCenterDate(currFocusedDay)
-        scrollToCenter()
+      setCenterDate(currFocusedDay)
+      scrollToCenter()
     }
   }, [currFocusedDay])
 

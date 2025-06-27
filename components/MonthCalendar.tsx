@@ -78,7 +78,7 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
     setViewingDateFunc(initialDay);
   }, []); // only run on first mount
 
-  useEffect(() =>{
+  useEffect(() => {
     scrollToDate(focusedDay)
   }, [focusedDay])
 
@@ -92,7 +92,7 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
   const scrollToDate = (date: Date) => {
     let targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfYear(date), 'yyyy-MM-dd'));
 
-    if(date.getMonth() >= 6){
+    if (date.getMonth() >= 6) {
       targetIndex += 1;
     }
     if (targetIndex !== -1) {
@@ -105,11 +105,11 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
   };
 
   const getIndexOfDate = (date: Date) => {
-      const targetIndex = data.findIndex((d) => format(d, 'yyyy') === format(startOfYear(date), 'yyyy'));
-      if (targetIndex !== -1 && monthDiff(date, startMonth) >= 0 && monthDiff(date, startMonth) < 6) {
-          return targetIndex;
-      }
-      return 1;
+    const targetIndex = data.findIndex((d) => format(d, 'yyyy') === format(startOfYear(date), 'yyyy'));
+    if (targetIndex !== -1 && monthDiff(date, startMonth) >= 0 && monthDiff(date, startMonth) < 6) {
+      return targetIndex;
+    }
+    return 1;
   };
 
   const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -144,7 +144,7 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
     <View style={{ flex: 1, backgroundColor: numbers.primaryColor }}>
       <View
         style={{
-          height: numbers.headerHeight + insets.top + numbers.calendarHeaderHeight -25,
+          height: numbers.headerHeight + insets.top + numbers.calendarHeaderHeight - 25,
           backgroundColor: numbers.secondaryColor,
         }}
       >
@@ -157,7 +157,7 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
           className="absolute w-full flex flex-row items-center bg-secondary px-4 z-50"
         >
           {/* Menu Button */}
-          <TouchableOpacity onPress={() => {setMenuOpen(true)}} className="p-2">
+          <TouchableOpacity onPress={() => { setMenuOpen(true) }} className="p-2">
             <Ionicons name="menu-outline" size={35} color="#ffffff" />
           </TouchableOpacity>
 
@@ -168,7 +168,7 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
 
           {/* Calendar Icon with Today's Date */}
           <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center', marginRight: 4 }}>
-            <TouchableOpacity onPress={() => {scrollToDate(today); setViewingDateFunc(today)}} className="justify-center items-center">
+            <TouchableOpacity onPress={() => { scrollToDate(today); setViewingDateFunc(today) }} className="justify-center items-center">
               <Image source={icons.calendar} style={{ tintColor: '#ffffff', width: 24, height: 24 }} />
               <Text
                 style={{
@@ -221,13 +221,14 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
                   return (
                     <TouchableOpacity
                       key={index}
-                      onPress={() => {if(isValid(date) ){
-                        setFocusedDay(date)
-                        setViewingDateFunc(date);
-                      }}}
-                      className={`flex items-center justify-center w-[50px] gap-[5px] py-5 rounded ${
-                        isFocused ? 'bg-accent' : 'bg-transparent'
-                      }`}
+                      onPress={() => {
+                        if (isValid(date)) {
+                          setFocusedDay(date)
+                          setViewingDateFunc(date);
+                        }
+                      }}
+                      className={`flex items-center justify-center w-[50px] gap-[5px] py-5 rounded ${isFocused ? 'bg-accent' : 'bg-transparent'
+                        }`}
                     >
                       <Text className="text-lg font-semibold text-white">
                         {isValid(date) ? format(date, 'MMM') : '--'}
@@ -236,28 +237,28 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
                   );
                 })}
               </View>
-          );
-        }}
-      />
+            );
+          }}
+        />
 
 
-    </View>
+      </View>
 
-          {/* Main Content Area */}
-          <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor}}>
-      {/* Placeholder for main content */}
-      {/* <Text className="text-black text-lg">Main content goes here</Text> */}
-      {/* <DayViewCalendar day={focusedDay} categoriesShown = {categories}/> */}
-      <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
-      {/* <CalendarMonthView
+      {/* Main Content Area */}
+      <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor }}>
+        {/* Placeholder for main content */}
+        {/* <Text className="text-black text-lg">Main content goes here</Text> */}
+        {/* <DayViewCalendar day={focusedDay} categoriesShown = {categories}/> */}
+        <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
+        {/* <CalendarMonthView
       events={events}
       onEventPress={(event) => console.log('Pressed event:', event)}
       /> */}
-      <MultiMonthView events={events} onEventPress={(event) => console.log('Pressed event:', event)} setView={setView} focusedDay={focusedDay} setViewingDateFunc={setViewingDateFunc} setFocusedDay={setFocusedDay}/>
-    </ScrollView>
+        <MultiMonthView events={events} onEventPress={(event) => console.log('Pressed event:', event)} setView={setView} focusedDay={focusedDay} setViewingDateFunc={setViewingDateFunc} setFocusedDay={setFocusedDay} />
+      </ScrollView>
 
-     {/* Overlay and Drawer */}
-     {menuOpen && (
+      {/* Overlay and Drawer */}
+      {menuOpen && (
         <>
           {/* Dark overlay */}
           <TouchableOpacity
@@ -294,12 +295,12 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
             <CalendarDrawer
               categories={categories}
               handleCategoryToggle={handleCategoryToggle}
-              setView = {setView}
+              setView={setView}
             />
           </View>
         </>
       )}
-  </View>
+    </View>
   );
 };
 
@@ -308,36 +309,36 @@ export default MonthCalendar;
 
 
 
-const storyCardDetails1: TaskCardDetails = { 
-  personID: "1", 
-  taskID: "h", 
-  groupName: "Gym ofc 🏋️", 
-  taskName: "little rhea kid gym day", 
-  mytask: true, 
-  backlog: false, 
+const storyCardDetails1: TaskCardDetails = {
+  personID: "1",
+  taskID: "h",
+  groupName: "Gym ofc 🏋️",
+  taskName: "little rhea kid gym day",
+  mytask: true,
+  backlog: false,
   dueDay: new Date("2025-06-19T00:00:00Z"),
   accomplished: false,
 }
 
-const storyCardDetails2: TaskCardDetails = { 
-  personID: "2", 
+const storyCardDetails2: TaskCardDetails = {
+  personID: "2",
   eventID: "g",
-  username: "umamageswari", 
-  groupName: "Gym ofc 🏋️", 
-  taskName: "little rhea kid gym day", 
-  mytask: true, 
-  backlog: false, 
-  dueDay: new Date("2025-06-17T00:00:00Z"), 
+  username: "umamageswari",
+  groupName: "Gym ofc 🏋️",
+  taskName: "little rhea kid gym day",
+  mytask: true,
+  backlog: false,
+  dueDay: new Date("2025-06-17T00:00:00Z"),
   accomplished: true,
 }
 
-const storyCardDetails3: TaskCardDetails = { 
-  personID: "2", 
+const storyCardDetails3: TaskCardDetails = {
+  personID: "2",
   taskID: "g",
-  username: "umamageswari", 
-  groupName: "Gym ofc 🏋️", 
-  taskName: "little rhea kid gym day", 
-  mytask: false, 
+  username: "umamageswari",
+  groupName: "Gym ofc 🏋️",
+  taskName: "little rhea kid gym day",
+  mytask: false,
   backlog: true,
   accomplished: false,
 }

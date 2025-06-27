@@ -124,11 +124,11 @@ const Onboarding = () => {
         </TouchableOpacity>
       </View>
 
-      <Modal 
-        visible = {ageCheckVisible}
+      <Modal
+        visible={ageCheckVisible}
         transparent
       >
-        <AgeCheck closeFunction = {setAgeCheckVisible}/>
+        <AgeCheck closeFunction={setAgeCheckVisible} />
       </Modal>
 
       {/* Help Modal */}
@@ -212,20 +212,20 @@ const Onboarding = () => {
         }}
       >
         {/* <Link href={'/ageCheck'} asChild> */}
-          <TouchableOpacity onPress={() => setAgeCheckVisible(true)} style={{ width: '80%', alignItems: 'center', justifyContent: 'center' } }>
-            <Text style={{
-              paddingVertical: 16,
-              backgroundColor: '#F9F8F5',
-              borderRadius: 16,
-              fontWeight: 'bold',
-              fontSize: 20,
-              color: '#14354E',
-              width: '100%',
-              textAlign: 'center'
-            }}>
-              Get Started
-            </Text>
-          </TouchableOpacity>
+        <TouchableOpacity onPress={() => setAgeCheckVisible(true)} style={{ width: '80%', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{
+            paddingVertical: 16,
+            backgroundColor: '#F9F8F5',
+            borderRadius: 16,
+            fontWeight: 'bold',
+            fontSize: 20,
+            color: '#14354E',
+            width: '100%',
+            textAlign: 'center'
+          }}>
+            Get Started
+          </Text>
+        </TouchableOpacity>
         {/* </Link> */}
 
         <Text style={{ ...baseTextStyle, fontSize: 18, marginTop: 10, marginBottom: 8, fontWeight: '600' }}>

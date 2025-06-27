@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const AgeCheck = ({closeFunction}: {closeFunction: Dispatch<SetStateAction<boolean>>}) => {
+const AgeCheck = ({ closeFunction }: { closeFunction: Dispatch<SetStateAction<boolean>> }) => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -59,14 +59,8 @@ const AgeCheck = ({closeFunction}: {closeFunction: Dispatch<SetStateAction<boole
       return;
     }
 
-    // try {
-    //   await AsyncStorage.setItem('birthday', JSON.stringify({ day: d, month: m, year: y }));
-    //   //onClose(); // Close modal
-      closeFunction(false);
-      router.navigate('/signUp');
-    // } catch (e) {
-    //   Alert.alert('Error', 'Failed to save birthday.');
-    // }
+    closeFunction(false);
+    router.navigate('/signUp');
   };
 
   const renderPickerItems = (range: number[]) =>
@@ -152,10 +146,10 @@ const AgeCheck = ({closeFunction}: {closeFunction: Dispatch<SetStateAction<boole
           <View className="w-[100%] items-center justify-center">
             <TouchableOpacity
               style={{ width: '80%', alignItems: 'center', justifyContent: 'center' }}
-              onPress={(()=>closeFunction(false))}>
+              onPress={(() => closeFunction(false))}>
               <Text style={{
                 paddingVertical: 12,
-                marginTop:12,
+                marginTop: 12,
                 backgroundColor: '#F9F8F5',
                 borderRadius: 16,
                 fontWeight: 'bold',

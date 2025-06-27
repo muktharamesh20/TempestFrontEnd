@@ -16,14 +16,14 @@ export interface TaskCardDetails {
   backlog?: boolean;
 }
 
-const TaskCard = ({ 
-  taskID, 
-  eventID, 
-  taskName, 
-  groupName, 
-  dueDay, 
-  finished, 
-  accomplished, 
+const TaskCard = ({
+  taskID,
+  eventID,
+  taskName,
+  groupName,
+  dueDay,
+  finished,
+  accomplished,
   mytask,
   backlog
 }: TaskCardDetails) => {

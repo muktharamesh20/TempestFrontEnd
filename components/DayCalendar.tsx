@@ -105,40 +105,40 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
   const extendDataToIncludeDate = (targetDate: Date) => {
     let newData = [...data];
     const targetSunday = startOfWeek(targetDate, { weekStartsOn: 0 });
-  
+
     while (targetSunday < newData[0]) {
       const prevSunday = addDays(newData[0], -7);
       newData = [prevSunday, ...newData];
     }
-  
+
     while (targetSunday > newData[newData.length - 1]) {
       const nextSunday = addDays(newData[newData.length - 1], 7);
       newData = [...newData, nextSunday];
     }
-  
+
     setData(newData);
     return newData;
   };
-  
+
   const scrollToDate = (date: Date) => {
     let newData = data;
     const targetSunday = startOfWeek(date, { weekStartsOn: 0 });
-  
+
     // If targetSunday not in data, extend data (regular extend)
     if (!data.some(d => format(d, 'yyyy-MM-dd') === format(targetSunday, 'yyyy-MM-dd'))) {
       newData = extendDataToIncludeDate(date);
     }
-  
+
     let targetIndex = newData.findIndex(d => format(d, 'yyyy-MM-dd') === format(targetSunday, 'yyyy-MM-dd'));
-  
+
     if (targetIndex === -1) {
       console.warn("Date not found even after extending data.");
       return;
     }
-  
+
     // Preload adjacent pages if targetIndex is near the start or end
     const lastIndex = newData.length - 1;
-  
+
     // If target is at second-to-last or last page, extend forwards
     if (targetIndex >= lastIndex - 1) {
       // Extend forwards by adding one or two more Sundays
@@ -152,7 +152,7 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
         setData(newData);
       }
     }
-  
+
     // If target is at first or second page, extend backwards
     if (targetIndex <= 1) {
       let extended = false;
@@ -166,14 +166,14 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
         setData(newData);
       }
     }
-  
+
     scrollToIndex(targetIndex);
     setFocusedDay(date);
     setSunday(newData[targetIndex]);
     setViewingDateFunc(date);
   };
-  
-  
+
+
 
   const getIndexOfDate = (date: Date) => {
     const targetIndex = data.findIndex((d) => format(d, 'yyyy-MM-dd') === format(startOfWeek(date), 'yyyy-MM-dd'));
@@ -182,10 +182,10 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return Math.abs(gestureState.dx) > 50 && Math.abs(gestureState.dy)/Math.abs(gestureState.dx) < 0.05 && Math.abs(gestureState.dy) < 15 ;
+        return Math.abs(gestureState.dx) > 50 && Math.abs(gestureState.dy) / Math.abs(gestureState.dx) < 0.05 && Math.abs(gestureState.dy) < 15;
       },
       onPanResponderRelease: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        if (gestureState.dx > 20 ) {
+        if (gestureState.dx > 20) {
           // Swiped right — go to previous day
           // setFocusedDay((prev) => addDays(prev, -1));
           // setViewingDateFunc(addDays(focusedDay, -1));
@@ -211,9 +211,9 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
       },
     })
   ).current;
-  
 
-  const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent> ) => {
+
+  const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const newIndex = Math.round(event.nativeEvent.contentOffset.x / screenWidth);
 
     if (newIndex === 0) {
@@ -255,7 +255,7 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
           className="absolute w-full flex flex-row items-center bg-secondary px-4 z-50"
         >
           {/* Menu Button */}
-          <TouchableOpacity onPress={() => {setMenuOpen(true)}} className="p-2">
+          <TouchableOpacity onPress={() => { setMenuOpen(true) }} className="p-2">
             <Ionicons name="menu-outline" size={35} color="#ffffff" />
           </TouchableOpacity>
 
@@ -266,7 +266,7 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
 
           {/* Calendar Icon with Today's Date */}
           <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center', marginRight: 4 }}>
-            <TouchableOpacity onPress={() => {scrollToDate(today); setViewingDateFunc(today)}} className="justify-center items-center">
+            <TouchableOpacity onPress={() => { scrollToDate(today); setViewingDateFunc(today) }} className="justify-center items-center">
               <Image source={icons.calendar} style={{ tintColor: '#ffffff', width: 24, height: 24 }} />
               <Text
                 style={{
@@ -320,9 +320,8 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
                     <TouchableOpacity
                       key={index}
                       onPress={() => isValid(date) && setFocusedDay(date)}
-                      className={`flex items-center justify-center w-[50px] gap-[5px] py-5 rounded ${
-                        isFocused ? 'bg-accent' : 'bg-transparent'
-                      }`}
+                      className={`flex items-center justify-center w-[50px] gap-[5px] py-5 rounded ${isFocused ? 'bg-accent' : 'bg-transparent'
+                        }`}
                     >
                       <Text className="text-lg font-semibold text-white">
                         {isValid(date) ? format(date, 'EEE') : '--'}
@@ -334,42 +333,42 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
                   );
                 })}
               </View>
-          );
-        }}
-      />
-  </View>
-    
-    {/*underlay, the actual calendar itself*/}
-        
-    {/* Main Content Area */}
-    <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor }}>
-  {/* Static, non-panResponder section */}
-  <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
+            );
+          }}
+        />
+      </View>
 
-  {/* Section with pan responder attached */}
-  {/* <View {...panResponder.panHandlers}> */}
-    {/* <CalendarDayView
+      {/*underlay, the actual calendar itself*/}
+
+      {/* Main Content Area */}
+      <ScrollView style={{ flex: 1, backgroundColor: numbers.primaryColor }}>
+        {/* Static, non-panResponder section */}
+        <TaskCardCarosel taskCards={[storyCardDetails1, storyCardDetails2, storyCardDetails3]} />
+
+        {/* Section with pan responder attached */}
+        {/* <View {...panResponder.panHandlers}> */}
+        {/* <CalendarDayView
       events={sampleEvents}
       onEventPress={(event) => console.log('Pressed event:', event)}
       day={focusedDay}
     /> */}
-    <View>
-    <MultiDayCalendar
-  events={events}
-  currFocusedDay={focusedDay}
-  onEventPress={(event) => console.log('Tapped event', event)}
-  changeViewingDate={(date) => {setFocusedDay(date); scrollToDate(date)}}
-  hourHeight = {hourHeight}
-  setHourHeight = {setHourHeight}
-/>
-</View>
+        <View>
+          <MultiDayCalendar
+            events={events}
+            currFocusedDay={focusedDay}
+            onEventPress={(event) => console.log('Tapped event', event)}
+            changeViewingDate={(date) => { setFocusedDay(date); scrollToDate(date) }}
+            hourHeight={hourHeight}
+            setHourHeight={setHourHeight}
+          />
+        </View>
 
-  {/* </View> */}
-</ScrollView>
+        {/* </View> */}
+      </ScrollView>
 
 
-     {/* Overlay and Drawer */}
-     {menuOpen && (
+      {/* Overlay and Drawer */}
+      {menuOpen && (
         <>
           {/* Dark overlay */}
           <TouchableOpacity
@@ -406,48 +405,48 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
             <CalendarDrawer
               categories={categories}
               handleCategoryToggle={handleCategoryToggle}
-              setView = {setView}
+              setView={setView}
             />
           </View>
         </>
       )}
-  </View>
+    </View>
   );
 };
 
 export default DayCalendar;
 
 
-const storyCardDetails1: TaskCardDetails = { 
-  personID: "1", 
-  taskID: "h", 
-  groupName: "Gym ofc 🏋️", 
-  taskName: "little rhea kid gym day", 
-  mytask: true, 
-  backlog: false, 
+const storyCardDetails1: TaskCardDetails = {
+  personID: "1",
+  taskID: "h",
+  groupName: "Gym ofc 🏋️",
+  taskName: "little rhea kid gym day",
+  mytask: true,
+  backlog: false,
   dueDay: new Date("2025-06-19T00:00:00Z"),
   accomplished: false,
 }
 
-const storyCardDetails2: TaskCardDetails = { 
-  personID: "2", 
+const storyCardDetails2: TaskCardDetails = {
+  personID: "2",
   eventID: "g",
-  username: "umamageswari", 
-  groupName: "Gym ofc 🏋️", 
-  taskName: "little rhea kid gym day", 
-  mytask: true, 
-  backlog: false, 
-  dueDay: new Date("2025-06-17T00:00:00Z"), 
+  username: "umamageswari",
+  groupName: "Gym ofc 🏋️",
+  taskName: "little rhea kid gym day",
+  mytask: true,
+  backlog: false,
+  dueDay: new Date("2025-06-17T00:00:00Z"),
   accomplished: true,
 }
 
-const storyCardDetails3: TaskCardDetails = { 
-  personID: "2", 
+const storyCardDetails3: TaskCardDetails = {
+  personID: "2",
   taskID: "g",
-  username: "umamageswari", 
-  groupName: "Gym ofc 🏋️", 
-  taskName: "little rhea kid gym day", 
-  mytask: false, 
+  username: "umamageswari",
+  groupName: "Gym ofc 🏋️",
+  taskName: "little rhea kid gym day",
+  mytask: false,
   backlog: true,
   accomplished: false,
 }

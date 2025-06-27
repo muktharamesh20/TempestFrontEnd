@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const ProfileHeader = () => {
   const insets = useSafeAreaInsets();
   return (
-    <View style = {{height: numbers.headerHeight + insets.top}}>
+    <View style={{ height: numbers.headerHeight + insets.top }}>
       <View
         style={{ height: numbers.headerHeight, marginTop: insets.top }}
         className="absolute w-full flex flex-row justify-between items-center bg-primary border-b border-divider px-4 z-50"

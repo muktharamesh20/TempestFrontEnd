@@ -24,9 +24,4 @@ const StoryCarosel = ({ storyCards }: StoryCaroselProps) => {
   );
 };
 
-// export default React.memo(StoryCarosel, (prevProps, nextProps) => {
-//   // shallow comparison of storyCards reference
-//   return true;
-// });
-
 export default StoryCarosel;

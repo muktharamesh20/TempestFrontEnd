@@ -26,16 +26,16 @@ const TABS = ['Backlog', 'To Do', 'Done', 'Events'] as const;
 type Tab = typeof TABS[number];
 
 const addOptionIcons = [
-    <Plus color="white" size={18} />,
-    <List color="white" size={18} />,
-    <Calendar color="white" size={18} />,
-    <CheckCircle color="white" size={18} />
-  ];
-  const sortOptionIcons = [
-    <SortAsc color="white" size={18} />,
-    <Clock color="white" size={18} />,
-    <CheckCircle color="white" size={18} />
-  ];
+  <Plus color="white" size={18} />,
+  <List color="white" size={18} />,
+  <Calendar color="white" size={18} />,
+  <CheckCircle color="white" size={18} />
+];
+const sortOptionIcons = [
+  <SortAsc color="white" size={18} />,
+  <Clock color="white" size={18} />,
+  <CheckCircle color="white" size={18} />
+];
 
 const initialLayout = { width: Dimensions.get('window').width };
 
@@ -76,38 +76,38 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
   const renderTaskList = (tab: Tab) => {
     const tasks = filteredTasks[tab];
     if (tasks.length === 0) {
-      if (tab === 'Events'){
+      if (tab === 'Events') {
         return <Text className="text-center text-gray-400 mt-4">No events</Text>;
       }
       return <Text className="text-center text-gray-400 mt-4">No tasks</Text>;
     }
 
     return (
-        <ScrollView className="px-4 py-2">
-          {tasks.map(task => (
-            <View
-              key={task.taskID ?? task.eventID}
-              className="rounded-lg p-3 mb-3"
-              style={{ backgroundColor: task.color || '#E5E7EB' }}
-            >
-              <Text className="text-xl font-bold text-white mb-1" numberOfLines={1}>
-                {task.taskName || 'Untitled Task'}
+      <ScrollView className="px-4 py-2">
+        {tasks.map(task => (
+          <View
+            key={task.taskID ?? task.eventID}
+            className="rounded-lg p-3 mb-3"
+            style={{ backgroundColor: task.color || '#E5E7EB' }}
+          >
+            <Text className="text-xl font-bold text-white mb-1" numberOfLines={1}>
+              {task.taskName || 'Untitled Task'}
+            </Text>
+            {task.groupName && (
+              <Text className="text-base text-white" numberOfLines={1}>
+                {task.groupName}
               </Text>
-              {task.groupName && (
-                <Text className="text-base text-white" numberOfLines={1}>
-                  {task.groupName}
-                </Text>
-              )}
-              {task.dueDay && (
-                <Text className="text-base text-white mt-1">
-                  {task.eventID ? 'Starts: ' : 'Due: '}
-                  {task.dueDay.toLocaleDateString()} at {task.dueDay.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Text>
-              )}
-            </View>
-          ))}
-        </ScrollView>
-      );
+            )}
+            {task.dueDay && (
+              <Text className="text-base text-white mt-1">
+                {task.eventID ? 'Starts: ' : 'Due: '}
+                {task.dueDay.toLocaleDateString()} at {task.dueDay.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </Text>
+            )}
+          </View>
+        ))}
+      </ScrollView>
+    );
   };
 
   const renderScene = ({ route }: { route: { key: string } }) => {
@@ -116,32 +116,32 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
 
   return (
     <TouchableWithoutFeedback onPress={closeMenus}>
-    <View className="flex-1 bg-primary">
-      <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={initialLayout}
-        swipeEnabled={true}
-        renderTabBar={props => (
-          <TabBar
-            {...props}
-            indicatorStyle={{
+      <View className="flex-1 bg-primary">
+        <TabView
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={initialLayout}
+          swipeEnabled={true}
+          renderTabBar={props => (
+            <TabBar
+              {...props}
+              indicatorStyle={{
                 backgroundColor: 'white',
                 height: 3,
-                marginBottom: 7, 
+                marginBottom: 7,
               }}
-              
-            style={{ backgroundColor: numbers.secondaryColor, marginBottom: 7}}
-            //labelStyle={{ color: 'white', fontWeight: '600' }}
-            activeColor="white"
-            inactiveColor="#d1d5db"
-          />
-        )}
-      />
 
-      {/* Floating Pill Button and expanded options */}
-      <View className="absolute bottom-6 right-6 items-end" style={{ zIndex: 2 }}>
+              style={{ backgroundColor: numbers.secondaryColor, marginBottom: 7 }}
+              //labelStyle={{ color: 'white', fontWeight: '600' }}
+              activeColor="white"
+              inactiveColor="#d1d5db"
+            />
+          )}
+        />
+
+        {/* Floating Pill Button and expanded options */}
+        <View className="absolute bottom-6 right-6 items-end" style={{ zIndex: 2 }}>
           {(showAddOptions || showSortOptions) && (
             <View className="mb-2 rounded-lg px-0 py-0" style={{ minWidth: 140 }}>
               {(showAddOptions
@@ -149,7 +149,7 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
                 : ['Auto', 'Deadline', 'Priority']
               ).map((label, index) => {
                 const icon = showAddOptions ? addOptionIcons[index] : sortOptionIcons[index];
-                const dotColor = showAddOptions ? '#000000': numbers.secondaryColor;
+                const dotColor = showAddOptions ? '#000000' : numbers.secondaryColor;
 
                 return (
                   <TouchableOpacity
@@ -170,7 +170,7 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
                       paddingHorizontal: 0,
                       marginBottom: 8,
                       alignSelf: 'flex-end',
-                      maxWidth: 140, 
+                      maxWidth: 140,
                     }}
                   >
                     <Text
@@ -208,8 +208,8 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
             </TouchableOpacity>
           </View>
         </View>
-    </View>
-     </TouchableWithoutFeedback>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 

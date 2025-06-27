@@ -138,7 +138,7 @@ export function generateOccurrences(
     while (monthCursor < addDays(new Date(effectiveWeekStart.getDate() - eventDuration), -1)) {
       monthCursor.setMonth(monthCursor.getMonth() - 1);
       // Adjust day if month is shorter
-      const daysInMonth = new Date(monthCursor.getFullYear(), monthCursor.getMonth() -1, 0).getDate();
+      const daysInMonth = new Date(monthCursor.getFullYear(), monthCursor.getMonth() - 1, 0).getDate();
       if (startDate.getDate() > daysInMonth) {
         monthCursor.setDate(daysInMonth);
       } else {
@@ -211,12 +211,12 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
   events = events.flatMap((event) => generateOccurrences(event, startOfWeek(focusedDay), endOfWeek(focusedDay)))
 
 
-const weekStart = startOfWeek(focusedDay);
-const weekDates = Array.from({ length: 7 }, (_, i) => {
-  const d = new Date(weekStart);
-  d.setDate(d.getDate() + i);
-  return d;
-});
+  const weekStart = startOfWeek(focusedDay);
+  const weekDates = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
 
   const [containerWidth, setContainerWidth] = useState<number>(0);
   let maxStack = -1;
@@ -245,16 +245,16 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
   // Render all-day or multi-day events as slivers on top spanning across days
   const renderAllDayEvents = () => {
     if (containerWidth === 0) return null;
-  
+
     /* ─── layout constants ─── */
     const TOTAL_LEFT_MARGIN = 35;
     const adjustedContainerWidth = containerWidth - TOTAL_LEFT_MARGIN;
     const adjustedColumnWidth = adjustedContainerWidth / 7;
-  
+
     const EVENT_HEIGHT = 20;
     const VERTICAL_MARGIN = 2;
     const DAY_MS = 24 * 60 * 60 * 1000;
-  
+
     /* ─── helper: does event cover the whole day? ─── */
     const fullyCovers = (start: Date, end: Date, dayStart: Date) => {
       const nextDay = new Date(dayStart.getTime() + DAY_MS);
@@ -265,11 +265,11 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       const dayEnd = new Date(dayStart.getTime() + DAY_MS);
       return start < dayEnd && end > dayStart;
     };
-    
-  
+
+
     type Placed = { event: EventDetailsForNow; startDay: number; endDay: number; stackIndex: number };
     const placedEvents: Placed[] = [];
-  
+
     events
       /* keep only events that touch this week */
       .filter((event) => {
@@ -280,7 +280,7 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       .forEach((event) => {
         const s = new Date(event.start);
         const e = new Date(event.end);
-  
+
         /* collect the *indices* (0-6) of fully covered days inside this week */
         const covered: number[] = [];
         for (let i = 0; i < 7; i++) {
@@ -288,10 +288,10 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
           if (fullyCovers(s, e, dayStart)) covered.push(i);
         }
         if (covered.length === 0) return; // nothing to draw this week
-  
+
         const startDay = covered[0];
-        const endDay   = covered[covered.length - 1];
-  
+        const endDay = covered[covered.length - 1];
+
         /* find a free row (stackIndex) that doesn't collide horizontally */
         let stackIndex = 0;
         while (
@@ -303,19 +303,19 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
         ) {
           stackIndex++;
         }
-  
+
         /* if you're deriving maxStack outside, keep this line */
         maxStack = Math.max(maxStack, stackIndex);
-  
+
         placedEvents.push({ event, startDay, endDay, stackIndex });
       });
-  
+
     /* ─── render ─── */
     return placedEvents.map(({ event, startDay, endDay, stackIndex }, idx) => {
-      const left  = TOTAL_LEFT_MARGIN + adjustedColumnWidth * startDay;
+      const left = TOTAL_LEFT_MARGIN + adjustedColumnWidth * startDay;
       const width = adjustedColumnWidth * (endDay - startDay + 1);
-      const top   = stackIndex * (EVENT_HEIGHT + VERTICAL_MARGIN);
-  
+      const top = stackIndex * (EVENT_HEIGHT + VERTICAL_MARGIN);
+
       return (
         <Pressable
           key={`allDay-${idx}`}
@@ -340,26 +340,26 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       );
     });
   };
-  
+
   const [currentTime, setCurrentTime] = useState(new Date());
 
-    useEffect(() => {
-  const interval = setInterval(() => {
-    setCurrentTime(new Date());
-  }, 60 * 1000); // update every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60 * 1000); // update every minute
 
-  return () => clearInterval(interval);
-}, []);
+    return () => clearInterval(interval);
+  }, []);
 
 
-  const renderCurrentTimeLine = ({extraMargin} : {extraMargin: number}) => {
+  const renderCurrentTimeLine = ({ extraMargin }: { extraMargin: number }) => {
     const dayStart = new Date();
     dayStart.setHours(0, 0, 0, 0);
-  
+
     const minutesSinceStart =
       (currentTime.getHours() * 60 + currentTime.getMinutes());
     const top = (minutesSinceStart / 60) * hourHeight + extraMargin;
-  
+
     return (
       <View
         style={[
@@ -376,9 +376,9 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       </View>
     );
   };
-  
-  
-  
+
+
+
 
   const renderEvents = () => {
     /* ───────── collect per-day slices (timed only) ───────── */
@@ -389,11 +389,11 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       dayIndex: number; // 0–6, relative to startOfWeek
     };
     const daySlices: Slice[] = [];
-  
+
     const DAY_MS = 24 * 60 * 60 * 1000;
     // const weekStart = weekStart;                 // Sunday 00:00 of this view
-    const weekEnd   = new Date(weekStart.getTime() + 7 * DAY_MS);
-  
+    const weekEnd = new Date(weekStart.getTime() + 7 * DAY_MS);
+
     events
       /* keep events that touch this week */
       .filter((ev) => {
@@ -403,33 +403,33 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       })
       .forEach((ev) => {
         const evStart = new Date(ev.start);
-        const evEnd   = new Date(ev.end);
-  
+        const evEnd = new Date(ev.end);
+
         /* walk each day of *this* week (0-6) */
         for (let i = 0; i < 7; i++) {
           const dayStart = new Date(weekStart.getTime() + i * DAY_MS);
-          const dayEnd   = new Date(dayStart.getTime() + DAY_MS);
-  
+          const dayEnd = new Date(dayStart.getTime() + DAY_MS);
+
           /* intersection of [ev] and this day */
           const sliceStart = new Date(Math.max(evStart.getTime(), dayStart.getTime()));
-          const sliceEnd   = new Date(Math.min(evEnd.getTime(),   dayEnd.getTime()));
-  
+          const sliceEnd = new Date(Math.min(evEnd.getTime(), dayEnd.getTime()));
+
           if (sliceEnd <= sliceStart) continue;            // no overlap
           if (sliceStart.getTime() === dayStart.getTime()  // full-day => handled elsewhere
-              && sliceEnd.getTime() === dayEnd.getTime()) {
+            && sliceEnd.getTime() === dayEnd.getTime()) {
             continue;
           }
-  
+
           daySlices.push({ event: ev, sliceStart, sliceEnd, dayIndex: i });
         }
       });
-  
+
     /* ───────── group overlapping slices per day ───────── */
     const groupsByDay: Array<Array<Slice[]>> = Array(7).fill(null).map(() => []);
-  
+
     daySlices.forEach((slice) => {
       const dayGroups = groupsByDay[slice.dayIndex];
-  
+
       let placed = false;
       for (const group of dayGroups) {
         const overlaps = group.some(
@@ -443,34 +443,34 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       }
       if (!placed) dayGroups.push([slice]);
     });
-  
+
     /* ───────── render ───────── */
     const TOTAL_LEFT_MARGIN = 35;
     const adjustedContainerWidth = containerWidth - TOTAL_LEFT_MARGIN;
     const adjustedColumnWidth = adjustedContainerWidth / 7;
     const totalAvailableWidth = adjustedColumnWidth - 10;
-  
+
     return daySlices.flatMap((slice, idx) => {
       const { sliceStart, sliceEnd, dayIndex, event } = slice;
-  
+
       const dayGroups = groupsByDay[dayIndex];
       const group = dayGroups.find((g) => g.includes(slice))!;
       const groupSize = group.length;
       const columnIndex = group.indexOf(slice);
-  
+
       const durationHrs = (sliceEnd.getTime() - sliceStart.getTime()) / (1000 * 60 * 60);
       const top = (sliceStart.getHours() + sliceStart.getMinutes() / 60) * hourHeight;
       const height = durationHrs * hourHeight;
-  
+
       const eventWidth = groupSize ? totalAvailableWidth / groupSize : totalAvailableWidth;
       const left =
         TOTAL_LEFT_MARGIN +
         adjustedColumnWidth * dayIndex +
         eventWidth * columnIndex;
-  
+
       const fontSizeTitle = interpolateFontSize(hourHeight, MIN_HEIGHT, MAX_HEIGHT, 10, 17);
-      const fontSizeTime  = Math.max(fontSizeTitle - 2, 10);
-  
+      const fontSizeTime = Math.max(fontSizeTitle - 2, 10);
+
       return (
         <Pressable
           key={`${idx}-${dayIndex}`}
@@ -494,31 +494,31 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       );
     });
   };
-  
-  
+
+
   return (
     <PinchGestureHandler onGestureEvent={pinchHandler}>
       <Animated.View style={styles.container} onLayout={onLayout}>
-  
+
         {/* All-day / Multi-day events bar on top */}
         <View style={styles.allDayEventsContainer}>
           {renderAllDayEvents()}
         </View>
-  
+
         {/* Main scrollable calendar */}
-          <View style={{...styles.bodyContainer, marginTop: 22*(maxStack + 1)}}>
-            {hours.map((hour, idx) => (
-              <View key={idx} style={[styles.hourRow, { height: hourHeight }]}>
-                <Text style={styles.hourLabel}>{hour}</Text>
-              </View>
-            ))}
-            {renderEvents()}
-            {renderCurrentTimeLine({extraMargin: 0})}
-          </View>
+        <View style={{ ...styles.bodyContainer, marginTop: 22 * (maxStack + 1) }}>
+          {hours.map((hour, idx) => (
+            <View key={idx} style={[styles.hourRow, { height: hourHeight }]}>
+              <Text style={styles.hourLabel}>{hour}</Text>
+            </View>
+          ))}
+          {renderEvents()}
+          {renderCurrentTimeLine({ extraMargin: 0 })}
+        </View>
       </Animated.View>
     </PinchGestureHandler>
   );
-  
+
 };
 
 const styles = StyleSheet.create({
@@ -614,7 +614,7 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: 'blue',
     flex: 1,
-    marginRight:5
+    marginRight: 5
   },
 });
 

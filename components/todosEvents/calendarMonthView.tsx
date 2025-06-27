@@ -68,39 +68,39 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
   // Group events by day (day number in month)
   const eventsByDay: Record<number, EventDetailsForNow[]> = {};
   events
-  .flatMap((event) => generateOccurrences(event, startOfMonth, endOfMonth))
-  .forEach((event) => {
-    const eventStart = new Date(event.start);
-    const eventEnd = new Date(event.end);
+    .flatMap((event) => generateOccurrences(event, startOfMonth, endOfMonth))
+    .forEach((event) => {
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
 
-    // Clamp the event range to this month only
-    const localStart = new Date(
-      Math.max(eventStart.getTime(), startOfMonth.getTime())
-    );
-    const localEnd = new Date(
-      Math.min(eventEnd.getTime(), endOfMonth.getTime())
-    );
+      // Clamp the event range to this month only
+      const localStart = new Date(
+        Math.max(eventStart.getTime(), startOfMonth.getTime())
+      );
+      const localEnd = new Date(
+        Math.min(eventEnd.getTime(), endOfMonth.getTime())
+      );
 
-    for (
-      let date = new Date(localStart);
-      date <= localEnd;
-      date.setDate(date.getDate() + 1)
-    ) {
-      if (date.getFullYear() === viewYear && date.getMonth() === viewMonth) {
-        const dayNum = date.getDate();
-        if (!eventsByDay[dayNum]) eventsByDay[dayNum] = [];
-        eventsByDay[dayNum].push(event);
+      for (
+        let date = new Date(localStart);
+        date <= localEnd;
+        date.setDate(date.getDate() + 1)
+      ) {
+        if (date.getFullYear() === viewYear && date.getMonth() === viewMonth) {
+          const dayNum = date.getDate();
+          if (!eventsByDay[dayNum]) eventsByDay[dayNum] = [];
+          eventsByDay[dayNum].push(event);
+        }
       }
-    }
-  });
+    });
 
 
   const cellWidth = SCREEN_WIDTH / DAYS_IN_WEEK;
 
   function dealWithDayPressed(date: Date): void {
-      setViewingDateFunc(addMinutes(date, date.getTimezoneOffset()));
-      console.log('pressed!', addMinutes(date, date.getTimezoneOffset()).toLocaleDateString());
-      setView('day');
+    setViewingDateFunc(addMinutes(date, date.getTimezoneOffset()));
+    console.log('pressed!', addMinutes(date, date.getTimezoneOffset()).toLocaleDateString());
+    setView('day');
   }
 
   const renderDayCell = (day: number | null, index: number) => {

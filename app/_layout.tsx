@@ -93,42 +93,42 @@ export default function RootLayout() {
   if (loading) {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}> {/* ✅ WRAP THIS TOO */}
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator />
-      </View>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator />
+        </View>
       </GestureHandlerRootView>
     );
   }
 
   return (
     <GestureHandlerRootView>
-    <>
-      <Stack>
-        <Stack.Screen
-          name="(tabs)"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="profiles/[id]"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="(login)"
-          options={{ headerShown: false }}
-        />
-      </Stack>
+      <>
+        <Stack>
+          <Stack.Screen
+            name="(tabs)"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="profiles/[id]"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="(login)"
+            options={{ headerShown: false }}
+          />
+        </Stack>
 
-      <Modal visible={mustAddUsername} transparent animationType="fade">
-        <LinearGradient
-          colors={['#3897F2', '#14354E']}
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <SetUsername closeFunction={setMustAddUsername} />
-        </LinearGradient>
-      </Modal>
-    </>
+        <Modal visible={mustAddUsername} transparent animationType="fade">
+          <LinearGradient
+            colors={['#3897F2', '#14354E']}
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <SetUsername closeFunction={setMustAddUsername} />
+          </LinearGradient>
+        </Modal>
+      </>
     </GestureHandlerRootView>
   );
 }

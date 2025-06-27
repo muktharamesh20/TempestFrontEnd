@@ -24,7 +24,7 @@ const messages = () => {
       author: "Bob Smith",
       content: "I agree with Alice. Super smooth UI.",
       avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-      timeCreated: addDays(Date.now(),-2)
+      timeCreated: addDays(Date.now(), -2)
     },
     {
       id: "3",
@@ -32,7 +32,7 @@ const messages = () => {
       author: "Charlie Tran",
       content: "How do I enable this on my profile?",
       avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-      timeCreated: addDays(Date.now(),-3)
+      timeCreated: addDays(Date.now(), -3)
     },
     {
       id: "4",
@@ -41,7 +41,7 @@ const messages = () => {
       content: "Just go to settings > features and toggle it on.",
       avatar: "https://randomuser.me/api/portraits/women/4.jpg",
       parentId: "3", // reply to Charlie
-      timeCreated: addDays(Date.now(),-5)
+      timeCreated: addDays(Date.now(), -5)
     },
     {
       id: "5",
@@ -49,7 +49,7 @@ const messages = () => {
       author: "Emily Chen",
       content: "This comment thread is great!",
       avatar: "https://randomuser.me/api/portraits/women/5.jpg",
-      timeCreated: addDays(Date.now(),-4)
+      timeCreated: addDays(Date.now(), -4)
     },
     {
       id: "6",
@@ -58,12 +58,12 @@ const messages = () => {
       content: "Thanks Diana! That worked perfectly.",
       avatar: "https://randomuser.me/api/portraits/men/2.jpg",
       parentId: "3", // not allowed as reply to a reply, so ignore this one
-      timeCreated: addDays(Date.now(),-2)
+      timeCreated: addDays(Date.now(), -2)
     },
   ];
 
-const [comment, setComment]=useState(commentData)
-const [userIdAvatar, setUserId] = React.useState<string | null>(null)
+  const [comment, setComment] = useState(commentData)
+  const [userIdAvatar, setUserId] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const fetchUserId = async () => {
@@ -105,10 +105,10 @@ const [userIdAvatar, setUserId] = React.useState<string | null>(null)
   }}
 /> */}
 
-<Avatar 
-        size={100} 
+      <Avatar
+        size={100}
         url={userIdAvatar}
-        onUpload={(url: string) => console.log('Avatar uploaded:', url)} 
+        onUpload={(url: string) => console.log('Avatar uploaded:', url)}
       />
       <Button title="Sign Out" onPress={handleSignOut} />
 

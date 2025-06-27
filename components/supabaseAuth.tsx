@@ -57,27 +57,27 @@ export default function Auth() {
     // })
     const redirectUrl = "tempest://auth/callback"
 
-  
+
     // Pass redirectUrl to Supabase so OAuth redirects here after login
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-        options: {
-            redirectTo: redirectUrl,
-        },
+      options: {
+        redirectTo: redirectUrl,
+      },
     })
-  
+
     if (error) {
       Alert.alert('Error', error.message)
       return
     }
     console.log('Redirect URI:', redirectUrl);
 
-  
+
     if (data?.url) {
       // Open the OAuth URL in a browser session and wait for the redirect back to your app
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
 
-      if (result.type === 'success' && 'url' in result && result.url) { 
+      if (result.type === 'success' && 'url' in result && result.url) {
         // Parse the fragment/hash part of the URL
         const url = result.url;
         const hash = url.split('#')[1];
@@ -108,8 +108,8 @@ export default function Auth() {
       }
     }
   }
-  
-  
+
+
 
   return (
     <View style={styles.container}>

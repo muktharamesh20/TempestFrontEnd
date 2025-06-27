@@ -1,7 +1,7 @@
-import {createClient, SupabaseClient} from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { QueryResult, QueryData, QueryError } from '@supabase/supabase-js'
 import { Database, Tables, Enums } from '../databasetypes'
-import {signInAndGetToken, signOut, getSupabaseClient, decodeToken, createUser, deleteAccount} from './auth'
+import { signInAndGetToken, signOut, getSupabaseClient, decodeToken, createUser, deleteAccount } from './auth'
 import assert from 'assert'
 import dotenv from 'dotenv';
 import { get } from 'http'
@@ -22,7 +22,7 @@ dotenv.config();
  * @param supabaseClient 
  * @return A promise that resolves to the created group's home page.
  */
-export async function createGroup(profile_picture: types.Image,groupDetails: { name: string; description: types.Text, public_special_events: boolean, title: string }, supabaseClient: SupabaseClient<Database>): Promise<types.GroupHomePage> {
+export async function createGroup(profile_picture: types.Image, groupDetails: { name: string; description: types.Text, public_special_events: boolean, title: string }, supabaseClient: SupabaseClient<Database>): Promise<types.GroupHomePage> {
     const { data, error } = await supabaseClient
         .from('groups')
         .insert({
@@ -37,7 +37,7 @@ export async function createGroup(profile_picture: types.Image,groupDetails: { n
         console.error('Error creating group:', error.message);
         throw error;
     }
-    
+
     return getGroupFullProfilePage(createGroupTypeWithData(data[0]), supabaseClient);
 }
 
@@ -81,7 +81,7 @@ export async function getGroupMembers(group: types.Group, supabaseClient: Supaba
     const peopleIds: types.UserId[] = [];
     const roles: types.Role[] = [];
 
-    for(const member of data) {
+    for (const member of data) {
         peopleIds.push(member.person_id as types.UserId);
         roles.push(member.role as types.Role);
     }
@@ -89,7 +89,7 @@ export async function getGroupMembers(group: types.Group, supabaseClient: Supaba
     const result = [];
     const userList = await getBatchUsers(peopleIds, supabaseClient);
     for (let i = 0; i < userList.length; i++) {
-        result.push({user: userList[i], role: roles[i], group: group});
+        result.push({ user: userList[i], role: roles[i], group: group });
     }
 
     return result;
@@ -227,7 +227,7 @@ export async function deleteSpecificInvite(group: types.Group, user: types.User,
         .from('invite_request')
         .delete()
         .eq('group_id', group.group_id)
-        .eq('user_to_invite', user.user_id )
+        .eq('user_to_invite', user.user_id)
         .eq('requester', groupMemberId.user_id);
 
     if (error) {
@@ -324,7 +324,7 @@ export async function deleteGroupProfilePicture(group: types.Group, supabaseClie
  * @param supabaseClient the Supabase client to use for the database operations.
  * @returns the created group event.
  */
-export async function createGroupEvent(eventDetails: {title: string, description: string, location: string | null, start_time: DateTime, end_time: DateTime, is_all_day: boolean, start_date: Date, end_date: Date, repeat_period: types.RepeatPeriod, repeat_days: types.Day[], end_repeat: Date, special_event: boolean, working_on_todo: types.Todo, group: types.Group}, supabaseClient: SupabaseClient<Database>): Promise<types.Event> {
+export async function createGroupEvent(eventDetails: { title: string, description: string, location: string | null, start_time: DateTime, end_time: DateTime, is_all_day: boolean, start_date: Date, end_date: Date, repeat_period: types.RepeatPeriod, repeat_days: types.Day[], end_repeat: Date, special_event: boolean, working_on_todo: types.Todo, group: types.Group }, supabaseClient: SupabaseClient<Database>): Promise<types.Event> {
     const { data, error } = await supabaseClient
         .from('event')
         .insert([{
@@ -384,7 +384,7 @@ export async function deleteGroupEventForGroup(event: types.GroupEvent, supabase
 export async function deleteGroupEventForUser(event: types.GroupEvent, user: types.User, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
         .from('people_to_deleted_group_events')
-        .insert([{event_id: event.eventID, user_id: user.user_id}]);
+        .insert([{ event_id: event.eventID, user_id: user.user_id }]);
 
     if (error) {
         console.error('Error deleting group event:', error.message);
@@ -399,7 +399,7 @@ export async function deleteGroupEventForUser(event: types.GroupEvent, user: typ
  * @param me the user assigning the todo
  * @param supabaseClient the Supabase client to use for the database operations.
  */
-export async function assignGroupTodo(me: types.User, todoDetails: {title: string, description: string, location: string | null, start_time: DateTime, end_time: DateTime, is_all_day: boolean, start_date: Date, end_date: Date, repeat_period: types.RepeatPeriod, repeat_days: types.Day[], end_repeat: Date, special_event: boolean, working_on_todo: types.Todo, group: types.Group}, supabaseClient: SupabaseClient<Database>): Promise<types.GroupTodo> {
+export async function assignGroupTodo(me: types.User, todoDetails: { title: string, description: string, location: string | null, start_time: DateTime, end_time: DateTime, is_all_day: boolean, start_date: Date, end_date: Date, repeat_period: types.RepeatPeriod, repeat_days: types.Day[], end_repeat: Date, special_event: boolean, working_on_todo: types.Todo, group: types.Group }, supabaseClient: SupabaseClient<Database>): Promise<types.GroupTodo> {
     const { data, error } = await supabaseClient
         .from('todo')
         .insert({ ...todoDetails, group_id: todoDetails.group.group_id })
@@ -413,7 +413,7 @@ export async function assignGroupTodo(me: types.User, todoDetails: {title: strin
 
     return createGroupTodoTypeWithData(data[0], me, todoDetails.group);
 
-    return {todo: await types.createTodoTypeWithData(data[0]), assigned_by: me, group: todoDetails.group, type: };
+    return { todo: await types.createTodoTypeWithData(data[0]), assigned_by: me, group: todoDetails.group, type: };
 }
 
 export async function deleteGroupTodo(todoId: string, group: types.Group, supabaseClient: SupabaseClient<Database>): Promise<void> {
@@ -468,7 +468,7 @@ export async function getAllGroupMessages(group: types.Group, supabaseClient: Su
 
     const messages = (await Promise.all(data.map((message) => createMessageTypeWithGroupData(message)))).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 
-    return {group: group, messages: messages, members: await getGroupMembers(group, supabaseClient)};
+    return { group: group, messages: messages, members: await getGroupMembers(group, supabaseClient) };
 }
 
 /**
