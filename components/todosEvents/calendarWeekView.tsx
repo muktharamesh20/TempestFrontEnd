@@ -31,7 +31,7 @@ interface CalendarWeekViewProps {
 export function generateOccurrences(
   event: EventDetailsForNow,
   weekStart: Date,
-  weekEnd: Date
+  weekEnd: Date,
 ): EventDetailsForNow[] {
   const eventsForNow: EventDetailsForNow[] = [];
 

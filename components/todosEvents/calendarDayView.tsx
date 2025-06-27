@@ -1,4 +1,5 @@
 import { numbers } from '@/constants/numbers';
+import { EventDetailsForNow } from '@/services/utils';
 import React, { useEffect, useState } from 'react';
 import {
   LayoutChangeEvent,
@@ -16,6 +17,7 @@ import Animated, {
   useAnimatedGestureHandler,
   useSharedValue,
 } from 'react-native-reanimated';
+import { generateOccurrences } from './calendarWeekView';
 
 
 interface CalendarDayViewProps {
@@ -92,48 +94,7 @@ useEffect(() => {
     },
   });
 
-  function occursToday(event: EventDetailsForNow, dayStart: Date, dayEnd: Date) {
-    const evStart = new Date(event.start);
-    const evEnd   = new Date(event.end);
-    const repeatEnd = new Date(event.end_repeat);  // for repeating schedules
-  
-    // one-off
-    if (event.repeat_schedule === 'none') {
-      return evEnd >= dayStart && evStart <= dayEnd;
-    }
-  
-    // if repeats have ended, bail
-    if (repeatEnd < dayStart) return false;
-  
-    // DAILY  ─────────────────────────────────
-    if (event.repeat_schedule === 'daily') {
-      return evStart <= dayEnd;                   // occurs every day until end_repeat
-    }
-  
-    // WEEKLY  ────────────────────────────────
-    if (event.repeat_schedule === 'weekly') {
-      return (
-        evStart <= dayEnd &&
-        event.days.includes(dayStart.getDay())    // 0-6 inside this week day list
-      );
-    }
-  
-    // BIWEEKLY (every other week on given days) ───────────────
-    if (event.repeat_schedule === 'biweekly') {
-      if ((!event.days.includes(dayStart.getDay())) || evStart > dayEnd) return false;
-      evStart.setHours(0,0,0,0);
-      // how many whole weeks between original start week and this day’s week?
-      const msDiff     = dayStart.getTime() - evStart.getTime();
-      const weeksSince = msDiff / (7 * 24 * 60 * 60 * 1000);
-      console.log("weeks between:", weeksSince)
-      return weeksSince % 2 === 0;               // same parity = part of this fortnight
-    }
-  
-    return false;                                // fallback
-  }
-  
-
-  const renderEvents = (numEvents: number, setNumStack: React.Dispatch<React.SetStateAction<number>>) => {
+  const renderEvents = (numEv: number, setNumSt: React.Dispatch<React.SetStateAction<number>>) => {
     const dayStart = new Date(day);
     dayStart.setHours(0, 0, 0, 0);
     const dayEnd = new Date(day);
@@ -236,86 +197,86 @@ function instancesToday(
     : new Date(tpl.end_repeat);
 
   /* ---------- ONE-OFF ------------------------------------------------- */
-  if (tpl.repeat_schedule === 'none') {
+  // if (tpl.repeat_schedule === 'none') {
     return tplEnd >= dayStart && tplStart <= dayEnd ? [tpl] : [];
-  }
+  // }
 
-  /* ---------- define recurrence parameters --------------------------- */
-  let freqDays = 1;
-  if (tpl.repeat_schedule === 'weekly') freqDays = 7;
-  if (tpl.repeat_schedule === 'biweekly') freqDays = 14;
+  // /* ---------- define recurrence parameters --------------------------- */
+  // let freqDays = 1;
+  // if (tpl.repeat_schedule === 'weekly') freqDays = 7;
+  // if (tpl.repeat_schedule === 'biweekly') freqDays = 14;
 
-  const out: EventDetailsForNow[] = [];
+  // const out: EventDetailsForNow[] = [];
 
-  if (tpl.repeat_schedule === 'monthly') {
-    // For monthly, iterate over months from tplStart up to dayEnd or repeatEnd
-    let current = new Date(tplStart);
-    current.setHours(0, 0, 0, 0);
+  // if (tpl.repeat_schedule === 'monthly') {
+  //   // For monthly, iterate over months from tplStart up to dayEnd or repeatEnd
+  //   let current = new Date(tplStart);
+  //   current.setHours(0, 0, 0, 0);
 
-    // We'll loop months forward until past dayEnd or repeatEnd
-    while (current <= dayEnd && current <= repeatEnd) {
-      // Construct occurrence date by setting date to the original day of month
-      const occStart = new Date(current);
-      const dayOfMonth = tplStart.getDate();
+  //   // We'll loop months forward until past dayEnd or repeatEnd
+  //   while (current <= dayEnd && current <= repeatEnd) {
+  //     // Construct occurrence date by setting date to the original day of month
+  //     const occStart = new Date(current);
+  //     const dayOfMonth = tplStart.getDate();
 
-      // Set the day, but clamp if the month has fewer days (e.g., Feb 30)
-      const maxDay = new Date(occStart.getFullYear(), occStart.getMonth() + 1, 0).getDate();
-      occStart.setDate(dayOfMonth > maxDay ? maxDay : dayOfMonth);
+  //     // Set the day, but clamp if the month has fewer days (e.g., Feb 30)
+  //     const maxDay = new Date(occStart.getFullYear(), occStart.getMonth() + 1, 0).getDate();
+  //     occStart.setDate(dayOfMonth > maxDay ? maxDay : dayOfMonth);
 
-      copyTimeOfDay(tplStart, occStart);
-      const occEnd = new Date(occStart.getTime() + duration);
+  //     copyTimeOfDay(tplStart, occStart);
+  //     const occEnd = new Date(occStart.getTime() + duration);
 
-      // Check if occurrence overlaps the day range
-      if (occEnd >= dayStart && occStart <= dayEnd && occStart <= repeatEnd) {
-        out.push(makeInstance(tpl, occStart, duration));
-      }
+  //     // Check if occurrence overlaps the day range
+  //     if (occEnd >= dayStart && occStart <= dayEnd && occStart <= repeatEnd) {
+  //       out.push(makeInstance(tpl, occStart, duration));
+  //     }
 
-      // Move to next month
-      current.setMonth(current.getMonth() + 1);
-    }
-  } else {
-    // daily, weekly, biweekly logic (existing)
-    const freqMs = freqDays * DAY_MS;
-    const firstPossibleStart = tplStart;
-    const lastPossibleStart = new Date(Math.min(repeatEnd.getTime(), dayEnd.getTime()));
-    const nMax = Math.floor(
-      (lastPossibleStart.getTime() - firstPossibleStart.getTime()) / freqMs
-    );
+  //     // Move to next month
+  //     current.setMonth(current.getMonth() + 1);
+  //   }
+  // } else {
+  //   // daily, weekly, biweekly logic (existing)
+  //   const freqMs = freqDays * DAY_MS;
+  //   const firstPossibleStart = tplStart;
+  //   const lastPossibleStart = new Date(Math.min(repeatEnd.getTime(), dayEnd.getTime()));
+  //   const nMax = Math.floor(
+  //     (lastPossibleStart.getTime() - firstPossibleStart.getTime()) / freqMs
+  //   );
 
-    for (let n = nMax; n >= 0; n--) {
-      const baseWeekStart = new Date(firstPossibleStart.getTime() + n * freqMs);
-      baseWeekStart.setHours(0, 0, 0, 0);
+  //   for (let n = nMax; n >= 0; n--) {
+  //     const baseWeekStart = new Date(firstPossibleStart.getTime() + n * freqMs);
+  //     baseWeekStart.setHours(0, 0, 0, 0);
 
-      if (tpl.repeat_schedule === 'daily') {
-        const occStart = new Date(baseWeekStart);
-        copyTimeOfDay(tplStart, occStart);
-        const occEnd = new Date(occStart.getTime() + duration);
+  //     if (tpl.repeat_schedule === 'daily') {
+  //       const occStart = new Date(baseWeekStart);
+  //       copyTimeOfDay(tplStart, occStart);
+  //       const occEnd = new Date(occStart.getTime() + duration);
 
-        if (occEnd < dayStart || occStart > dayEnd || occStart > repeatEnd) continue;
+  //       if (occEnd < dayStart || occStart > dayEnd || occStart > repeatEnd) continue;
 
-        out.push(makeInstance(tpl, occStart, duration));
-      } else {
-        // weekly or biweekly
-        for (const weekday of tpl.days) {
-          const occStart = new Date(baseWeekStart);
-          copyTimeOfDay(tplStart, occStart);
-          occStart.setDate(occStart.getDate() + ((weekday - occStart.getDay() + 7) % 7));
-          const occEnd = new Date(occStart.getTime() + duration);
+  //       out.push(makeInstance(tpl, occStart, duration));
+  //     } else {
+  //       // weekly or biweekly
+  //       for (const weekday of tpl.days) {
+  //         const occStart = new Date(baseWeekStart);
+  //         copyTimeOfDay(tplStart, occStart);
+  //         occStart.setDate(occStart.getDate() + ((weekday - occStart.getDay() + 7) % 7));
+  //         const occEnd = new Date(occStart.getTime() + duration);
 
-          if (occEnd < dayStart || occStart > dayEnd || occStart > repeatEnd) continue;
+  //         if (occEnd < dayStart || occStart > dayEnd || occStart > repeatEnd) continue;
 
-          out.push(makeInstance(tpl, occStart, duration));
-        }
-      }
-    }
-  }
+  //         out.push(makeInstance(tpl, occStart, duration));
+  //       }
+  //     }
+  //   }
+  //   }
 
-  return out;
+  // return out;
 }
 
     const todaysEvents: EventDetailsForNow[] = [];
     
-    events.forEach((tpl) => {
+    events.flatMap((event) => generateOccurrences(event, dayStart, dayEnd)).forEach((tpl) => {
       todaysEvents.push(
         ...instancesToday(tpl, dayStart, dayEnd)
       );
@@ -334,8 +295,8 @@ function instancesToday(
     
   
     const allDayStackHeight = allDayEvents.length * ALL_DAY_EVENT_SINGLE_HEIGHT;
-    if (allDayEvents.length !== numEvents){
-      setNumStack(allDayEvents.length);
+    if (allDayEvents.length !== numEv){
+      setNumSt(allDayEvents.length);
     }
     
   
@@ -672,6 +633,24 @@ const styles = StyleSheet.create({
   },
 });
 
+function isAllDay(ev: EventDetailsForNow): boolean {
+  const start = new Date(ev.start);
+  const end = new Date(ev.end);
+
+  // Detect if event starts at 00:00 and ends at 23:59 (typical all-day span)
+  return (
+    start.getHours() === 0 &&
+    start.getMinutes() === 0 &&
+    start.getSeconds() === 0 &&
+    end.getHours() === 23 &&
+    end.getMinutes() === 59
+  );
+}
+
+// Example usage in your code
+
+
+
 const getDayStart = () => {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
@@ -694,39 +673,3 @@ const isAllDayEvent = (start: Date, end: Date, dayStart: Date, dayEnd: Date) =>
 export default CalendarDayView;
 
 
-
-import { EventDetailsForNow } from '@/services/utils';
-import { format } from 'date-fns';
-
-export const CurrentTimeIndicator = ({ day }: { day: Date }) => {
-  const [now, setNow] = useState(new Date());
-
-  useEffect(() => {
-    const interval = setInterval(() => setNow(new Date()), 60 * 1000); // Update every minute
-    return () => clearInterval(interval);
-  }, []);
-
-  // Only show line if viewing today
-  const isToday = format(now, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd');
-  if (!isToday) return null;
-
-  const hour = now.getHours();
-  const minute = now.getMinutes();
-  const totalMinutes = hour * 60 + minute;
-
-  const topPosition = (totalMinutes / 60) * 60; // 60px = 1 hour (adjust if different)
-
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        top: topPosition,
-        left: 0,
-        right: 0,
-        height: 2,
-        backgroundColor: 'blue',
-        zIndex: 10,
-      }}
-    />
-  );
-};
