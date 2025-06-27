@@ -137,10 +137,16 @@ export function generateOccurrences(
     // If the first monthly occurrence is before effectiveWeekStart, move forward month by month until we reach or pass effectiveWeekStart
     while (monthCursor < addDays(new Date(effectiveWeekStart.getDate() - eventDuration), -1)) {
       monthCursor.setMonth(monthCursor.getMonth() - 1);
+      // Adjust day if month is shorter
+      const daysInMonth = new Date(monthCursor.getFullYear(), monthCursor.getMonth() -1, 0).getDate();
+      if (startDate.getDate() > daysInMonth) {
+        monthCursor.setDate(daysInMonth);
+      } else {
+        monthCursor.setDate(startDate.getDate());
+      }
     }
 
     while (monthCursor <= effectiveWeekEnd && monthCursor <= endRepeatDate) {
-      console.log('month cursor:', monthCursor.getMonth(), monthCursor.getDate())
       if (
         monthCursor >= startDate &&
         monthCursor >= addDays(new Date(effectiveWeekStart.getDate() - eventDuration), -1) &&
@@ -152,10 +158,17 @@ export function generateOccurrences(
       }
 
       monthCursor.setMonth(monthCursor.getMonth() + 1);
+      // Adjust day if month is shorter
+      const daysInMonth = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0).getDate();
+      if (startDate.getDate() > daysInMonth) {
+        monthCursor.setDate(daysInMonth);
+      } else {
+        monthCursor.setDate(startDate.getDate());
+      }
     }
   }
 
-  console.log('generated occurrences', eventsForNow.map((value) => value.start.getDate()));
+  //console.log('generated occurrences', eventsForNow.map((value) => value.start.getDate));
 
   return eventsForNow;
 }

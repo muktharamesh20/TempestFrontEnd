@@ -226,11 +226,11 @@ const sampleEvents: EventDetailsForNow[] = [
   },
     {
     title: 'Evening Yoga',
-    start: new Date('2025-06-22T19:00:00'),
-    end: new Date('2025-06-26T20:00:00'),
+    start: new Date('2025-07-31T19:00:00'),
+    end: new Date('2025-08-02T20:00:00'),
     color: '#E91E63',
-    end_repeat: new Date('2025-08-24T30:00:00'),
-    repeat_schedule: 'monthly', 
-    days: [0,1,2,3,4,6]
+    end_repeat: new Date('2026-05-24T30:00:00'),
+    repeat_schedule: 'biweekly', 
+    days: [0,1]
   },
 ];

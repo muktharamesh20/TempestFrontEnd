@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { generateOccurrences } from './calendarWeekView';
 
 interface CalendarMonthViewProps {
   events: EventDetailsForNow[];
@@ -42,6 +43,10 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
   const viewYear = year ?? today.getFullYear();
   const viewMonth = month ?? today.getMonth();
 
+  const startOfMonth = new Date(viewYear, viewMonth, 1, 0, 0, 0, 0); // local midnight at start of month
+  const endOfMonth = new Date(viewYear, viewMonth + 1, 0, 23, 59, 59, 999); // local end of last day of the month
+
+
   // Get days in month
   const getDaysInMonth = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
 
@@ -62,14 +67,33 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
 
   // Group events by day (day number in month)
   const eventsByDay: Record<number, EventDetailsForNow[]> = {};
-  events.forEach((event) => {
-    const startDate = new Date(event.start);
-    if (startDate.getFullYear() === viewYear && startDate.getMonth() === viewMonth) {
-      const dayNum = startDate.getDate();
-      if (!eventsByDay[dayNum]) eventsByDay[dayNum] = [];
-      eventsByDay[dayNum].push(event);
+  events
+  .flatMap((event) => generateOccurrences(event, startOfMonth, endOfMonth))
+  .forEach((event) => {
+    const eventStart = new Date(event.start);
+    const eventEnd = new Date(event.end);
+
+    // Clamp the event range to this month only
+    const localStart = new Date(
+      Math.max(eventStart.getTime(), startOfMonth.getTime())
+    );
+    const localEnd = new Date(
+      Math.min(eventEnd.getTime(), endOfMonth.getTime())
+    );
+
+    for (
+      let date = new Date(localStart);
+      date <= localEnd;
+      date.setDate(date.getDate() + 1)
+    ) {
+      if (date.getFullYear() === viewYear && date.getMonth() === viewMonth) {
+        const dayNum = date.getDate();
+        if (!eventsByDay[dayNum]) eventsByDay[dayNum] = [];
+        eventsByDay[dayNum].push(event);
+      }
     }
   });
+
 
   const cellWidth = SCREEN_WIDTH / DAYS_IN_WEEK;
 
