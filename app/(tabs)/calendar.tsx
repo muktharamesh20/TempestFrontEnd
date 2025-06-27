@@ -68,7 +68,7 @@ const sampleEvents: EventDetailsForNow[] = [
     start: new Date('2025-06-24T06:00:00'),
     end: new Date('2025-06-24T07:00:00'),
     color: '#4CAF50',
-    end_repeat: new Date('2025-06-24T07:00:00'),
+    end_repeat: new Date('2025-08-24T023:59:59'),
     repeat_schedule: 'none', 
     days: []
   },
@@ -229,16 +229,8 @@ const sampleEvents: EventDetailsForNow[] = [
     start: new Date('2025-06-22T19:00:00'),
     end: new Date('2025-06-26T20:00:00'),
     color: '#E91E63',
-    end_repeat: new Date('2025-06-26T20:00:00'),
-    repeat_schedule: 'none', 
-    days: []
-  },{
-    title: 'Evening Yoga',
-    start: new Date('2025-06-22T19:00:00'),
-    end: new Date('2025-06-30T20:00:00'),
-    color: '#E91E63',
-    end_repeat: new Date('2025-06-30T20:00:00'),
-    repeat_schedule: 'none', 
+    end_repeat: new Date('2025-06-28T20:00:00'),
+    repeat_schedule: 'daily', 
     days: []
   },
 ];

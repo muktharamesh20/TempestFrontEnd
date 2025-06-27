@@ -92,12 +92,46 @@ useEffect(() => {
     },
   });
 
-  // Determine if event is all-day: start <= 00:00 AND end >= 23:59 on the same day
-  const isAllDayEvent = (event: EventDetailsForNow, dayStart: Date, dayEnd: Date) => {
-    const start = new Date(event.start);
-    const end = new Date(event.end);
-    return start <= dayStart && end >= dayEnd;
-  };
+  function occursToday(event: EventDetailsForNow, dayStart: Date, dayEnd: Date) {
+    const evStart = new Date(event.start);
+    const evEnd   = new Date(event.end);
+    const repeatEnd = new Date(event.end_repeat);  // for repeating schedules
+  
+    // one-off
+    if (event.repeat_schedule === 'none') {
+      return evEnd >= dayStart && evStart <= dayEnd;
+    }
+  
+    // if repeats have ended, bail
+    if (repeatEnd < dayStart) return false;
+  
+    // DAILY  ─────────────────────────────────
+    if (event.repeat_schedule === 'daily') {
+      return evStart <= dayEnd;                   // occurs every day until end_repeat
+    }
+  
+    // WEEKLY  ────────────────────────────────
+    if (event.repeat_schedule === 'weekly') {
+      return (
+        evStart <= dayEnd &&
+        event.days.includes(dayStart.getDay())    // 0-6 inside this week day list
+      );
+    }
+  
+    // BIWEEKLY (every other week on given days) ───────────────
+    if (event.repeat_schedule === 'biweekly') {
+      if ((!event.days.includes(dayStart.getDay())) || evStart > dayEnd) return false;
+      evStart.setHours(0,0,0,0);
+      // how many whole weeks between original start week and this day’s week?
+      const msDiff     = dayStart.getTime() - evStart.getTime();
+      const weeksSince = msDiff / (7 * 24 * 60 * 60 * 1000);
+      console.log("weeks between:", weeksSince)
+      return weeksSince % 2 === 0;               // same parity = part of this fortnight
+    }
+  
+    return false;                                // fallback
+  }
+  
 
   const renderEvents = (numEvents: number, setNumStack: React.Dispatch<React.SetStateAction<number>>) => {
     const dayStart = new Date(day);
@@ -105,25 +139,198 @@ useEffect(() => {
     const dayEnd = new Date(day);
     dayEnd.setHours(23, 59, 59, 999);
 
-    const eventsForTheDay = events.filter(event => {
-      const start = new Date(event.start);
-      const end = new Date(event.end);
-      return end >= dayStart && start <= dayEnd;
-    });
+    // // const mapRecurringEventsToSingularEvent = (event: EventDetailsForNow) => {
+    // //   const results = []
+    // //   if (event.repeat_schedule === 'daily') {
+    // //     if(event.start <= dayEnd && event.end >= dayStart){
+
+    // //     }
+    // //   }
+    // // } 
+
+    // function buildInstance(
+    //   tpl: EventDetailsForNow,
+    //   dayStart: Date,                 // the 00:00 of the day we’re rendering
+    // ): EventDetailsForNow {
+    //   const origStart = new Date(tpl.start);
+    //   const duration  = new Date(tpl.end).getTime() - origStart.getTime();
+    
+    //   // newStart = dayStart + hh:mm:ss of original start
+    //   const newStart = new Date(dayStart);
+    //   newStart.setHours(
+    //     origStart.getHours(),
+    //     origStart.getMinutes(),
+    //     origStart.getSeconds(),
+    //     origStart.getMilliseconds()
+    //   );
+    
+    //   const newEnd = new Date(newStart.getTime() + duration);
+    
+    //   // Return a shallow copy so the template isn’t mutated
+    //   return { ...tpl, start: newStart, end: newEnd };
+    // }
+
+    // const eventsForTheDay = events.filter(event => {
+    //  occursToday(event, dayStart, dayEnd)
+    // }).map(event => buildInstance(event, dayStart));
     
   
-    const allDayEvents = eventsForTheDay.filter(event => {
-      const start = new Date(event.start);
-      const end = new Date(event.end);
-      return start <= dayStart && end >= dayEnd;
-    });
+    // const allDayEvents = eventsForTheDay.filter(event => {
+    //   if(event.repeat_schedule === 'none'){
+    //     const start = new Date(event.start);
+    //     const end = new Date(event.end);
+    //     return start <= dayStart && end >= dayEnd;
+    //   }
+    // });
     
   
-    const timedEvents = eventsForTheDay.filter(event => {
-      const start = new Date(event.start);
-      const end = new Date(event.end);
-      return !(start <= dayStart && end >= dayEnd);
+    // const timedEvents = eventsForTheDay.filter(event => {
+    //   if(event.repeat_schedule === 'none'){
+    //     const start = new Date(event.start);
+    //     const end = new Date(event.end);
+    //     return !(start <= dayStart && end >= dayEnd);
+    //   }
+    // });
+
+    /* ─── helpers ─────────────────────────────────────────────────────────── */
+
+    function makeInstance(
+      tpl: EventDetailsForNow,
+      startDate: Date,
+      durationMs: number
+    ): EventDetailsForNow {
+      const newStart = new Date(startDate);
+      const newEnd = new Date(startDate.getTime() + durationMs);
+    
+      return {
+        ...tpl,
+        start: newStart,
+        end: newEnd,
+        // Optionally: mark it as an instance if needed
+        // instanceOf: tpl.id ?? undefined,
+      };
+    }
+    /* ─── helper: copy the HH:MM:SS(.ms) from a source date ─── */
+function copyTimeOfDay(from: Date, to: Date) {
+  to.setHours(
+    from.getHours(),
+    from.getMinutes(),
+    from.getSeconds(),
+    from.getMilliseconds()
+  );
+}
+
+    
+
+function instancesToday(
+  tpl: EventDetailsForNow,
+  dayStart: Date,
+  dayEnd: Date,
+): EventDetailsForNow[] {
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const tplStart = new Date(tpl.start);
+  const tplEnd = new Date(tpl.end);
+  const duration = tplEnd.getTime() - tplStart.getTime();
+  const repeatEnd = tpl.repeat_schedule === 'none'
+    ? tplEnd
+    : new Date(tpl.end_repeat);
+
+  /* ---------- ONE-OFF ------------------------------------------------- */
+  if (tpl.repeat_schedule === 'none') {
+    return tplEnd >= dayStart && tplStart <= dayEnd ? [tpl] : [];
+  }
+
+  /* ---------- define recurrence parameters --------------------------- */
+  let freqDays = 1;
+  if (tpl.repeat_schedule === 'weekly') freqDays = 7;
+  if (tpl.repeat_schedule === 'biweekly') freqDays = 14;
+
+  const out: EventDetailsForNow[] = [];
+
+  if (tpl.repeat_schedule === 'monthly') {
+    // For monthly, iterate over months from tplStart up to dayEnd or repeatEnd
+    let current = new Date(tplStart);
+    current.setHours(0, 0, 0, 0);
+
+    // We'll loop months forward until past dayEnd or repeatEnd
+    while (current <= dayEnd && current <= repeatEnd) {
+      // Construct occurrence date by setting date to the original day of month
+      const occStart = new Date(current);
+      const dayOfMonth = tplStart.getDate();
+
+      // Set the day, but clamp if the month has fewer days (e.g., Feb 30)
+      const maxDay = new Date(occStart.getFullYear(), occStart.getMonth() + 1, 0).getDate();
+      occStart.setDate(dayOfMonth > maxDay ? maxDay : dayOfMonth);
+
+      copyTimeOfDay(tplStart, occStart);
+      const occEnd = new Date(occStart.getTime() + duration);
+
+      // Check if occurrence overlaps the day range
+      if (occEnd >= dayStart && occStart <= dayEnd && occStart <= repeatEnd) {
+        out.push(makeInstance(tpl, occStart, duration));
+      }
+
+      // Move to next month
+      current.setMonth(current.getMonth() + 1);
+    }
+  } else {
+    // daily, weekly, biweekly logic (existing)
+    const freqMs = freqDays * DAY_MS;
+    const firstPossibleStart = tplStart;
+    const lastPossibleStart = new Date(Math.min(repeatEnd.getTime(), dayEnd.getTime()));
+    const nMax = Math.floor(
+      (lastPossibleStart.getTime() - firstPossibleStart.getTime()) / freqMs
+    );
+
+    for (let n = nMax; n >= 0; n--) {
+      const baseWeekStart = new Date(firstPossibleStart.getTime() + n * freqMs);
+      baseWeekStart.setHours(0, 0, 0, 0);
+
+      if (tpl.repeat_schedule === 'daily') {
+        const occStart = new Date(baseWeekStart);
+        copyTimeOfDay(tplStart, occStart);
+        const occEnd = new Date(occStart.getTime() + duration);
+
+        if (occEnd < dayStart || occStart > dayEnd || occStart > repeatEnd) continue;
+
+        out.push(makeInstance(tpl, occStart, duration));
+      } else {
+        // weekly or biweekly
+        for (const weekday of tpl.days) {
+          const occStart = new Date(baseWeekStart);
+          copyTimeOfDay(tplStart, occStart);
+          occStart.setDate(occStart.getDate() + ((weekday - occStart.getDay() + 7) % 7));
+          const occEnd = new Date(occStart.getTime() + duration);
+
+          if (occEnd < dayStart || occStart > dayEnd || occStart > repeatEnd) continue;
+
+          out.push(makeInstance(tpl, occStart, duration));
+        }
+      }
+    }
+  }
+
+  return out;
+}
+
+    const todaysEvents: EventDetailsForNow[] = [];
+    
+    events.forEach((tpl) => {
+      todaysEvents.push(
+        ...instancesToday(tpl, dayStart, dayEnd)
+      );
     });
+    
+    /* ─── split into all-day vs timed ────────────────────────────────────── */
+    
+    
+    const allDayEvents = todaysEvents.filter((ev) => {
+      const s = new Date(ev.start);
+      const e = new Date(ev.end);
+      return s <= dayStart && e >= dayEnd;          // spans 00–24 entirely
+    });
+    
+    const timedEvents = todaysEvents.filter((ev) => !allDayEvents.includes(ev));
     
   
     const allDayStackHeight = allDayEvents.length * ALL_DAY_EVENT_SINGLE_HEIGHT;
@@ -334,39 +541,6 @@ useEffect(() => {
       </View>
     );
   };
-  
-  
-  const buildOverlappingGroups = (events: EventDetailsForNow[]) => {
-  const sorted = [...events].sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-  const groups: EventDetailsForNow[][] = [];
-
-  for (const event of sorted) {
-    const start = new Date(event.start).getTime();
-    const end = new Date(event.end).getTime();
-
-    let placed = false;
-    for (const group of groups) {
-      // Check if event does NOT overlap with any events in group
-      const overlaps = group.some((e) => {
-        const eStart = new Date(e.start).getTime();
-        const eEnd = new Date(e.end).getTime();
-        return !(end <= eStart || start >= eEnd); // true if overlaps
-      });
-
-      if (!overlaps) {
-        group.push(event);
-        placed = true;
-        break;
-      }
-    }
-
-    if (!placed) {
-      groups.push([event]);
-    }
-  }
-
-  return groups;
-};
 
 
   // Calculate all-day events total height for offsetting hours container and events

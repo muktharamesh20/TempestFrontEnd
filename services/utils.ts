@@ -136,7 +136,7 @@ export interface EventDetailsForNow {
     end: Date;
     color: string;
     end_repeat: Date;
-    days: Number[]; //0 is sunday, 6 is saturday
+    days: number[]; //0 is sunday, 6 is saturday
     repeat_schedule: 'weekly' | 'monthly' | 'biweekly' | 'daily' | 'none';
 }
 
