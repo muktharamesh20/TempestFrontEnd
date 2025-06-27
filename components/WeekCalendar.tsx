@@ -82,6 +82,8 @@ const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, catego
     });
   };
 
+
+
   const extendDataToIncludeDate = (targetDate: Date) => {
     let newData = [...data];
     const targetSunday = startOfWeek(targetDate, { weekStartsOn: 0 });

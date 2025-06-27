@@ -1,5 +1,6 @@
 import { numbers } from '@/constants/numbers';
 import { EventDetailsForNow } from '@/services/utils';
+import { endOfWeek, startOfWeek } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import {
   LayoutChangeEvent,
@@ -24,6 +25,139 @@ interface CalendarWeekViewProps {
   focusedDay: Date; // <- New prop
   hourHeight: number;
   setHourHeight: React.Dispatch<React.SetStateAction<number>>;
+}
+
+
+export function generateOccurrences(
+  event: EventDetailsForNow,
+  weekStart: Date,
+  weekEnd: Date
+): EventDetailsForNow[] {
+  const eventsForNow: EventDetailsForNow[] = [];
+
+  const addDays = (date: Date, days: number): Date => {
+    const newDate = new Date(date);
+    newDate.setDate(newDate.getDate() + days);
+    return newDate;
+  };
+
+  const cloneDateWithTime = (base: Date, reference: Date): Date => {
+    const newDate = new Date(base);
+    newDate.setHours(
+      reference.getHours(),
+      reference.getMinutes(),
+      reference.getSeconds(),
+      reference.getMilliseconds()
+    );
+    return newDate;
+  };
+
+  const startDate = new Date(event.start);
+  const endDate = new Date(event.end);
+  const endRepeatDate = new Date(event.end_repeat);
+
+  const effectiveWeekStart = weekStart;
+  const effectiveWeekEnd = weekEnd > endRepeatDate ? endRepeatDate : weekEnd;
+
+  if (event.repeat_schedule === 'none') {
+    if (startDate <= effectiveWeekEnd && endDate >= effectiveWeekStart) {
+      eventsForNow.push({ ...event });
+    }
+    return eventsForNow;
+  }
+
+  const eventDuration = endDate.getTime() - startDate.getTime();
+
+  if (event.repeat_schedule === 'daily') {
+    for (
+      let d = new Date(effectiveWeekStart.getTime() - eventDuration);
+      d <= effectiveWeekEnd;
+      d = addDays(d, 1)
+    ) {
+      if (d >= startDate && d <= endRepeatDate) {
+        const start = cloneDateWithTime(d, startDate);
+        const end = new Date(start.getTime() + eventDuration);
+        eventsForNow.push({ ...event, start, end });
+      }
+    }
+  } else if (event.repeat_schedule === 'weekly' || event.repeat_schedule === 'biweekly') {
+    const increment = event.repeat_schedule === 'weekly' ? 7 : 14;
+
+    // Find the first occurrence on or after weekStart aligned with the repeat pattern
+    // Calculate offset from the original event start week
+    const startDay = startDate.getDay();
+    const startTime = startDate.getTime();
+
+    // Find the Monday (or start of week) of startDate
+    const startWeekMonday = addDays(startDate, -startDay);
+
+    // Find the Monday of effectiveWeekStart
+    const weekStartDay = addDays(new Date(effectiveWeekStart.getDate() - eventDuration), -1);
+    const currentWeekMonday = addDays(effectiveWeekStart, -weekStartDay);
+
+    // Calculate how many increments (weeks) between startWeekMonday and currentWeekMonday
+    const weeksDiff = Math.floor(
+      (currentWeekMonday.getTime() - startWeekMonday.getTime()) / (7 * 24 * 60 * 60 * 1000)
+    );
+
+    // Align to nearest increment
+    let firstWeekMonday =
+      weeksDiff >= 0
+        ? addDays(startWeekMonday, Math.floor(weeksDiff / (increment / 7)) * increment)
+        : startWeekMonday;
+
+    // Iterate weeks from firstWeekMonday until effectiveWeekEnd
+    for (
+      let weekStartDate = firstWeekMonday;
+      weekStartDate <= effectiveWeekEnd;
+      weekStartDate = addDays(weekStartDate, increment)
+    ) {
+      for (let i = 0; i < 7; i++) {
+        const day = addDays(weekStartDate, i);
+
+        if (
+          day >= weekStartDate &&
+          day <= effectiveWeekEnd &&
+          day <= endRepeatDate &&
+          event.days.includes(day.getDay())
+        ) {
+          const start = cloneDateWithTime(day, startDate);
+          const end = new Date(start.getTime() + eventDuration);
+          // Only add if after or equal to event start
+          // if (start >= startDate) {
+          eventsForNow.push({ ...event, start, end });
+          // }
+        }
+      }
+    }
+  } else if (event.repeat_schedule === 'monthly') {
+    // We want to generate events on the same day of month as startDate within the effective week
+    let monthCursor = new Date(startDate.getTime());
+
+    // If the first monthly occurrence is before effectiveWeekStart, move forward month by month until we reach or pass effectiveWeekStart
+    while (monthCursor < addDays(new Date(effectiveWeekStart.getDate() - eventDuration), -1)) {
+      monthCursor.setMonth(monthCursor.getMonth() - 1);
+    }
+
+    while (monthCursor <= effectiveWeekEnd && monthCursor <= endRepeatDate) {
+      console.log('month cursor:', monthCursor.getMonth(), monthCursor.getDate())
+      if (
+        monthCursor >= startDate &&
+        monthCursor >= addDays(new Date(effectiveWeekStart.getDate() - eventDuration), -1) &&
+        monthCursor.getDate() == startDate.getDate()
+      ) {
+        const start = cloneDateWithTime(monthCursor, startDate);
+        const end = new Date(start.getTime() + eventDuration);
+        eventsForNow.push({ ...event, start, end });
+      }
+
+      monthCursor.setMonth(monthCursor.getMonth() + 1);
+    }
+  }
+
+  console.log('generated occurrences', eventsForNow.map((value) => value.start.getDate()));
+
+  return eventsForNow;
 }
 
 const hours = Array.from({ length: 24 }, (_, i) =>
@@ -61,18 +195,12 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
 }) => {
   const baseHeight = useSharedValue(INITIAL_HEIGHT);
 
-  // Get start of week (Sunday)
-const getStartOfWeek = (date: Date) => {
-  const day = new Date(date);
-  const diff = day.getDate() - day.getDay(); // Sunday = 0
-  day.setDate(diff);
-  day.setHours(0, 0, 0, 0);
-  return day;
-};
+  events = events.flatMap((event) => generateOccurrences(event, startOfWeek(focusedDay), endOfWeek(focusedDay)))
 
-const startOfWeek = getStartOfWeek(focusedDay);
+
+const weekStart = startOfWeek(focusedDay);
 const weekDates = Array.from({ length: 7 }, (_, i) => {
-  const d = new Date(startOfWeek);
+  const d = new Date(weekStart);
   d.setDate(d.getDate() + i);
   return d;
 });
@@ -100,6 +228,7 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
     },
   });
 
+
   // Render all-day or multi-day events as slivers on top spanning across days
   const renderAllDayEvents = () => {
     if (containerWidth === 0) return null;
@@ -118,6 +247,12 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       const nextDay = new Date(dayStart.getTime() + DAY_MS);
       return start <= dayStart && end >= nextDay;
     };
+
+    const overlapsDay = (start: Date, end: Date, dayStart: Date) => {
+      const dayEnd = new Date(dayStart.getTime() + DAY_MS);
+      return start < dayEnd && end > dayStart;
+    };
+    
   
     type Placed = { event: EventDetailsForNow; startDay: number; endDay: number; stackIndex: number };
     const placedEvents: Placed[] = [];
@@ -127,7 +262,7 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
       .filter((event) => {
         const s = new Date(event.start);
         const e = new Date(event.end);
-        return e >= startOfWeek && s < new Date(startOfWeek.getTime() + 7 * DAY_MS);
+        return e >= weekStart && s < new Date(weekStart.getTime() + 7 * DAY_MS);
       })
       .forEach((event) => {
         const s = new Date(event.start);
@@ -136,7 +271,7 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
         /* collect the *indices* (0-6) of fully covered days inside this week */
         const covered: number[] = [];
         for (let i = 0; i < 7; i++) {
-          const dayStart = new Date(startOfWeek.getTime() + i * DAY_MS);
+          const dayStart = new Date(weekStart.getTime() + i * DAY_MS);
           if (fullyCovers(s, e, dayStart)) covered.push(i);
         }
         if (covered.length === 0) return; // nothing to draw this week
@@ -243,7 +378,7 @@ const weekDates = Array.from({ length: 7 }, (_, i) => {
     const daySlices: Slice[] = [];
   
     const DAY_MS = 24 * 60 * 60 * 1000;
-    const weekStart = startOfWeek;                 // Sunday 00:00 of this view
+    // const weekStart = weekStart;                 // Sunday 00:00 of this view
     const weekEnd   = new Date(weekStart.getTime() + 7 * DAY_MS);
   
     events
