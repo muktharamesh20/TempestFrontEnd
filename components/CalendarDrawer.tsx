@@ -1,7 +1,14 @@
 import { numbers } from '@/constants/numbers';
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
-import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import {
+  Animated,
+  FlatList,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export interface drawerProps {
@@ -17,23 +24,51 @@ interface CalendarDrawerProps {
   setView: (view: 'day' | 'week' | 'month') => void;
 }
 
-const CalendarDrawer = ({ categories, handleCategoryToggle, setView }: CalendarDrawerProps) => {
+const CalendarDrawer = ({
+  categories,
+  handleCategoryToggle,
+  setView,
+}: CalendarDrawerProps) => {
   const insets = useSafeAreaInsets();
 
+  // Slide animation
+  const slideAnim = useRef(new Animated.Value(-300)).current;
+
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   return (
-    <View style={{ flex: 1, backgroundColor: numbers.primaryColor }}>
-      {/* Logo at the top, outside FlatList */}
-      <View style={{
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        paddingTop: insets.top,
-        borderBottomWidth: 1,
-        borderBottomColor: '#E4E4E4',
-      }}>
+    <Animated.View
+      style={{
+        flex: 1,
+        backgroundColor: numbers.primaryColor,
+        transform: [{ translateX: slideAnim }],
+      }}
+    >
+      {/* Logo at the top */}
+      <View
+        style={{
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          paddingTop: insets.top,
+          borderBottomWidth: 1,
+          borderBottomColor: '#E4E4E4',
+        }}
+      >
         <Image
           source={require('../assets/tempestlogo.png')}
-          style={{ width: 120, height: 60, resizeMode: 'contain', marginBottom: -3 }}
+          style={{
+            width: 120,
+            height: 60,
+            resizeMode: 'contain',
+            marginBottom: -3,
+          }}
         />
       </View>
 
@@ -44,7 +79,7 @@ const CalendarDrawer = ({ categories, handleCategoryToggle, setView }: CalendarD
         keyExtractor={(item) => item.categoryId}
         ListHeaderComponent={() => (
           <>
-            <Text className='text-2xl font-bold ml-4'>Views</Text>
+            <Text className="text-2xl font-bold ml-4">Views</Text>
             {/* Month View */}
             <TouchableOpacity
               style={{
@@ -59,8 +94,13 @@ const CalendarDrawer = ({ categories, handleCategoryToggle, setView }: CalendarD
               onPress={() => setView('month')}
               activeOpacity={0.7}
             >
-              <Ionicons name="calendar-outline" size={22} color="#0E2433" style={{ marginRight: 12 }} />
-              <Text className='text-xl font-semibold'>Month View</Text>
+              <Ionicons
+                name="calendar-outline"
+                size={22}
+                color="#0E2433"
+                style={{ marginRight: 12 }}
+              />
+              <Text className="text-xl font-semibold">Month View</Text>
             </TouchableOpacity>
             {/* Week View */}
             <TouchableOpacity
@@ -75,8 +115,13 @@ const CalendarDrawer = ({ categories, handleCategoryToggle, setView }: CalendarD
               onPress={() => setView('week')}
               activeOpacity={0.7}
             >
-              <Ionicons name="calendar-number-outline" size={22} color="#0E2433" style={{ marginRight: 12 }} />
-              <Text className='text-xl font-semibold'>Week View</Text>
+              <Ionicons
+                name="calendar-number-outline"
+                size={22}
+                color="#0E2433"
+                style={{ marginRight: 12 }}
+              />
+              <Text className="text-xl font-semibold">Week View</Text>
             </TouchableOpacity>
             {/* Day View */}
             <TouchableOpacity
@@ -85,16 +130,19 @@ const CalendarDrawer = ({ categories, handleCategoryToggle, setView }: CalendarD
                 alignItems: 'center',
                 paddingVertical: 12,
                 paddingHorizontal: 16,
-                // borderBottomWidth: 1,
-                // borderBottomColor: '#E4E4E4',
               }}
               activeOpacity={0.7}
               onPress={() => setView('day')}
             >
-              <Ionicons name="calendar-clear-outline" size={22} color="#0E2433" style={{ marginRight: 12 }} />
-              <Text className='text-xl font-semibold'>Day View</Text>
+              <Ionicons
+                name="calendar-clear-outline"
+                size={22}
+                color="#0E2433"
+                style={{ marginRight: 12 }}
+              />
+              <Text className="text-xl font-semibold">Day View</Text>
             </TouchableOpacity>
-            <Text className='text-2xl font-bold ml-4 mt-4'>Categories</Text>
+            <Text className="text-2xl font-bold ml-4 mt-4">Categories</Text>
           </>
         )}
         renderItem={({ item, index }) => (
@@ -112,7 +160,9 @@ const CalendarDrawer = ({ categories, handleCategoryToggle, setView }: CalendarD
           >
             {/* Checkbox */}
             <TouchableOpacity
-              onPress={() => handleCategoryToggle(item.categoryId, !item.isPublic)}
+              onPress={() =>
+                handleCategoryToggle(item.categoryId, !item.isPublic)
+              }
               style={{
                 width: 22,
                 height: 22,
@@ -130,8 +180,8 @@ const CalendarDrawer = ({ categories, handleCategoryToggle, setView }: CalendarD
             </TouchableOpacity>
             {/* Category Name */}
             <Text
-              className='text-xl font-semibold mr-2'
-              style={{ color: "#0E2433", flex: 1 }}
+              className="text-xl font-semibold mr-2"
+              style={{ color: '#0E2433', flex: 1 }}
               numberOfLines={2}
             >
               {item.categoryName}
@@ -142,14 +192,13 @@ const CalendarDrawer = ({ categories, handleCategoryToggle, setView }: CalendarD
                 width: 6,
                 height: '80%',
                 borderRadius: 3,
-                backgroundColor: item.categoryColor,
                 marginLeft: 8,
               }}
             />
           </View>
         )}
       />
-    </View>
+    </Animated.View>
   );
 };
 

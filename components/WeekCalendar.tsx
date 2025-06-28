@@ -345,7 +345,6 @@ const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, catego
               left: 0,
               width: 260, // Adjust width as needed
               height: '100%',
-              backgroundColor: '#fff',
               zIndex: 100,
               elevation: 10,
               shadowColor: '#000',

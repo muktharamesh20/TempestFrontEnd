@@ -284,7 +284,6 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
               left: 0,
               width: 260, // Adjust width as needed
               height: '100%',
-              backgroundColor: '#fff',
               zIndex: 100,
               elevation: 10,
               shadowColor: '#000',
