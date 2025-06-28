@@ -1,6 +1,6 @@
 import { numbers } from '@/constants/numbers';
 import { EventDetailsForNow } from '@/services/utils';
-import { endOfWeek, startOfWeek } from 'date-fns';
+import { addDays, endOfWeek, startOfWeek } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import {
   LayoutChangeEvent,
@@ -34,12 +34,6 @@ export function generateOccurrences(
   weekEnd: Date,
 ): EventDetailsForNow[] {
   const eventsForNow: EventDetailsForNow[] = [];
-
-  const addDays = (date: Date, days: number): Date => {
-    const newDate = new Date(date);
-    newDate.setDate(newDate.getDate() + days);
-    return newDate;
-  };
 
   const cloneDateWithTime = (base: Date, reference: Date): Date => {
     const newDate = new Date(base);
@@ -119,6 +113,7 @@ export function generateOccurrences(
           day >= weekStartDate &&
           day <= effectiveWeekEnd &&
           day <= endRepeatDate &&
+          day >= event.start &&
           event.days.includes(day.getDay())
         ) {
           const start = cloneDateWithTime(day, startDate);
@@ -257,15 +252,11 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
 
     /* ─── helper: does event cover the whole day? ─── */
     const fullyCovers = (start: Date, end: Date, dayStart: Date) => {
-      const nextDay = new Date(dayStart.getTime() + DAY_MS);
+      const nextDay = new Date(dayStart);
+      nextDay.setDate(dayStart.getDate() + 1);
+
       return start <= dayStart && end >= nextDay;
     };
-
-    const overlapsDay = (start: Date, end: Date, dayStart: Date) => {
-      const dayEnd = new Date(dayStart.getTime() + DAY_MS);
-      return start < dayEnd && end > dayStart;
-    };
-
 
     type Placed = { event: EventDetailsForNow; startDay: number; endDay: number; stackIndex: number };
     const placedEvents: Placed[] = [];
@@ -275,7 +266,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
       .filter((event) => {
         const s = new Date(event.start);
         const e = new Date(event.end);
-        return e >= weekStart && s < new Date(weekStart.getTime() + 7 * DAY_MS);
+        return e >= weekStart && s < addDays(weekStart, 7);
       })
       .forEach((event) => {
         const s = new Date(event.start);
@@ -284,7 +275,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
         /* collect the *indices* (0-6) of fully covered days inside this week */
         const covered: number[] = [];
         for (let i = 0; i < 7; i++) {
-          const dayStart = new Date(weekStart.getTime() + i * DAY_MS);
+          const dayStart = addDays(weekStart, i);
           if (fullyCovers(s, e, dayStart)) covered.push(i);
         }
         if (covered.length === 0) return; // nothing to draw this week
@@ -392,7 +383,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
 
     const DAY_MS = 24 * 60 * 60 * 1000;
     // const weekStart = weekStart;                 // Sunday 00:00 of this view
-    const weekEnd = new Date(weekStart.getTime() + 7 * DAY_MS);
+    const weekEnd = addDays(weekStart, 7);
 
     events
       /* keep events that touch this week */
@@ -407,8 +398,8 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
 
         /* walk each day of *this* week (0-6) */
         for (let i = 0; i < 7; i++) {
-          const dayStart = new Date(weekStart.getTime() + i * DAY_MS);
-          const dayEnd = new Date(dayStart.getTime() + DAY_MS);
+          const dayStart = addDays(weekStart, i);
+          const dayEnd = addDays(dayStart, 1);
 
           /* intersection of [ev] and this day */
           const sliceStart = new Date(Math.max(evStart.getTime(), dayStart.getTime()));

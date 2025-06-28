@@ -230,7 +230,7 @@ const sampleEvents: EventDetailsForNow[] = [
     end: new Date('2025-08-02T20:00:00'),
     color: '#E91E63',
     end_repeat: new Date('2026-05-24T30:00:00'),
-    repeat_schedule: 'biweekly',
-    days: [0, 1]
+    repeat_schedule: 'weekly',
+    days: [0,1,2,6]
   },
 ];
