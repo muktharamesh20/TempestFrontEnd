@@ -116,6 +116,10 @@ export default function RootLayout() {
             name="(login)"
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="infoScreen"
+            options={{ headerShown: false, animation: 'none'}}
+          />
         </Stack>
 
         <Modal visible={mustAddUsername} transparent animationType="fade">
