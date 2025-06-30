@@ -1,0 +1,41 @@
+import { numbers } from '@/constants/numbers';
+import { Entypo, Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+interface OtherProfileHeaderProps {
+  username: string;
+}
+
+const OtherProfileHeader: React.FC<OtherProfileHeaderProps> = ({ username }) => {
+  const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
+
+  return (
+    <View style={{ height: numbers.headerHeight + insets.top }}>
+      <View
+        style={{ height: numbers.headerHeight, marginTop: insets.top }}
+        className="absolute w-full flex flex-row justify-between items-center bg-primary border-b border-divider px-4 z-50"
+      >
+        {/* Back arrow */}
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color={numbers.secondaryColor} />
+        </TouchableOpacity>
+
+        {/* Username in the center */}
+        <Text className="text-xl font-semibold text-secondary" numberOfLines={1}>
+          {username}
+        </Text>
+
+        {/* Placeholder for spacing on the right (same width as back arrow) */}
+        <TouchableOpacity onPress={() => console.log('three dots pressed!')}>
+          <Entypo name="dots-three-horizontal" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+export default OtherProfileHeader;

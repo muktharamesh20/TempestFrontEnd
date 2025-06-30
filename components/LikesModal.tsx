@@ -2,11 +2,13 @@ import { numbers } from '@/constants/numbers';
 import { SB_STORAGE_CONFIG } from '@/services/api';
 import { Like } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
+import { Link, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   FlatList,
   Image,
   KeyboardAvoidingView,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -26,6 +28,7 @@ const LikesModal = ({ visible, likes, onClose }: LikesModalProps): React.JSX.Ele
   const insets = useSafeAreaInsets();
   const [search, setSearch] = useState('');
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+  const navigation = useRouter();
 
   useEffect(() => {
     const fetchImageUrls = async () => {
@@ -60,7 +63,11 @@ const LikesModal = ({ visible, likes, onClose }: LikesModalProps): React.JSX.Ele
   const renderLikeItem = ({ item }: { item: Like }) => {
     return (
       <View style={styles.likeItem}>
-        <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
+        <Link href = {`/profiles/${item.id}`} asChild>
+        <Pressable onPress={onClose}>
+          <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
+        </Pressable>
+        </Link>
         <View style={{ marginLeft: 12 }}>
           <Text style={styles.username}>{item.username}</Text>
         </View>

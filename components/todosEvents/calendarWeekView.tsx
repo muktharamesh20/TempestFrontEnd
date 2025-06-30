@@ -80,7 +80,6 @@ export function generateOccurrences(
     // Find the first occurrence on or after weekStart aligned with the repeat pattern
     // Calculate offset from the original event start week
     const startDay = startDate.getDay();
-    const startTime = startDate.getTime();
 
     // Find the Monday (or start of week) of startDate
     const startWeekMonday = addDays(startDate, -startDay);

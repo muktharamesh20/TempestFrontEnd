@@ -195,6 +195,7 @@ export type Database = {
       }
       event: {
         Row: {
+          created_at: string | null
           description: string
           end_date: string
           end_repeat: string | null
@@ -214,6 +215,7 @@ export type Database = {
           working_on_this_todo: string | null
         }
         Insert: {
+          created_at?: string | null
           description: string
           end_date: string
           end_repeat?: string | null
@@ -233,6 +235,7 @@ export type Database = {
           working_on_this_todo?: string | null
         }
         Update: {
+          created_at?: string | null
           description?: string
           end_date?: string
           end_repeat?: string | null
@@ -1189,6 +1192,7 @@ export type Database = {
           all_members_must_complete: boolean
           assigned_by: string
           backlog: boolean
+          created_at: string
           datetime_completed: string | null
           deadline: string | null
           end_repeat: string | null
@@ -1215,6 +1219,7 @@ export type Database = {
           all_members_must_complete?: boolean
           assigned_by: string
           backlog?: boolean
+          created_at?: string
           datetime_completed?: string | null
           deadline?: string | null
           end_repeat?: string | null
@@ -1241,6 +1246,7 @@ export type Database = {
           all_members_must_complete?: boolean
           assigned_by?: string
           backlog?: boolean
+          created_at?: string
           datetime_completed?: string | null
           deadline?: string | null
           end_repeat?: string | null
@@ -1458,6 +1464,10 @@ export type Database = {
         Args: { uid: string }
         Returns: string[]
       }
+      get_user_profile_summary: {
+        Args: { target_id: string }
+        Returns: Database["public"]["CompositeTypes"]["user_profile_summary"]
+      }
       increment_inspired_by_count: {
         Args: { p_post_id: string }
         Returns: undefined
@@ -1501,7 +1511,22 @@ export type Database = {
       [_ in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never
+      user_profile_summary: {
+        username: string | null
+        bio: string | null
+        numposts: number | null
+        numfollowers: number | null
+        numfollowing: number | null
+        yourequestedfollow: boolean | null
+        theyrequestedfollow: boolean | null
+        youfollowing: boolean | null
+        theyfollowing: boolean | null
+        youclosefriend: boolean | null
+        theyclosefriend: boolean | null
+        youblockedthem: boolean | null
+        theyblockedyou: boolean | null
+        categories: Json | null
+      }
     }
   }
 }

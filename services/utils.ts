@@ -107,6 +107,27 @@ export async function createGroupTypeWithData(groupDetails:
     throw new NotImplementedError('createGroupTypeWithData');
 }
 
+
+export interface ProfileSummary {
+    username: string | null;
+    bio: string | null;
+    numposts: number;
+    numfollowers: number;
+    numfollowing: number;
+    yourequestedfollow: boolean;
+    theyrequestedfollow: boolean;
+    youfollowing: boolean;
+    theyfollowing: boolean;
+    youclosefriend: boolean;
+    theyclosefriend: boolean;
+    youblockedthem: boolean;
+    theyblockedyou: boolean;
+    categories: {
+      categoryName: string;
+      posts: { id: string, imageLink: string }[];
+    }[];
+  }  
+
 /**
  * Given event details, creates an event and returns the created event.
  * 

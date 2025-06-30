@@ -8,6 +8,7 @@ import {
   FlatList,
   Image,
   KeyboardAvoidingView,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -18,6 +19,7 @@ import Modal from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Comment } from '@/services/utils';
+import { Link } from 'expo-router';
 
 interface CommentsModalProps {
   visible: boolean;
@@ -41,6 +43,7 @@ const timeSince = (timestamp: Date) => {
 };
 
 const CommentItem = ({
+  onClose,
   comment,
   replies,
   onReply,
@@ -49,6 +52,7 @@ const CommentItem = ({
   onDelete,
   onBlock,
 }: {
+  onClose: () => void;
   comment: Comment;
   replies: Comment[];
   onReply: (c: Comment) => void;
@@ -106,7 +110,11 @@ const CommentItem = ({
       {(comment.authorId === currentUserId || postOwnerId === currentUserId) ?
         <TouchableOpacity onLongPress={handleLongPress} delayLongPress={300}>
           <View style={{ flexDirection: 'row' }}>
-            <Image source={{ uri: imageUrl }} style={styles.avatar} />
+          <Link href = {`/profiles/${comment.authorId}`} asChild>
+          <Pressable onPress={onClose}>
+              <Image source={{ uri: imageUrl }} style={styles.avatar} />
+          </Pressable>
+          </Link>
             <View style={styles.commentContent}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={styles.author}>{comment.author}</Text>
@@ -118,7 +126,11 @@ const CommentItem = ({
         </TouchableOpacity>
         :
         <View style={{ flexDirection: 'row' }}>
-          <Image source={{ uri: imageUrl }} style={styles.avatar} />
+          <Link href = {`/profiles/${comment.authorId}`} asChild>
+          <Pressable onPress={onClose}>
+            <Image source={{ uri: imageUrl }} style={styles.avatar} />
+          </Pressable>
+          </Link>
           <View style={styles.commentContent}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.author}>{comment.author}</Text>
@@ -131,6 +143,7 @@ const CommentItem = ({
       <View style={{ marginLeft: 24, marginTop: 3 }}>
         {displayedReplies.map((reply) => (
           <ReplyItem
+            onClose={onClose}
             key={reply.id}
             reply={reply}
             currentUserId={currentUserId}
@@ -158,11 +171,13 @@ const CommentItem = ({
 };
 
 const ReplyItem = ({
+  onClose,
   reply,
   currentUserId,
   postOwnerId,
   onDelete,
 }: {
+  onClose: () => void;
   reply: Comment;
   currentUserId: string;
   postOwnerId: string;
@@ -190,7 +205,11 @@ const ReplyItem = ({
   return (
     <TouchableOpacity onLongPress={handleLongPress} delayLongPress={300}>
       <View style={styles.replyContainer}>
+      <Link href = {`/profiles/${reply.authorId}`} asChild>
+      <Pressable onPress={onClose}>
         <Image source={{ uri: replyImageUrl }} style={styles.avatarSmall} />
+      </Pressable>
+      </Link>
         <View style={styles.replyContent}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={styles.author}>{reply.author}</Text>
@@ -289,6 +308,7 @@ export default function CommentsModal({
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <CommentItem
+                onClose={onClose}
                 comment={item}
                 replies={repliesByParent[item.id] || []}
                 onReply={setReplyTo}

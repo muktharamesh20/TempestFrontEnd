@@ -1,3 +1,4 @@
+import { numbers } from '@/constants/numbers';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
@@ -22,7 +23,7 @@ const SearchScreen = () => {
   const navigation = useRouter();
 
   // Shared value for horizontal slide (search bar)
-  const slideX = useSharedValue(-100);
+  const slideX = useSharedValue(-50);
 
   // Shared opacity value for fade out on exit (whole screen)
   const opacity = useSharedValue(1);
@@ -101,7 +102,7 @@ const SearchScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', paddingTop: 50 },
+  container: { flex: 1, backgroundColor: numbers.primaryColor, paddingTop: 50 },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -112,10 +113,13 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 40,
-    borderRadius: 8,
     backgroundColor: '#f2f2f2',
-    paddingHorizontal: 12,
+    borderRadius: 12,
+    paddingHorizontal: 10,
     fontSize: 16,
+    marginRight: 10,
+    paddingVertical: 8,
+    marginVertical: 12,
   },
   resultsContainer: {
     paddingHorizontal: 16,

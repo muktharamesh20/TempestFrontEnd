@@ -15,20 +15,33 @@ type Message = {
   name: string;
   lastMessage: string;
   time: string;
+  isGroup: boolean;
 };
 
 
+import SimpleHeader from '@/components/CustomHeader';
 import { numbers } from '@/constants/numbers';
+import { SB_STORAGE_CONFIG } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons'; // or another icon lib
 import { useRouter } from 'expo-router';
 import { TextInput } from 'react-native-gesture-handler';
+
+
+/**
+ * Status messages first (actives first) <- event message over status messaeg
+ * 
+ * Events (actives first)
+ * 
+ * Everyone else (actives first)
+ */
 
 type Group = {
   id: string;
   name: string;
   iconUri: string;
-  status?: 'active' | 'event' | 'none';
+  status?: 'active' | 'event' | 'active+event' | 'none';
   bubbleText?: string;
+  eventText?: string;
   isUser?: boolean;
 };
 
@@ -69,18 +82,21 @@ const mockMessages: Message[] = [
     name: 'Jane Doe',
     lastMessage: 'Hey, are we still meeting tomorrow?',
     time: '3:45 PM',
+    isGroup: false
   },
   {
     id: '2',
     name: 'Alex Johnson',
     lastMessage: 'Got it, thanks!',
     time: '1:12 PM',
+    isGroup: false
   },
   {
     id: '3',
     name: 'Dev Team',
     lastMessage: 'Reminder: sprint planning today',
     time: '9:00 AM',
+    isGroup: true
   },
 ];
 
@@ -95,19 +111,10 @@ export default function MessagesScreen() {
   };
 
   const renderGroup = ({ item }: { item: Group }) => {
-    const getBorderColor = () => {
-      if (item.status === 'active') return '#4CAF50'; // green
-      if (item.status === 'event') return '#2196F3'; // blue
-      return '#ddd';
-    };
+    const isActive = item.status === 'active' || item.status === 'active+event';
+    const isInEvent = item.status === 'event' || item.status === 'active+event';
   
-    const iconMap = {
-      active: 'checkmark-circle',
-      event: 'calendar',
-      none: null,
-    };
-  
-    const iconColor = item.status === 'active' ? '#4CAF50' : '#2196F3';
+    const ringColor = isActive ? '#4CAF50' : '#ddd';
   
     return (
       <Pressable
@@ -116,29 +123,30 @@ export default function MessagesScreen() {
       >
         <View style={styles.bubbleContainer}>
           {item.bubbleText && (
-            <Text style={styles.bubbleText} numberOfLines={2}>{item.bubbleText}</Text>
+            <Text style={styles.bubbleText} numberOfLines={2}>{item.eventText ?? item.bubbleText}</Text>
           )}
         </View>
   
-        <View style={[styles.groupIconWrapper, { borderColor: getBorderColor() }]}>
+        <View style={[styles.groupIconWrapper, { borderColor: ringColor }]}>
           <Image source={{ uri: item.iconUri }} style={styles.groupIcon} />
-          {item.status && item.status !== 'none' && (
+          
+          {isInEvent && (
             <Ionicons
-              name={iconMap[item.status] as any}
+              name="calendar"
               size={16}
-              color={iconColor}
+              color="#4285F4"
               style={styles.statusIcon}
             />
           )}
+  
           {item.isUser && (
-  <Pressable
-    style={styles.addStatusButton}
-    onPress={() => console.log('Add status')}
-  >
-    <Ionicons name="add" size={14} color="#fff" />
-  </Pressable>
-)}
-
+            <Pressable
+              style={styles.addStatusButton}
+              onPress={() => console.log('Add status')}
+            >
+              <Ionicons name="add" size={14} color="#fff" />
+            </Pressable>
+          )}
         </View>
   
         <Text style={styles.groupName} numberOfLines={1}>
@@ -147,27 +155,48 @@ export default function MessagesScreen() {
       </Pressable>
     );
   };
+  
     
 
   const renderMessage = ({ item }: { item: Message }) => (
-    <TouchableOpacity
-      onPress={() => console.log('Chat', { userId: item.id })}
-      style={styles.messageItem}
-      activeOpacity={0.7}
-    >
-      <View style={styles.messageContent}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.lastMessage} numberOfLines={1}>
-          {item.lastMessage}
-        </Text>
-      </View>
-      <Text style={styles.time}>{item.time}</Text>
-    </TouchableOpacity>
-  );
+      <TouchableOpacity
+        onPress={() => console.log('Chat', { userId: item.id })}
+        style={styles.messageItem}
+        activeOpacity={0.7}
+      >
+        <View style={styles.avatarContainer}>
+          {item.isGroup ? (
+            <>
+              <Image
+                source={{ uri: `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg` }}
+                style={styles.avatarStackTop}
+              />
+              <Image
+                source={{ uri: `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg` }}
+                style={styles.avatarStackBottom}
+              />
+            </>
+          ) : (
+            <Image
+              source={{ uri: `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg` }}
+              style={styles.singleAvatar}
+            />
+          )}
+        </View>
+  
+        <View style={styles.messageContent}>
+          <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
+          <Text style={styles.lastMessage} numberOfLines={1}>{item.lastMessage}</Text>
+        </View>
+  
+        <Text style={styles.time}>{item.time}</Text>
+      </TouchableOpacity>
+    );
 
   return (
-    <View style={{...styles.container, paddingTop:insets.top}}>
+    <View style={{...styles.container}}>
 
+      <SimpleHeader/>
   
 
 
@@ -179,11 +208,11 @@ export default function MessagesScreen() {
         ListHeaderComponent={
           <>
 
-<View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+    <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color='#CACFD2' style={styles.searchIcon} />
         <TextInput
       placeholder="Search"
-      placeholderTextColor="#888"
+      placeholderTextColor='#CACFD2'
       style={styles.searchInput}
       editable={false}
       showSoftInputOnFocus={false} // Android only
@@ -191,15 +220,24 @@ export default function MessagesScreen() {
     />
     
       </View>
-          <FlatList
+
+      <Divider />
+
+      <Text className='ml-5 text-[25px] font-extrabold text-secondary mt-1'>Status</Text>
+
+        <FlatList
         data={mockGroups}
         renderItem={renderGroup}
         horizontal
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.id}
         style={styles.groupList}
-        contentContainerStyle={{ marginHorizontal: 12}}
+        contentContainerStyle={{ marginHorizontal: 12, marginBottom: 8}}
       />
+
+      <Divider />
+
+      <Text className='ml-5 text-[25px] font-extrabold text-secondary my-1'>Messages</Text>
 
       </>
         }
@@ -207,6 +245,11 @@ export default function MessagesScreen() {
     </View>
   );
 }
+
+const Divider = () => (
+  <View style={{ height: 1, backgroundColor: numbers.divider, marginBottom: 8 }} />
+);
+
 
 const styles = StyleSheet.create({
   container: {
@@ -216,6 +259,42 @@ const styles = StyleSheet.create({
   groupList: {
     marginBottom: 0,
   },
+  avatarContainer: {
+    flexDirection: 'row',
+    marginBottom: 4,
+    height: 24,
+    width: 36,
+    position: 'relative',
+  },
+  
+  singleAvatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+  },
+  
+  avatarStackTop: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#fff',
+    position: 'absolute',
+    left: 0,
+    zIndex: 2,
+  },
+  
+  avatarStackBottom: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#fff',
+    position: 'absolute',
+    left: 12,
+    zIndex: 1,
+  },
+  
   messageItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -312,12 +391,12 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: numbers.secondaryColor,
     borderRadius: 12,
     paddingHorizontal: 10,
-    marginHorizontal: 20,
+    marginHorizontal: 15,
     paddingVertical: 8,
-    marginBottom: 16,
+    marginVertical: 12,
   },
   searchIcon: {
     marginRight: 8,
@@ -325,7 +404,8 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    fontWeight:600,
+    color: numbers.primaryColor,
   },
   
 });

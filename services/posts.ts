@@ -601,3 +601,42 @@ export async function unHighlightPost(post: types.Post, databaseClient: Supabase
         throw error;
     }
 }
+
+
+/**
+ * gets user's profile info
+ */
+export async function getUserProfileSummary(id: string, databaseClient: SupabaseClient<Database>): Promise<types.ProfileSummary>{
+    const {data, error} = await databaseClient.rpc("get_user_profile_summary", {target_id: id});
+
+    if (error) {
+        console.error('RPC error:', error);
+    }
+    
+    const newData = data as types.ProfileSummary;
+
+    for(let i = newData.categories.length - 1; i >= 0; i--) {
+        if(!newData.categories[i].posts) {
+            delete newData.categories[i]
+        }
+    }
+
+    return newData
+}
+
+/**
+ * gets posts that the user is tagged in
+ */
+export async function getTaggedPostsFrom(id: string, databaseClient: SupabaseClient<Database>): Promise<{id: string, imageLink: string}[]>{
+    const { data, error } = await databaseClient
+        .from('post_to_tagged_people')
+        .select('post!post_id (id, imageLink)') //'followed_id, usersettings!followed_id (username)'
+        .eq('person_id', id)
+
+    if (error) {
+        console.error('Error getting tagged posts', error.message);
+        throw error;
+    }
+
+    return data.map((value) => value.post)
+}

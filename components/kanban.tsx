@@ -131,7 +131,6 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
                 height: 3,
                 marginBottom: 7,
               }}
-
               style={{ backgroundColor: numbers.secondaryColor, marginBottom: 7 }}
               //labelStyle={{ color: 'white', fontWeight: '600' }}
               activeColor="white"
