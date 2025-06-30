@@ -54,7 +54,7 @@ const otherProfile = () => {
   const [profilePicture, setImageUrl] = useState<string | null>(null);
   const isFocused = useIsFocused();
   const [myId, setMyId] = useState<string | null>(null);
-  let myProfile:boolean = false;
+  const [myProfile, setMyProfile] = useState<boolean>(false);
   const dummyRow:PostPreview = {categoryName: 'dummy', posts: Array.from({ length: 2 }, (_, i) => ({
     id: `${i + 1}`,
     imageLink: `${SB_STORAGE_CONFIG.BASE_URL}post${(i % 3) + 1}.jpg`,
@@ -69,7 +69,8 @@ const otherProfile = () => {
         setUser(userDetails);
         setMyId(myId[0])
         //console.warn(myId[0])
-        myProfile = myId[0] === id;
+        setMyProfile((myId[0] as string).trim() === (id as string).trim());
+        console.warn(myId[0], id)
         const dummyPosts = Array.from({ length: 30 }, (_, i) => ({
           id: `${i + 1}`,
           imageLink: `${SB_STORAGE_CONFIG.BASE_URL}post${(i % 3) + 1}.jpg`,
@@ -151,7 +152,7 @@ const otherProfile = () => {
       return (
       <View>
         {/* Row Header */}
-        <View className="flex-row justify-between px-3 py-2 border-t border-gray-300 bg-primary">
+        <View className="flex-row justify-between px-3 py-2 border-t border-b border-gray-300 bg-primary">
           <Text className="font-semibold text-sm text-black">{item.categoryName}</Text>
           <Text className="text-blue-600 text-sm">See more</Text>
         </View>
@@ -262,11 +263,40 @@ const otherProfile = () => {
                 </View>
   
                 {/* Edit Profile */}
-                <View className="flex-row px-4 mt-3">
-                  <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
-                    <Text className="text-sm font-medium">Edit Profile</Text>
-                  </TouchableOpacity>
-                </View>
+
+               {/* Edit Profile / Action Buttons */}
+               <View className="flex-row px-5 mt-3 gap-2 flex-1">
+  {myProfile ? (
+    <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+      <Text className="text-sm font-medium">Edit Profile</Text>
+    </TouchableOpacity>
+  ) : (
+    <>
+      {!user.youfollowing && (
+        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+          <Text className="text-sm font-medium">Follow</Text>
+        </TouchableOpacity>
+      )} 
+      {!user.theyclosefriend && user.youfollowing && (
+        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+          <Text className="text-sm font-medium">Add Close Friend</Text>
+        </TouchableOpacity>
+      )}
+      {user.youclosefriend && (
+        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+          <Text className="text-sm font-medium">View Calendar</Text>
+        </TouchableOpacity>
+      )}
+      <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+        <Text className="text-sm font-medium">Message</Text>
+      </TouchableOpacity>
+    </>
+  )}
+</View>
+
+
+
+
               </View>
             </>
           }
@@ -349,11 +379,37 @@ const otherProfile = () => {
               </View>
 
               {/* Edit Profile */}
-              <View className="flex-row px-4 mt-3">
-                <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
-                  <Text className="text-sm font-medium">Edit Profile</Text>
-                </TouchableOpacity>
-              </View>
+              
+
+              <View className="flex-row px-5 mt-3 gap-2 flex-1">
+  {myProfile ? (
+    <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+      <Text className="text-sm font-medium">Edit Profile</Text>
+    </TouchableOpacity>
+  ) : (
+    <>
+      {!user.youfollowing && (
+        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+          <Text className="text-sm font-medium">Follow</Text>
+        </TouchableOpacity>
+      )} 
+      {!user.theyclosefriend && user.youfollowing && (
+        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+          <Text className="text-sm font-medium">Add Close Friend</Text>
+        </TouchableOpacity>
+      )}
+      {user.youclosefriend && (
+        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+          <Text className="text-sm font-medium">View Calendar</Text>
+        </TouchableOpacity>
+      )}
+      <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+        <Text className="text-sm font-medium">Message</Text>
+      </TouchableOpacity>
+    </>
+  )}
+</View>
+
             </View>
           </>
         }

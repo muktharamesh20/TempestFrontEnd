@@ -62,16 +62,18 @@ const LikesModal = ({ visible, likes, onClose }: LikesModalProps): React.JSX.Ele
 
   const renderLikeItem = ({ item }: { item: Like }) => {
     return (
-      <View style={styles.likeItem}>
-        <Link href = {`/profiles/${item.id}`} asChild>
+      <Link href = {`/profiles/${item.id}`} asChild>
         <Pressable onPress={onClose}>
+      <View style={styles.likeItem}>
+        
           <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
-        </Pressable>
-        </Link>
+        
         <View style={{ marginLeft: 12 }}>
           <Text style={styles.username}>{item.username}</Text>
         </View>
       </View>
+      </Pressable>
+        </Link>
     );
   };
 
