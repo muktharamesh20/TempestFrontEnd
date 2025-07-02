@@ -16,7 +16,10 @@ const ProfileHeader = () => {
         <Image source={require('../assets/tempestlogo.png')} className="w-[120px]" resizeMode="contain" />
 
         {/* Bell icon on the right */}
+        <View className='flex flex-row gap-5 mr-[2px]'>
+        <Ionicons name='settings-outline' size={24}/>
         <Ionicons name="notifications-outline" size={24} color={numbers.secondaryColor} />
+        </View>
       </View>
     </View>
   );

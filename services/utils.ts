@@ -2,15 +2,21 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { Database, Json } from "../databasetypes";
 import { getUserId } from "./api";
 
-export type Post = {image: Image, caption: Text, categories: Category, ownerId: UserId, id: PostId, createdAt: Date, likeCount:number
-, likedByMe: boolean, inspiredCount: number, comments: MainComment[], linkedObject: Event | Todo};
+export type Post = {
+    image: Image, caption: Text, categories: Category, ownerId: UserId, id: PostId, createdAt: Date, likeCount: number
+        , likedByMe: boolean, inspiredCount: number, comments: MainComment[], linkedObject: Event | Todo
+};
 
 export type Like = {
     id: string;
     username: string;
     avatar: string;
-  }
-  export type Comment = {
+}
+export type ModalPersonType = {
+    id: string;
+    username: string;
+}
+export type Comment = {
     id: string;
     author: string;
     authorId: string;
@@ -18,9 +24,9 @@ export type Like = {
     avatar: string;
     parentId?: string;
     timeCreated: Date; // Unix timestamp in milliseconds
-  }
+}
 
-  export type postDetails = {
+export type postDetails = {
     postId: string;
     personID: string;
     username: string;
@@ -36,38 +42,38 @@ export type Like = {
     alreadyLiked: boolean;
     alreadySaved: boolean;
     archived: boolean;
-    
+
 }
-export type MainComment = {id: CommentId, owner: User, content: Text, createdAt: Date, replies: ReplyComment[], deleted: boolean};
-export type ReplyComment = {id: CommentId, owner: User, content: Text, createdAt: Date, replyTo: MainComment};
-export type Calendar = {forNow:null}
-export type Group = {forNow: null, group_id: GroupId, onlyAdminsInvite: boolean, onlyAdminsAssignTodos: boolean}
-export type UserHomePage = {id: CategoryId, CategoryName: string, orderNum: number, posts: Post[], tags: Post[], followers: UserList, following: UserList, profile: User, mutual_groups: GroupList};
-export type GroupHomePage = {CategoryName: string, orderNum: number, posts: Post[], tags: Post[], members: UserList, profile: User};
-export type Feed = {posts: postDetails[]}
-export type Album = {posts: Post[], album_name: 'Liked' | 'Saved'}
-export type Message = {id: string, content: Text, createdAt: Date, senderId: string}
-export type GroupChat = {group: Group, members: GroupUserList, messages: Message[]}; //in order
-export type FrinedChat = {otherUser: User, messages: Message[]};
-export type Todo = {forNow: null, todoID: TodoId, title: Text, description: Text, dueDate: Date | null, completed: boolean, assignedTo: UserList, createdBy: UserId, groupId: GroupId | null, repeatPeriod: RepeatPeriod, repeatDays: Day[], canModify: boolean, canDelete: boolean};
-export type GroupTodo = {todo: Todo, assigned_by: User, type: 'all_members' | 'personal' | 'group', group: Group};
-export type KanbanBoard = {forNow: null}
-export type Event = {forNow: null, eventID: EventId, canModify: boolean, canDelete: boolean}
-export type GroupEvent = {group: Group, forNow: null, eventID: EventId, canModify: boolean, canDelete: boolean}
-export type Notification = {forNow: null}
-export type NotificationList = {forNow: null}
-export type User = {forNow: null, user_id: UserId} //like a follower list... just the basics
-export type GroupUser = {user: User, role: Role, group: Group}
+export type MainComment = { id: CommentId, owner: User, content: Text, createdAt: Date, replies: ReplyComment[], deleted: boolean };
+export type ReplyComment = { id: CommentId, owner: User, content: Text, createdAt: Date, replyTo: MainComment };
+export type Calendar = { forNow: null }
+export type Group = { forNow: null, group_id: GroupId, onlyAdminsInvite: boolean, onlyAdminsAssignTodos: boolean }
+export type UserHomePage = { id: CategoryId, CategoryName: string, orderNum: number, posts: Post[], tags: Post[], followers: UserList, following: UserList, profile: User, mutual_groups: GroupList };
+export type GroupHomePage = { CategoryName: string, orderNum: number, posts: Post[], tags: Post[], members: UserList, profile: User };
+export type Feed = { posts: postDetails[] }
+export type Album = { posts: Post[], album_name: 'Liked' | 'Saved' }
+export type Message = { id: string, content: Text, createdAt: Date, senderId: string }
+export type GroupChat = { group: Group, members: GroupUserList, messages: Message[] }; //in order
+export type FrinedChat = { otherUser: User, messages: Message[] };
+export type Todo = { forNow: null, todoID: TodoId, title: Text, description: Text, dueDate: Date | null, completed: boolean, assignedTo: UserList, createdBy: UserId, groupId: GroupId | null, repeatPeriod: RepeatPeriod, repeatDays: Day[], canModify: boolean, canDelete: boolean };
+export type GroupTodo = { todo: Todo, assigned_by: User, type: 'all_members' | 'personal' | 'group', group: Group };
+export type KanbanBoard = { forNow: null }
+export type Event = { forNow: null, eventID: EventId, canModify: boolean, canDelete: boolean }
+export type GroupEvent = { group: Group, forNow: null, eventID: EventId, canModify: boolean, canDelete: boolean }
+export type Notification = { forNow: null }
+export type NotificationList = { forNow: null }
+export type User = { forNow: null, user_id: UserId } //like a follower list... just the basics
+export type GroupUser = { user: User, role: Role, group: Group }
 export type UserList = User[]
 export type GroupUserList = GroupUser[]
 export type GroupList = Group[]
-export type Image = {forNow: null}
+export type Image = { forNow: null }
 export type DefaultProfilePicture = null
-export type ProfilePicture = {forNow: null} 
-export type UserSettingsPage = {forNow: null}
-export type GroupSettingsPage = {forNow: null}
-export type Setting = {forNow: null, canModify: boolean, canDelete: boolean}
-export type Category = {name: string, id: string, orderNum: number};
+export type ProfilePicture = { forNow: null }
+export type UserSettingsPage = { forNow: null }
+export type GroupSettingsPage = { forNow: null }
+export type Setting = { forNow: null, canModify: boolean, canDelete: boolean }
+export type Category = { name: string, id: string, orderNum: number };
 export type Text = string;
 export type UserId = string;
 export type CommentId = string;
@@ -77,9 +83,9 @@ export type EventId = string;
 export type TodoId = string;
 export type CategoryId = string;
 export type Role = 'admin' | 'owner' | 'general';
-export type RepeatPeriod = 'NONE' | 'Weekly' | 'Monthly' | 'BiWeekly' | 'Daily' | 'Yearly'; 
+export type RepeatPeriod = 'NONE' | 'Weekly' | 'Monthly' | 'BiWeekly' | 'Daily' | 'Yearly';
 export type Day = 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA' | 'SU';
-export type ViewershipTag = {name: string, id:string, fornow: null};
+export type ViewershipTag = { name: string, id: string, fornow: null };
 
 export async function asyncTimer(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -102,7 +108,7 @@ export function getBatchUsers(userIds: UserId[], supabaseClient: SupabaseClient<
  * @param groupDetails 
  * @param supabaseClient 
  */
-export async function createGroupTypeWithData(groupDetails: 
+export async function createGroupTypeWithData(groupDetails:
     { name: string; description: Text; profilePicture: ProfilePicture | DefaultProfilePicture, public_special_events: boolean, title: string }): Promise<Group> {
     throw new NotImplementedError('createGroupTypeWithData');
 }
@@ -125,10 +131,10 @@ export interface ProfileSummary {
     isprivate: boolean;
     isownprofile: boolean;
     categories: {
-      categoryName: string;
-      posts: { id: string, imageLink: string }[];
+        categoryName: string;
+        posts: { id: string, imageLink: string }[];
     }[];
-  }  
+}
 
 /**
  * Given event details, creates an event and returns the created event.
@@ -170,14 +176,14 @@ export async function createEventTypeWithData(eventDetails: EventDetails): Promi
 
 export function generateUUID(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (char) {
-      const random = Math.random() * 16 | 0;
-      const value = char === 'x' ? random : (random & 0x3 | 0x8);
-      return value.toString(16);
+        const random = Math.random() * 16 | 0;
+        const value = char === 'x' ? random : (random & 0x3 | 0x8);
+        return value.toString(16);
     });
-  }
-  
+}
 
-type TodoDetails = { 
+
+type TodoDetails = {
     actual_time_taken: number | null;
     assigned_by: string;
     copy_of: string | null;
@@ -225,14 +231,14 @@ export async function createPostTypeWithData(postDetails: { created_at: string; 
     throw new NotImplementedError('createPostTypeWithData');
 }
 
-type oldDetails = { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; comment_count: number;  username: string; alreadyliked: boolean; alreadysaved: boolean; archived: boolean};
+type oldDetails = { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; comment_count: number; username: string; alreadyliked: boolean; alreadysaved: boolean; archived: boolean };
 
 
-export async function createPostDetailsTypeWithData(postDetails: { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; comment_count: number;  username: string; alreadyliked: boolean; alreadysaved: boolean, archived:boolean; }[]): Promise<postDetails[]> {
-    async function convertPost(post: oldDetails ): Promise<postDetails>{
-        return {postId: post.id, personID: post.owner_id, username: post.username, thoughts: post.description ?? '', taskOrEventName: post.title, myPost:post.owner_id === (await getUserId().then((value) => value[0])), taskID: post.todo_id ?? undefined, eventID: post.event_id ?? undefined, hashtags: undefined, timeCreated: new Date(post.created_at), likes:post.liked_count, comments: post.comment_count, alreadyLiked: post.alreadyliked, alreadySaved: post.alreadysaved, archived: post.archived }
+export async function createPostDetailsTypeWithData(postDetails: { created_at: string; description: string | null; event_id: string | null; highlighted_by_owner: boolean; id: string; imageLink: string; inspired_by_count: number; liked_count: number; owner_id: string; title: string; todo_id: string | null; comment_count: number; username: string; alreadyliked: boolean; alreadysaved: boolean, archived: boolean; }[]): Promise<postDetails[]> {
+    async function convertPost(post: oldDetails): Promise<postDetails> {
+        return { postId: post.id, personID: post.owner_id, username: post.username, thoughts: post.description ?? '', taskOrEventName: post.title, myPost: post.owner_id === (await getUserId().then((value) => value[0])), taskID: post.todo_id ?? undefined, eventID: post.event_id ?? undefined, hashtags: undefined, timeCreated: new Date(post.created_at), likes: post.liked_count, comments: post.comment_count, alreadyLiked: post.alreadyliked, alreadySaved: post.alreadysaved, archived: post.archived }
     }
-    
+
     return Promise.all(postDetails.map(convertPost))
 }
 

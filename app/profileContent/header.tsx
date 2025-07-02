@@ -1,9 +1,10 @@
+import PersonsModal from '@/components/profileComponents/FollowerModal';
 import { supabase } from '@/constants/supabaseClient';
 import { SB_STORAGE_CONFIG } from '@/services/api';
-import { createFollowerRequest, rejectOrRevokeFollowerRequest, toggleCloseFrined } from '@/services/users';
-import { ProfileSummary } from '@/services/utils';
-import React from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { createFollowerRequest, getFollowedByThesePeople, getFollowsThesePeople, rejectOrRevokeFollowerRequest, toggleCloseFrined } from '@/services/users';
+import { ModalPersonType, ProfileSummary } from '@/services/utils';
+import React, { useEffect, useState } from 'react';
+import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native';
 
 interface headerProps {
   profilePicture: string | null;
@@ -14,9 +15,36 @@ interface headerProps {
 }
 
 const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId }: headerProps) => {
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [modalType, setModalType] = useState<'Followers' | 'Following' | null>(null);
+
+  const [followers, setFollowers] = useState<ModalPersonType[]>([]);
+  const [following, setFollowing] = useState<ModalPersonType[]>([]);
+
+  useEffect( () => {
+    const fetchFollowers = async () => {
+      const people = await getFollowedByThesePeople(id, supabase);
+      setFollowers(people);
+    }
+
+    const fetchFollowing = async () => {
+      const people = await getFollowsThesePeople(id, supabase);
+      setFollowing(people);
+      console.log('here!')
+    }
+
+    if(modalType === "Followers" && followers.length === 0) {
+      fetchFollowers()
+    } else if (modalType === "Following" && following.length === 0) {
+      fetchFollowing()
+    }
+  }, [modalType])
 
   return (
     <View>
+      {/**Defaults */}
+      <PersonsModal visible={modalVisible} people={modalType === 'Followers' ? followers : following} onClose={() => setModalVisible(false)} message={modalType || 'error'}/>
+
       {/* Profile Section */}
       <View className="bg-primary pb-4">
         {/* Profile Info */}
@@ -33,14 +61,14 @@ const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId }: heade
               <Text className="text-lg font-semibold">{user.numposts}</Text>
               <Text className="text-sm text-secondary">Posts</Text>
             </View>
-            <View className="items-center">
+            <Pressable className="items-center" onPress={() => {setModalType('Followers'); setModalVisible(true)}}>
               <Text className="text-lg font-semibold">{user.numfollowers}</Text>
               <Text className="text-sm text-secondary">Followers</Text>
-            </View>
-            <View className="items-center">
+            </Pressable>
+            <Pressable className="items-center" onPress={() => {setModalType('Following'); setModalVisible(true)}}>
               <Text className="text-lg font-semibold">{user.numfollowing}</Text>
               <Text className="text-sm text-secondary">Following</Text>
-            </View>
+            </Pressable>
           </View>
         </View>
 

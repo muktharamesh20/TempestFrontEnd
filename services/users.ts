@@ -76,7 +76,7 @@ export async function removeFollower(myId: string, following: string, supabaseCl
  * @param supabaseClient the database client to use
  * @returns All the poeple that userId follows, with their id and username.
  */
-export async function getFollowsThesePeople( userId: string, supabaseClient: SupabaseClient<Database>): Promise<{id: string, username:string}[]> {
+export async function getFollowsThesePeople( userId: string, supabaseClient: SupabaseClient<Database>): Promise<types.ModalPersonType[]> {
     const { data, error } = await supabaseClient
         .from('people_to_following')
         .select('followed_id, usersettings!followed_id (username)')
@@ -102,7 +102,7 @@ export async function getFollowsThesePeople( userId: string, supabaseClient: Sup
  * @param supabaseClient the database client to use
  * @returns All the people that follow userId, with their id and username.
  */
-export async function getFollowedByThesePeople(userId: string, supabaseClient: SupabaseClient<Database>):  Promise<{id: string, username:string}[]> {
+export async function getFollowedByThesePeople(userId: string, supabaseClient: SupabaseClient<Database>):  Promise<types.ModalPersonType[]> {
     const { data, error } = await supabaseClient
         .from('people_to_following')
         .select('follower_id, usersettings!follower_id (username)')
