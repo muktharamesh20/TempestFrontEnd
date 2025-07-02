@@ -41,6 +41,34 @@ export async function rejectOrRevokeFollowerRequest(requester_id: string, follow
     console.log('Follower request rejected:', data);
 }
 
+export async function unFollow(myId: string, following: string, supabaseClient: SupabaseClient<Database>) {
+    const {data, error} = await supabaseClient
+        .from('people_to_following')
+        .delete()
+        .match({follower_id: myId, followed_id: following})
+
+    if (error) {
+        console.error('Error unfollowing user:', error.message);
+        throw error;
+    }
+
+    console.log('unfollowed person')
+}
+
+export async function removeFollower(myId: string, following: string, supabaseClient: SupabaseClient<Database>) {
+    const {data, error} = await supabaseClient
+        .from('people_to_following')
+        .delete()
+        .match({follower_id: following, followed_id: myId})
+
+    if (error) {
+        console.error('Error unfollowing user:', error.message);
+        throw error;
+    }
+
+    console.log('unfollowed person')
+}
+
 /**
  * This function retrieves all the people that a user follows.
  * 
@@ -91,31 +119,6 @@ export async function getFollowedByThesePeople(userId: string, supabaseClient: S
         id: following.follower_id,
         username: following.usersettings!.username as string
     }));
-}
-
-export async function getHomePagePostsAndCategories(userId: string, supabaseClient: SupabaseClient<Database>): Promise<{categoryName: string, orderNum: number, posts: string[]}> {
-    const posts = getAllPostsBy(userId, supabaseClient)
-
-    throw new Error('Function not implemented.'); // This function is not fully implemented yet, so we throw an error for now.
-}
-
-export async function getAllPostsBy(userId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
-    const { data, error } = await supabaseClient
-        .from('post')
-        .select('*')
-        .eq('owner_id', userId);
-
-    if (error) {
-        console.error('Error fetching posts:', error.message);
-        throw error;
-    }
-
-    // Get the post ids
-    const postIds = data.map(post => post.id);
-
-    // Get the bulk post info by id
-    //return getBulkPostInfoById(postIds, supabaseClient);
-    throw new Error('unimplemented')
 }
 
 /**

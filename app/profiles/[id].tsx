@@ -2,8 +2,8 @@ import OtherProfileHeader from '@/components/OtherProfileHeader';
 import UserActionsModal from '@/components/profileModal';
 import { supabase } from '@/constants/supabaseClient';
 import { getUserId, SB_STORAGE_CONFIG } from '@/services/api';
-import { getTaggedPostsFrom, getUserProfileSummary } from '@/services/posts';
-import { createFollowerRequest, rejectOrRevokeFollowerRequest, toggleCloseFrined } from '@/services/users';
+import { blockPersonFromCommenting, getTaggedPostsFrom, getUserProfileSummary, unblockPersonFromCommenting } from '@/services/posts';
+import { createFollowerRequest, rejectOrRevokeFollowerRequest, removeFollower, toggleCloseFrined, unFollow } from '@/services/users';
 import { ProfileSummary } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -64,7 +64,7 @@ const otherProfile = () => {
   }))}
   const dummyTagged = {id: '-1', imageLink:'-1'};
   const threeDotsPressedFunc = () => {
-    console.log('three dots pressed!');
+    //console.log('three dots pressed!');
     setShowUserActions(true);
     console.log(showUserActions);
   }
@@ -203,15 +203,12 @@ const otherProfile = () => {
   isSelf={user.isownprofile}
   onSettingsPress={() => {/**?? */}}
   onClose={() => setShowUserActions(false)}
-  onUnfollow={() => {/* call your unfollow function */}}
-  onRemoveCloseFriend={() => {/* remove from close friends */}}
-  onRemoveFollower={() => {/* remove follower logic */}}
-  onBlockCommenting={() => {/* update block commenting */}}
-  onUnblockCommenting={() => {/* update unblock commenting */}}
-  isBlockedFromCommenting={false}
-  isCloseFriend={user.theyclosefriend}
-  isFollowing={user.youfollowing}
-  isFollower={user.theyfollowing}
+  onUnfollow={() => {unFollow(myId || '', id as string, supabase); setUser({...user, youfollowing: false, numfollowers: user.numfollowers - 1})}}
+  onRemoveCloseFriend={() => {toggleCloseFrined(myId || '', id as string, false, supabase); setUser({...user, youclosefriend: false});}}
+  onRemoveFollower={() => {removeFollower(myId || '', id as string, supabase); setUser({...user, theyfollowing: false, numfollowing: user.numfollowing - 1, theyclosefriend: false})}}
+  onBlockCommenting={() => {blockPersonFromCommenting(id as string, supabase); setUser({...user, youblockedthem: true})}}
+  onUnblockCommenting={() => {unblockPersonFromCommenting(myId || '', id as string, supabase); setUser({...user, youblockedthem: false})}}
+  user={user}
 />
   
         <FlatList
@@ -307,7 +304,7 @@ const otherProfile = () => {
           if (user.isprivate) {
             setUser({ ...user, yourequestedfollow: true });
           } else {
-            setUser({ ...user, youfollowing: true });
+            setUser({ ...user, youfollowing: true, numfollowers: user.numfollowers + 1 });
           }
         }}>
           <Text className="text-sm font-medium">Follow</Text>
@@ -376,15 +373,12 @@ const otherProfile = () => {
   isSelf={user.isownprofile}
   onSettingsPress={() => {/**?? */}}
   onClose={() => setShowUserActions(false)}
-  onUnfollow={() => {/* call your unfollow function */}}
-  onRemoveCloseFriend={() => {/* remove from close friends */}}
-  onRemoveFollower={() => {/* remove follower logic */}}
-  onBlockCommenting={() => {/* update block commenting */}}
-  onUnblockCommenting={() => {/* update unblock commenting */}}
-  isBlockedFromCommenting={false}
-  isCloseFriend={user.theyclosefriend}
-  isFollowing={user.youfollowing}
-  isFollower={user.theyfollowing}
+  onUnfollow={() => {unFollow(myId || '', id as string, supabase); setUser({...user, youfollowing: false, numfollowers: user.numfollowers - 1})}}
+  onRemoveCloseFriend={() => {toggleCloseFrined(myId || '', id as string, false, supabase); setUser({...user, youclosefriend: false});}}
+  onRemoveFollower={() => {removeFollower(myId || '', id as string, supabase); setUser({...user, theyfollowing: false, numfollowing: user.numfollowing - 1, theyclosefriend: false})}}
+  onBlockCommenting={() => {blockPersonFromCommenting(id as string, supabase); setUser({...user, youblockedthem: true})}}
+  onUnblockCommenting={() => {unblockPersonFromCommenting(myId || '', id as string, supabase); setUser({...user, youblockedthem: false})}}
+  user={user}
 />
 
       <FlatList
@@ -462,7 +456,7 @@ const otherProfile = () => {
           if (user.isprivate) {
             setUser({ ...user, yourequestedfollow: true });
           } else {
-            setUser({ ...user, youfollowing: true });
+            setUser({ ...user, youfollowing: true, numfollowers: user.numfollowers + 1 });
           }
         }}>
           <Text className="text-sm font-medium">Follow</Text>
