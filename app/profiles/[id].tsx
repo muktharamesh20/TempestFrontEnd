@@ -3,7 +3,7 @@ import UserActionsModal from '@/components/profileModal';
 import { supabase } from '@/constants/supabaseClient';
 import { getUserId, SB_STORAGE_CONFIG } from '@/services/api';
 import { blockPersonFromCommenting, getTaggedPostsFrom, getUserProfileSummary, unblockPersonFromCommenting } from '@/services/posts';
-import { createFollowerRequest, rejectOrRevokeFollowerRequest, removeFollower, toggleCloseFrined, unFollow } from '@/services/users';
+import { removeFollower, toggleCloseFrined, unFollow } from '@/services/users';
 import { ProfileSummary } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,12 +12,13 @@ import { useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { Dimensions, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import ProfileContentHeader from '../profileContent/header';
 
 interface PostPreview {
   categoryName: string;
   posts: {
-      id: string;
-      imageLink: string;
+    id: string;
+    imageLink: string;
   }[];
 }
 
@@ -48,21 +49,23 @@ const Tabs = ({ activeTab, setActiveTab }: TabsProps) => (
 
 
 const otherProfile = () => {
-  const {id} = useLocalSearchParams();
+  const { id } = useLocalSearchParams();
   const [user, setUser] = useState<ProfileSummary | null>(null);
   const [postRows, setPostRows] = useState<PostPreview[]>([]);
-  const [taggedPosts, setTaggedPosts] = useState<{id: string, imageLink: string}[]>([]);
+  const [taggedPosts, setTaggedPosts] = useState<{ id: string, imageLink: string }[]>([]);
   const [activeTab, setActiveTab] = useState<'posts' | 'tagged'>('posts');
   const [profilePicture, setImageUrl] = useState<string | null>(null);
   const isFocused = useIsFocused();
   const [myId, setMyId] = useState<string | null>(null);
   const [myProfile, setMyProfile] = useState<boolean>(false);
   const [showUserActions, setShowUserActions] = useState<boolean>(false)
-  const dummyRow:PostPreview = {categoryName: 'dummy', posts: Array.from({ length: 2 }, (_, i) => ({
-    id: `${i + 1}`,
-    imageLink: `${SB_STORAGE_CONFIG.BASE_URL}post${(i % 3) + 1}.jpg`,
-  }))}
-  const dummyTagged = {id: '-1', imageLink:'-1'};
+  const dummyRow: PostPreview = {
+    categoryName: 'dummy', posts: Array.from({ length: 2 }, (_, i) => ({
+      id: `${i + 1}`,
+      imageLink: `${SB_STORAGE_CONFIG.BASE_URL}post${(i % 3) + 1}.jpg`,
+    }))
+  }
+  const dummyTagged = { id: '-1', imageLink: '-1' };
   const threeDotsPressedFunc = () => {
     //console.log('three dots pressed!');
     setShowUserActions(true);
@@ -73,7 +76,7 @@ const otherProfile = () => {
     const fetchUserAndPosts = async () => {
       try {
         const myId = await getUserId();
-        const userDetails:ProfileSummary = await getUserProfileSummary(id as string, supabase);
+        const userDetails: ProfileSummary = await getUserProfileSummary(id as string, supabase);
         setUser(userDetails);
         setMyId(myId[0])
         // //console.warn(myId[0])
@@ -86,7 +89,7 @@ const otherProfile = () => {
 
         const grouped = [];
         for (let i = 0; i < dummyPosts.length; i += 5) {
-          grouped.push({categoryName: 'Header name', posts: dummyPosts.slice(i, i + 5)});
+          grouped.push({ categoryName: 'Header name', posts: dummyPosts.slice(i, i + 5) });
         }
 
         setPostRows(grouped);
@@ -133,20 +136,20 @@ const otherProfile = () => {
       }
     };
 
-    
+
 
     fetchProfilePicture();
   }, [user]);
 
   useEffect(() => {
     const fetchTagged = async () => {
-      try{
+      try {
         if (taggedPosts.length === 0) {
           const newTaggedPosts = await getTaggedPostsFrom(id as string, supabase);
           setTaggedPosts(newTaggedPosts);
-        }       
+        }
         console.log('tagged posts', taggedPosts)
-      } catch{
+      } catch {
         console.warn('error updating tagged posts')
       }
     }
@@ -158,59 +161,61 @@ const otherProfile = () => {
 
   const renderRow = ({ item }: { item: PostPreview }) => {
     console.log(item)
-    if(item){
+    if (item) {
       return (
-      <View>
-        {/* Row Header */}
-        <View className="flex-row justify-between px-3 py-2 border-t border-b border-gray-300 bg-primary">
-          <Text className="font-semibold text-sm text-black">{item.categoryName}</Text>
-          <Text className="text-blue-600 text-sm">See more</Text>
+        <View>
+          {/* Row Header */}
+          <View className="flex-row justify-between px-3 py-2 border-t border-b border-gray-300 bg-primary">
+            <Text className="font-semibold text-sm text-black">{item.categoryName}</Text>
+            <Text className="text-blue-600 text-sm">See more</Text>
+          </View>
+
+
+          {/* Horizontal Posts */}
+          <FlatList
+            horizontal
+            data={item.posts}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 0 }}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                className="border border-white mr-[1 bg-black"
+                onPress={() => console.log('Open post', item.id)}
+              >
+                <Image
+                  source={{ uri: item.imageLink }}
+                  style={{ width: imageSize, height: imageSize }}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+            )}
+          />
         </View>
+      )
+    }
+  };
 
 
-        {/* Horizontal Posts */}
-        <FlatList
-          horizontal
-          data={item.posts}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 0 }}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              className="border border-white mr-[1 bg-black"
-              onPress={() => console.log('Open post', item.id)}
-            >
-              <Image
-                source={{ uri: item.imageLink }}
-                style={{ width: imageSize, height: imageSize }}
-                resizeMode="cover"
-              />
-            </TouchableOpacity>
-          )}
-        />
-      </View>
-    )}};
+  return (
+    <View className="flex-1 bg-primary">
+      <OtherProfileHeader username={user.username ?? 'Unknown'} threeDotsPressed={threeDotsPressedFunc} />
+      {isFocused && <StatusBar style="dark" />}
 
-    if (activeTab === 'tagged') {
-    
-      return (
-      <View className="flex-1 bg-primary">
-        <OtherProfileHeader username={user.username ?? 'Unknown'} threeDotsPressed={threeDotsPressedFunc} />
-        {isFocused && <StatusBar style="dark" />}
+      <UserActionsModal
+        visible={showUserActions}
+        isSelf={user.isownprofile}
+        onSettingsPress={() => {/**?? */ }}
+        onClose={() => setShowUserActions(false)}
+        onUnfollow={() => { unFollow(myId || '', id as string, supabase); setUser({ ...user, youfollowing: false, numfollowers: user.numfollowers - 1 }) }}
+        onRemoveCloseFriend={() => { toggleCloseFrined(myId || '', id as string, false, supabase); setUser({ ...user, youclosefriend: false }); }}
+        onRemoveFollower={() => { removeFollower(myId || '', id as string, supabase); setUser({ ...user, theyfollowing: false, numfollowing: user.numfollowing - 1, theyclosefriend: false }) }}
+        onBlockCommenting={() => { blockPersonFromCommenting(id as string, supabase); setUser({ ...user, youblockedthem: true }) }}
+        onUnblockCommenting={() => { unblockPersonFromCommenting(myId || '', id as string, supabase); setUser({ ...user, youblockedthem: false }) }}
+        user={user}
+      />
 
-        <UserActionsModal
-  visible={showUserActions}
-  isSelf={user.isownprofile}
-  onSettingsPress={() => {/**?? */}}
-  onClose={() => setShowUserActions(false)}
-  onUnfollow={() => {unFollow(myId || '', id as string, supabase); setUser({...user, youfollowing: false, numfollowers: user.numfollowers - 1})}}
-  onRemoveCloseFriend={() => {toggleCloseFrined(myId || '', id as string, false, supabase); setUser({...user, youclosefriend: false});}}
-  onRemoveFollower={() => {removeFollower(myId || '', id as string, supabase); setUser({...user, theyfollowing: false, numfollowing: user.numfollowing - 1, theyclosefriend: false})}}
-  onBlockCommenting={() => {blockPersonFromCommenting(id as string, supabase); setUser({...user, youblockedthem: true})}}
-  onUnblockCommenting={() => {unblockPersonFromCommenting(myId || '', id as string, supabase); setUser({...user, youblockedthem: false})}}
-  user={user}
-/>
-  
+      {activeTab === 'tagged' ?
         <FlatList
           data={[dummyTagged, [taggedPosts]]}
           keyExtractor={(_, index) => `row-${index}`}
@@ -221,285 +226,88 @@ const otherProfile = () => {
                   <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
                   {/* If there are no actual user posts, show "No posts yet" */}
                   {taggedPosts.length === 0 || (!user.isownprofile && user.isprivate && !user.youfollowing) ? (
-                    <Text className="text-center text-gray-500 mt-4">{!user.isownprofile && user.isprivate && !user.youfollowing ? "Account is private": "No tagged posts yet"}</Text>
+                    <Text className="text-center text-gray-500 mt-4">{!user.isownprofile && user.isprivate && !user.youfollowing ? "Account is private" : "No tagged posts yet"}</Text>
                   ) : null}
                 </>
               );
             } else if (!user.isownprofile && user.isprivate && !user.youfollowing) {
               return null;
-            }else {
+            } else {
               return (
                 <FlatList
                   data={taggedPosts}
                   keyExtractor={(item) => item.id}
                   numColumns={3}
                   renderItem={({ item }) => (
-                  <TouchableOpacity
-                  className="border border-white mr-[1 bg-black"
-                  onPress={() => console.log('Open post', item.id)}
-                  >
-                  <Image
-                    source={{ uri: item.imageLink }}
-                    style={{ width: imageSize, height: imageSize }}
-                    resizeMode="cover"
-                  />
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      className="border border-white mr-[1 bg-black"
+                      onPress={() => console.log('Open post', item.id)}
+                    >
+                      <Image
+                        source={{ uri: item.imageLink }}
+                        style={{ width: imageSize, height: imageSize }}
+                        resizeMode="cover"
+                      />
+                    </TouchableOpacity>
                   )}
                   scrollEnabled={false}
                   contentContainerStyle={{ alignItems: 'center', paddingBottom: 12 }}
                 />
               );
             }
-          }}        
+          }}
           stickyHeaderIndices={[1]}
           ListHeaderComponent={
-            <>
-              {/* Profile Section */}
-              <View className="bg-primary pb-4">
-                {/* Profile Info */}
-                <View className="flex-row px-4 items-center pt-4">
-                  <Image
-                    source={{
-                      uri: profilePicture ?? `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`,
-                    }}
-                    className="w-[80px] h-[80px] rounded-full border"
-                    resizeMode="cover"
-                  />
-                  <View className="flex-1 flex-row justify-around">
-                    <View className="items-center">
-                      <Text className="text-lg font-semibold">{user.numposts}</Text>
-                      <Text className="text-sm text-secondary">Posts</Text>
-                    </View>
-                    <View className="items-center">
-                      <Text className="text-lg font-semibold">{user.numfollowers}</Text>
-                      <Text className="text-sm text-secondary">Followers</Text>
-                    </View>
-                    <View className="items-center">
-                      <Text className="text-lg font-semibold">{user.numfollowing}</Text>
-                      <Text className="text-sm text-secondary">Following</Text>
-                    </View>
-                  </View>
-                </View>
-  
-                {/* Name + Bio */}
-                <View className="px-4 pt-2">
-                  <Text className="font-semibold text-sm">{user.username}</Text>
-                  {user.bio &&
-                  <Text className="text-sm text-black">{user.bio}</Text>}
-                </View>
-  
-                {/* Edit Profile */}
-
-               {/* Edit Profile / Action Buttons */}
-               <View className="flex-row px-5 mt-3 gap-2 flex-1">
-  {user.isownprofile ? (
-    <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
-      <Text className="text-sm font-medium">Edit Profile</Text>
-    </TouchableOpacity>
-  ) : (
-    <>
-      {!user.youfollowing && !user.yourequestedfollow && (
-        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center" onPress={() => { 
-          createFollowerRequest(id as string, supabase);
-          if (user.isprivate) {
-            setUser({ ...user, yourequestedfollow: true });
-          } else {
-            setUser({ ...user, youfollowing: true, numfollowers: user.numfollowers + 1 });
-          }
-        }}>
-          <Text className="text-sm font-medium">Follow</Text>
-        </TouchableOpacity>
-      )} 
-      {!user.youfollowing && user.yourequestedfollow && (
-        <TouchableOpacity className="flex-[2] border rounded-lg py-1 items-center" onPress={() => { 
-          rejectOrRevokeFollowerRequest(myId || '', id as string, supabase);
-          setUser({ ...user, yourequestedfollow: false });
-        }}>
-          <Text className="text-sm font-medium">Requested to follow</Text>
-        </TouchableOpacity>
-      )} 
-      {!user.theyclosefriend && user.theyfollowing && (
-        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center" onPress={() => { 
-          if(myId){
-            toggleCloseFrined(myId, id as string, true, supabase)
-            setUser({ ...user, theyclosefriend: true });
-          }
-        }}>
-          <Text className="text-sm font-medium">Add Close Friend</Text>
-        </TouchableOpacity>
-      )} 
-      {user.youclosefriend && (
-        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
-          <Text className="text-sm font-medium">View Calendar</Text>
-        </TouchableOpacity>
-      )}
-      <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
-        <Text className="text-sm font-medium">Message</Text>
-      </TouchableOpacity>
-    </>
-  )}
-</View>
-
-
-
-
-              </View>
-            </>
+            <View>
+              <ProfileContentHeader profilePicture={profilePicture} user={user} setUser={setUser} id={id as string} myId={myId || ''} />
+            </View>
           }
           ListHeaderComponentStyle={{ zIndex: 1 }}
           ListFooterComponent={<View className="h-12" />}
         />
-      </View>
-    );
-      
-      
-      
-      
-      
-    }
-
-
-
-
-
-
-  return (
-    <View className="flex-1 bg-primary">
-      <OtherProfileHeader username={user.username ?? 'Unknown'} threeDotsPressed={threeDotsPressedFunc}/>
-      {isFocused && <StatusBar style="dark" />}
-
-      <UserActionsModal
-  visible={showUserActions}
-  isSelf={user.isownprofile}
-  onSettingsPress={() => {/**?? */}}
-  onClose={() => setShowUserActions(false)}
-  onUnfollow={() => {unFollow(myId || '', id as string, supabase); setUser({...user, youfollowing: false, numfollowers: user.numfollowers - 1})}}
-  onRemoveCloseFriend={() => {toggleCloseFrined(myId || '', id as string, false, supabase); setUser({...user, youclosefriend: false});}}
-  onRemoveFollower={() => {removeFollower(myId || '', id as string, supabase); setUser({...user, theyfollowing: false, numfollowing: user.numfollowing - 1, theyclosefriend: false})}}
-  onBlockCommenting={() => {blockPersonFromCommenting(id as string, supabase); setUser({...user, youblockedthem: true})}}
-  onUnblockCommenting={() => {unblockPersonFromCommenting(myId || '', id as string, supabase); setUser({...user, youblockedthem: false})}}
-  user={user}
-/>
-
-      <FlatList
-        data={[dummyRow, ...user.categories]}
-        keyExtractor={(_, index) => `row-${index}`}
-        renderItem={({ item, index }) => {
-          if (index === 0) {
-            return (
-              <>
-                <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
-                {/* If there are no actual user posts, show "No posts yet" */}
-                {user.categories.length === 0 ||
-                 user.categories.every(cat => cat.posts.length === 0) ? (
-                  <Text className="text-center text-gray-500 mt-4">{!user.isownprofile && user.isprivate && !user.youfollowing ? "Account is private": "No posts yet"}</Text>
-                ) : null}
-              </>
-            );
-          } else if (!user.isownprofile && user.isprivate && !user.youfollowing){
-            return null
-          }
-          else {
-            return renderRow({ item }) || null;
-          }
-        }}        
-        stickyHeaderIndices={[1]}
-        ListHeaderComponent={
-          <>
-            {/* Profile Section */}
-            <View className="bg-primary pb-4">
-              {/* Profile Info */}
-              <View className="flex-row px-4 items-center pt-4">
-                <Image
-                  source={{
-                    uri: profilePicture ?? `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`,
-                  }}
-                  className="w-[80px] h-[80px] rounded-full border"
-                  resizeMode="cover"
-                />
-                <View className="flex-1 flex-row justify-around">
-                  <View className="items-center">
-                    <Text className="text-lg font-semibold">{user.numposts}</Text>
-                    <Text className="text-sm text-secondary">Posts</Text>
-                  </View>
-                  <View className="items-center">
-                    <Text className="text-lg font-semibold">{user.numfollowers}</Text>
-                    <Text className="text-sm text-secondary">Followers</Text>
-                  </View>
-                  <View className="items-center">
-                    <Text className="text-lg font-semibold">{user.numfollowing}</Text>
-                    <Text className="text-sm text-secondary">Following</Text>
-                  </View>
-                </View>
-              </View>
-
-              {/* Name + Bio */}
-              <View className="px-4 pt-2">
-                <Text className="font-semibold text-sm">{user.username}</Text>
-                {user.bio &&
-                <Text className="text-sm text-black">{user.bio}</Text>}
-              </View>
-
-              {/* Edit Profile */}
-              
-
-              <View className="flex-row px-5 mt-3 gap-2 flex-1">
-  {user.isownprofile ? (
-    <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
-      <Text className="text-sm font-medium">Edit Profile</Text>
-    </TouchableOpacity>
-  ) : (
-    <>
-     {!user.youfollowing && !user.yourequestedfollow && (
-        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center" onPress={() => { 
-          createFollowerRequest(id as string, supabase);
-          if (user.isprivate) {
-            setUser({ ...user, yourequestedfollow: true });
-          } else {
-            setUser({ ...user, youfollowing: true, numfollowers: user.numfollowers + 1 });
-          }
-        }}>
-          <Text className="text-sm font-medium">Follow</Text>
-        </TouchableOpacity>
-      )} 
-      {!user.youfollowing && user.yourequestedfollow && (
-        <TouchableOpacity className="flex-[2] border rounded-lg py-1 items-center" onPress={() => { 
-          rejectOrRevokeFollowerRequest(myId || '', id as string, supabase);
-          setUser({ ...user, yourequestedfollow: false });
-        }}>
-          <Text className="text-sm font-medium">Requested to follow</Text>
-        </TouchableOpacity>
-      )} 
-      {!user.theyclosefriend && user.theyfollowing && (
-        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center" onPress={() => { 
-          if(myId){
-            toggleCloseFrined(myId, id as string, true, supabase)
-            setUser({ ...user, theyclosefriend: true });
-          }
-        }}>
-          <Text className="text-sm font-medium">Add Close Friend</Text>
-        </TouchableOpacity>
-      )} 
-      {user.youclosefriend && (
-        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
-          <Text className="text-sm font-medium">View Calendar</Text>
-        </TouchableOpacity>
-      )}
-      <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
-        <Text className="text-sm font-medium">Message</Text>
-      </TouchableOpacity>
-    </>
-  )}
-</View>
-
-            </View>
-          </>
-        }
-        ListHeaderComponentStyle={{ zIndex: 1 }}
-        ListFooterComponent={<View className="h-12" />}
-      />
+        //if not tagged tabƒ
+        : <FlatList
+          data={[dummyRow, ...user.categories]}
+          keyExtractor={(_, index) => `row-${index}`}
+          renderItem={({ item, index }) => {
+            if (index === 0) {
+              return (
+                <>
+                  <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+                  {/* If there are no actual user posts, show "No posts yet" */}
+                  {user.categories.length === 0 ||
+                    user.categories.every(cat => cat.posts.length === 0) ? (
+                    <Text className="text-center text-gray-500 mt-4">{!user.isownprofile && user.isprivate && !user.youfollowing ? "Account is private" : "No posts yet"}</Text>
+                  ) : null}
+                </>
+              );
+            } else if (!user.isownprofile && user.isprivate && !user.youfollowing) {
+              return null
+            }
+            else {
+              return renderRow({ item }) || null;
+            }
+          }}
+          stickyHeaderIndices={[1]}
+          ListHeaderComponent={
+            <View>
+              <ProfileContentHeader profilePicture={profilePicture} user={user} setUser={setUser} id={id as string} myId={myId || ''} />
+            </View>}
+          ListHeaderComponentStyle={{ zIndex: 1 }}
+          ListFooterComponent={<View className="h-12" />}
+        />}
     </View>
   );
+
+
+
+
+
+
+
+
+
+
 }
 
 export default otherProfile
