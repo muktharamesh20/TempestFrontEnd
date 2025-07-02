@@ -1,4 +1,5 @@
 import OtherProfileHeader from '@/components/OtherProfileHeader';
+import { PostPreview, RenderRow } from '@/components/profileComponents/renderRow';
 import UserActionsModal from '@/components/profileModal';
 import { supabase } from '@/constants/supabaseClient';
 import { getUserId, SB_STORAGE_CONFIG } from '@/services/api';
@@ -14,13 +15,6 @@ import { useEffect, useState } from 'react';
 import { Dimensions, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import ProfileContentHeader from '../profileContent/header';
 
-interface PostPreview {
-  categoryName: string;
-  posts: {
-    id: string;
-    imageLink: string;
-  }[];
-}
 
 const screenWidth = Dimensions.get('window').width;
 const imageSize = screenWidth / 3;
@@ -159,42 +153,7 @@ const otherProfile = () => {
 
   if (!user) return <Text className="text-center mt-10">Loading...</Text>;
 
-  const renderRow = ({ item }: { item: PostPreview }) => {
-    console.log(item)
-    if (item) {
-      return (
-        <View>
-          {/* Row Header */}
-          <View className="flex-row justify-between px-3 py-2 border-t border-b border-gray-300 bg-primary">
-            <Text className="font-semibold text-sm text-black">{item.categoryName}</Text>
-            <Text className="text-blue-600 text-sm">See more</Text>
-          </View>
-
-
-          {/* Horizontal Posts */}
-          <FlatList
-            horizontal
-            data={item.posts}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 0 }}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                className="border border-white mr-[1 bg-black"
-                onPress={() => console.log('Open post', item.id)}
-              >
-                <Image
-                  source={{ uri: item.imageLink }}
-                  style={{ width: imageSize, height: imageSize }}
-                  resizeMode="cover"
-                />
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-      )
-    }
-  };
+  
 
 
   return (
@@ -285,7 +244,7 @@ const otherProfile = () => {
               return null
             }
             else {
-              return renderRow({ item }) || null;
+              return RenderRow({ item, imageSize }) || null;
             }
           }}
           stickyHeaderIndices={[1]}
