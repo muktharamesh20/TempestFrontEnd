@@ -1,7 +1,9 @@
 import OtherProfileHeader from '@/components/OtherProfileHeader';
+import UserActionsModal from '@/components/profileModal';
 import { supabase } from '@/constants/supabaseClient';
 import { getUserId, SB_STORAGE_CONFIG } from '@/services/api';
 import { getTaggedPostsFrom, getUserProfileSummary } from '@/services/posts';
+import { createFollowerRequest, rejectOrRevokeFollowerRequest, toggleCloseFrined } from '@/services/users';
 import { ProfileSummary } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -55,11 +57,17 @@ const otherProfile = () => {
   const isFocused = useIsFocused();
   const [myId, setMyId] = useState<string | null>(null);
   const [myProfile, setMyProfile] = useState<boolean>(false);
+  const [showUserActions, setShowUserActions] = useState<boolean>(false)
   const dummyRow:PostPreview = {categoryName: 'dummy', posts: Array.from({ length: 2 }, (_, i) => ({
     id: `${i + 1}`,
     imageLink: `${SB_STORAGE_CONFIG.BASE_URL}post${(i % 3) + 1}.jpg`,
   }))}
   const dummyTagged = {id: '-1', imageLink:'-1'};
+  const threeDotsPressedFunc = () => {
+    console.log('three dots pressed!');
+    setShowUserActions(true);
+    console.log(showUserActions);
+  }
 
   useEffect(() => {
     const fetchUserAndPosts = async () => {
@@ -68,9 +76,9 @@ const otherProfile = () => {
         const userDetails:ProfileSummary = await getUserProfileSummary(id as string, supabase);
         setUser(userDetails);
         setMyId(myId[0])
-        //console.warn(myId[0])
-        setMyProfile((myId[0] as string).trim() === (id as string).trim());
-        console.warn(myId[0], id)
+        // //console.warn(myId[0])
+        // setMyProfile((myId[0] as string).trim() === (id as string).trim());
+        // console.warn(myId[0], id)
         const dummyPosts = Array.from({ length: 30 }, (_, i) => ({
           id: `${i + 1}`,
           imageLink: `${SB_STORAGE_CONFIG.BASE_URL}post${(i % 3) + 1}.jpg`,
@@ -86,8 +94,8 @@ const otherProfile = () => {
         console.error('Error fetching user or posts:', error);
       }
 
-      // const id = await getUserId().then((value) => value[0])
-      // setMyId(id)
+      // const myd = await getUserId().then((value) => value[0])
+      // setMyId()
       // console.log('userid', myId)
     };
 
@@ -133,8 +141,10 @@ const otherProfile = () => {
   useEffect(() => {
     const fetchTagged = async () => {
       try{
-        const taggedPosts = await getTaggedPostsFrom(id as string, supabase);
-        setTaggedPosts(taggedPosts);
+        if (taggedPosts.length === 0) {
+          const newTaggedPosts = await getTaggedPostsFrom(id as string, supabase);
+          setTaggedPosts(newTaggedPosts);
+        }       
         console.log('tagged posts', taggedPosts)
       } catch{
         console.warn('error updating tagged posts')
@@ -156,6 +166,7 @@ const otherProfile = () => {
           <Text className="font-semibold text-sm text-black">{item.categoryName}</Text>
           <Text className="text-blue-600 text-sm">See more</Text>
         </View>
+
 
         {/* Horizontal Posts */}
         <FlatList
@@ -184,8 +195,24 @@ const otherProfile = () => {
     
       return (
       <View className="flex-1 bg-primary">
-        <OtherProfileHeader username={user.username ?? 'Unknown'} />
+        <OtherProfileHeader username={user.username ?? 'Unknown'} threeDotsPressed={threeDotsPressedFunc} />
         {isFocused && <StatusBar style="dark" />}
+
+        <UserActionsModal
+  visible={showUserActions}
+  isSelf={user.isownprofile}
+  onSettingsPress={() => {/**?? */}}
+  onClose={() => setShowUserActions(false)}
+  onUnfollow={() => {/* call your unfollow function */}}
+  onRemoveCloseFriend={() => {/* remove from close friends */}}
+  onRemoveFollower={() => {/* remove follower logic */}}
+  onBlockCommenting={() => {/* update block commenting */}}
+  onUnblockCommenting={() => {/* update unblock commenting */}}
+  isBlockedFromCommenting={false}
+  isCloseFriend={user.theyclosefriend}
+  isFollowing={user.youfollowing}
+  isFollower={user.theyfollowing}
+/>
   
         <FlatList
           data={[dummyTagged, [taggedPosts]]}
@@ -196,12 +223,14 @@ const otherProfile = () => {
                 <>
                   <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
                   {/* If there are no actual user posts, show "No posts yet" */}
-                  {taggedPosts.length === 0  ? (
-                    <Text className="text-center text-gray-500 mt-4">No tagged posts yet</Text>
+                  {taggedPosts.length === 0 || (!user.isownprofile && user.isprivate && !user.youfollowing) ? (
+                    <Text className="text-center text-gray-500 mt-4">{!user.isownprofile && user.isprivate && !user.youfollowing ? "Account is private": "No tagged posts yet"}</Text>
                   ) : null}
                 </>
               );
-            } else {
+            } else if (!user.isownprofile && user.isprivate && !user.youfollowing) {
+              return null;
+            }else {
               return (
                 <FlatList
                   data={taggedPosts}
@@ -245,11 +274,11 @@ const otherProfile = () => {
                       <Text className="text-sm text-secondary">Posts</Text>
                     </View>
                     <View className="items-center">
-                      <Text className="text-lg font-semibold">{user.numfollowing}</Text>
+                      <Text className="text-lg font-semibold">{user.numfollowers}</Text>
                       <Text className="text-sm text-secondary">Followers</Text>
                     </View>
                     <View className="items-center">
-                      <Text className="text-lg font-semibold">{user.numfollowers}</Text>
+                      <Text className="text-lg font-semibold">{user.numfollowing}</Text>
                       <Text className="text-sm text-secondary">Following</Text>
                     </View>
                   </View>
@@ -266,22 +295,42 @@ const otherProfile = () => {
 
                {/* Edit Profile / Action Buttons */}
                <View className="flex-row px-5 mt-3 gap-2 flex-1">
-  {myProfile ? (
+  {user.isownprofile ? (
     <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
       <Text className="text-sm font-medium">Edit Profile</Text>
     </TouchableOpacity>
   ) : (
     <>
-      {!user.youfollowing && (
-        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+      {!user.youfollowing && !user.yourequestedfollow && (
+        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center" onPress={() => { 
+          createFollowerRequest(id as string, supabase);
+          if (user.isprivate) {
+            setUser({ ...user, yourequestedfollow: true });
+          } else {
+            setUser({ ...user, youfollowing: true });
+          }
+        }}>
           <Text className="text-sm font-medium">Follow</Text>
         </TouchableOpacity>
       )} 
-      {!user.theyclosefriend && user.youfollowing && (
-        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+      {!user.youfollowing && user.yourequestedfollow && (
+        <TouchableOpacity className="flex-[2] border rounded-lg py-1 items-center" onPress={() => { 
+          rejectOrRevokeFollowerRequest(myId || '', id as string, supabase);
+          setUser({ ...user, yourequestedfollow: false });
+        }}>
+          <Text className="text-sm font-medium">Requested to follow</Text>
+        </TouchableOpacity>
+      )} 
+      {!user.theyclosefriend && user.theyfollowing && (
+        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center" onPress={() => { 
+          if(myId){
+            toggleCloseFrined(myId, id as string, true, supabase)
+            setUser({ ...user, theyclosefriend: true });
+          }
+        }}>
           <Text className="text-sm font-medium">Add Close Friend</Text>
         </TouchableOpacity>
-      )}
+      )} 
       {user.youclosefriend && (
         <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
           <Text className="text-sm font-medium">View Calendar</Text>
@@ -319,8 +368,24 @@ const otherProfile = () => {
 
   return (
     <View className="flex-1 bg-primary">
-      <OtherProfileHeader username={user.username ?? 'Unknown'} />
+      <OtherProfileHeader username={user.username ?? 'Unknown'} threeDotsPressed={threeDotsPressedFunc}/>
       {isFocused && <StatusBar style="dark" />}
+
+      <UserActionsModal
+  visible={showUserActions}
+  isSelf={user.isownprofile}
+  onSettingsPress={() => {/**?? */}}
+  onClose={() => setShowUserActions(false)}
+  onUnfollow={() => {/* call your unfollow function */}}
+  onRemoveCloseFriend={() => {/* remove from close friends */}}
+  onRemoveFollower={() => {/* remove follower logic */}}
+  onBlockCommenting={() => {/* update block commenting */}}
+  onUnblockCommenting={() => {/* update unblock commenting */}}
+  isBlockedFromCommenting={false}
+  isCloseFriend={user.theyclosefriend}
+  isFollowing={user.youfollowing}
+  isFollower={user.theyfollowing}
+/>
 
       <FlatList
         data={[dummyRow, ...user.categories]}
@@ -333,11 +398,14 @@ const otherProfile = () => {
                 {/* If there are no actual user posts, show "No posts yet" */}
                 {user.categories.length === 0 ||
                  user.categories.every(cat => cat.posts.length === 0) ? (
-                  <Text className="text-center text-gray-500 mt-4">No posts yet</Text>
+                  <Text className="text-center text-gray-500 mt-4">{!user.isownprofile && user.isprivate && !user.youfollowing ? "Account is private": "No posts yet"}</Text>
                 ) : null}
               </>
             );
-          } else {
+          } else if (!user.isownprofile && user.isprivate && !user.youfollowing){
+            return null
+          }
+          else {
             return renderRow({ item }) || null;
           }
         }}        
@@ -361,11 +429,11 @@ const otherProfile = () => {
                     <Text className="text-sm text-secondary">Posts</Text>
                   </View>
                   <View className="items-center">
-                    <Text className="text-lg font-semibold">{user.numfollowing}</Text>
+                    <Text className="text-lg font-semibold">{user.numfollowers}</Text>
                     <Text className="text-sm text-secondary">Followers</Text>
                   </View>
                   <View className="items-center">
-                    <Text className="text-lg font-semibold">{user.numfollowers}</Text>
+                    <Text className="text-lg font-semibold">{user.numfollowing}</Text>
                     <Text className="text-sm text-secondary">Following</Text>
                   </View>
                 </View>
@@ -382,22 +450,42 @@ const otherProfile = () => {
               
 
               <View className="flex-row px-5 mt-3 gap-2 flex-1">
-  {myProfile ? (
+  {user.isownprofile ? (
     <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
       <Text className="text-sm font-medium">Edit Profile</Text>
     </TouchableOpacity>
   ) : (
     <>
-      {!user.youfollowing && (
-        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+     {!user.youfollowing && !user.yourequestedfollow && (
+        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center" onPress={() => { 
+          createFollowerRequest(id as string, supabase);
+          if (user.isprivate) {
+            setUser({ ...user, yourequestedfollow: true });
+          } else {
+            setUser({ ...user, youfollowing: true });
+          }
+        }}>
           <Text className="text-sm font-medium">Follow</Text>
         </TouchableOpacity>
       )} 
-      {!user.theyclosefriend && user.youfollowing && (
-        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+      {!user.youfollowing && user.yourequestedfollow && (
+        <TouchableOpacity className="flex-[2] border rounded-lg py-1 items-center" onPress={() => { 
+          rejectOrRevokeFollowerRequest(myId || '', id as string, supabase);
+          setUser({ ...user, yourequestedfollow: false });
+        }}>
+          <Text className="text-sm font-medium">Requested to follow</Text>
+        </TouchableOpacity>
+      )} 
+      {!user.theyclosefriend && user.theyfollowing && (
+        <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center" onPress={() => { 
+          if(myId){
+            toggleCloseFrined(myId, id as string, true, supabase)
+            setUser({ ...user, theyclosefriend: true });
+          }
+        }}>
           <Text className="text-sm font-medium">Add Close Friend</Text>
         </TouchableOpacity>
-      )}
+      )} 
       {user.youclosefriend && (
         <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
           <Text className="text-sm font-medium">View Calendar</Text>

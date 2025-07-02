@@ -7,9 +7,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface OtherProfileHeaderProps {
   username: string;
+  threeDotsPressed: () => void;
 }
 
-const OtherProfileHeader: React.FC<OtherProfileHeaderProps> = ({ username }) => {
+const OtherProfileHeader: React.FC<OtherProfileHeaderProps> = ({ username, threeDotsPressed }) => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
 
@@ -30,7 +31,7 @@ const OtherProfileHeader: React.FC<OtherProfileHeaderProps> = ({ username }) => 
         </Text>
 
         {/* Placeholder for spacing on the right (same width as back arrow) */}
-        <TouchableOpacity onPress={() => console.log('three dots pressed!')}>
+        <TouchableOpacity onPress={threeDotsPressed}>
           <Entypo name="dots-three-horizontal" size={24} color="black" />
         </TouchableOpacity>
       </View>

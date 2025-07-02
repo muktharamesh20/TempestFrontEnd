@@ -172,7 +172,7 @@ export type Database = {
         Insert: {
           appear_on_profile?: boolean
           category_name: string
-          id: string
+          id?: string
           person_who_owns_tag: string
           tag_color?: string | null
         }
@@ -287,7 +287,7 @@ export type Database = {
         Insert: {
           created_at?: string
           followed_id: string
-          requester: string
+          requester?: string
         }
         Update: {
           created_at?: string
@@ -1525,6 +1525,8 @@ export type Database = {
         theyclosefriend: boolean | null
         youblockedthem: boolean | null
         theyblockedyou: boolean | null
+        isprivate: boolean | null
+        isownprofile: boolean | null
         categories: Json | null
       }
     }

@@ -1,23 +1,11 @@
-import {createClient, SupabaseClient} from '@supabase/supabase-js'
-import { QueryResult, QueryData, QueryError } from '@supabase/supabase-js'
-import { Database, Tables, Enums } from '../databasetypes'
-import {signInAndGetToken, signOut, getSupabaseClient, decodeToken, createUser, deleteAccount} from './auth'
-import assert from 'assert'
-import dotenv from 'dotenv';
-import { get } from 'http'
-import { create } from 'domain'
-import {Post, Comment, createMessageTypeWithData} from './utils.js'
-import {getBulkPostInfoById} from './utils.js'
-import * as types from './utils.js'
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '../databasetypes';
+import * as types from './utils.js';
 
-//allows us to use process.env to get environment variables
-dotenv.config();
-
-async function createFollowerRequest(my_id:string, follower_id: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function createFollowerRequest(follower_id: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { data, error } = await supabaseClient
         .from('follow_request')
-        .insert({ requester: my_id, followed_id: follower_id });
-
+        .insert({ followed_id: follower_id });
     if (error) {
         console.error('Error creating follower request:', error.message);
         throw error;
@@ -26,7 +14,7 @@ async function createFollowerRequest(my_id:string, follower_id: string, supabase
     console.log('Follower request created:', data);
 }
 
-async function acceptFollowerRequest(requester_id: string, my_id:string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function acceptFollowerRequest(requester_id: string, my_id:string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { data, error } = await supabaseClient
         .from('people_to_following')
         .insert({ follower_id: requester_id, followed_id: my_id });
@@ -39,7 +27,7 @@ async function acceptFollowerRequest(requester_id: string, my_id:string, supabas
     console.log('Follower request accepted:', data);
 }
 
-async function rejectOrRevokeFollowerRequest(requester_id: string, followed_id:string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function rejectOrRevokeFollowerRequest(requester_id: string, followed_id:string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { data, error } = await supabaseClient
         .from('follow_request')
         .delete()
@@ -111,7 +99,7 @@ export async function getHomePagePostsAndCategories(userId: string, supabaseClie
     throw new Error('Function not implemented.'); // This function is not fully implemented yet, so we throw an error for now.
 }
 
-export async function getAllPostsBy(userId: string, supabaseClient: SupabaseClient<Database>): Promise<Post[]> {
+export async function getAllPostsBy(userId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { data, error } = await supabaseClient
         .from('post')
         .select('*')
@@ -126,7 +114,8 @@ export async function getAllPostsBy(userId: string, supabaseClient: SupabaseClie
     const postIds = data.map(post => post.id);
 
     // Get the bulk post info by id
-    return getBulkPostInfoById(postIds, supabaseClient);
+    //return getBulkPostInfoById(postIds, supabaseClient);
+    throw new Error('unimplemented')
 }
 
 /**
@@ -161,13 +150,13 @@ export async function getAllMessagesBetween(me: types.User, other: types.User, s
         console.error('Error fetching group messages:', error.message);
         throw error;
     }
+    throw new Error('unimplemented')
+    //const result = (await Promise.all(combinedMessages.map((message) => createMessageTypeWithData(message)))).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 
-    const result = (await Promise.all(combinedMessages.map((message) => createMessageTypeWithData(message)))).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
-
-    return {
-        otherUser: other,
-        messages: result
-    }
+    //return {
+       // otherUser: other,
+       // messages: result
+    //}
 }
 
 /**
@@ -190,8 +179,8 @@ export async function sendMessage(content: string, sender: types.User, reciever:
         console.error('Error posting message:', error.message);
         throw error;
     }
-
-    return createMessageTypeWithData(data[0]);
+    throw new Error('unimplemented')
+    //return createMessageTypeWithData(data[0]);
 }
 
 /**
@@ -231,7 +220,7 @@ export async function deleteMessageForMe(message: types.Message, supabaseClient:
 }
 
 
-export async function getTaggedPostsFrom(userId: string, supabaseClient: SupabaseClient<Database>): Promise<Post[]> {
+export async function getTaggedPostsFrom(userId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { data, error } = await supabaseClient
         .from('post_to_tagged_people')
         .select('post_id, posts!post_id (*)')
@@ -243,27 +232,32 @@ export async function getTaggedPostsFrom(userId: string, supabaseClient: Supabas
     }
 
     const postIds = data.map(tag => tag.post_id);
-    return getBulkPostInfoById(postIds, supabaseClient);
+    throw new Error('unimplemented')
+    //return getBulkPostInfoById(postIds, supabaseClient);
 }
 
-export async function toggleCloseFrined(userId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
-    throw new Error('Function not implemented.'); // This function is not fully implemented yet, so we throw an error for now.
-    const { data, error } = await supabaseClient
-        .from('usersettings')
-        .select('id, username, email')
-        .eq('id', userId)
-        .single();
-
-    if (error) {
-        console.error('Error fetching user info:', error.message);
-        throw error;
-    }
-
-    return {
-        id: data.id,
-        username: data.username,
-        email: data.email
-    };
+export async function toggleCloseFrined(myId: string, userId: string, isCloseFriend: boolean, supabaseClient: SupabaseClient<Database>): Promise<void> {
+    //throw new Error('Function not implemented.'); // This function is not fully implemented yet, so we throw an error for now.
+    if (isCloseFriend) {
+        const { error } = await supabaseClient
+          .from('people_to_close_friends')
+          .insert({ person_id: myId, close_friend: userId });
+      
+        if (error) {
+          console.error('Error adding close friend:', error.message);
+        }
+      } else {
+        const { error } = await supabaseClient
+          .from('people_to_close_friends')
+          .delete()
+          .eq('person_id', myId)
+          .eq('close_friend', userId);
+      
+        if (error) {
+          console.error('Error removing close friend:', error.message);
+        }
+      }
+      
 }
 
 /**
@@ -273,7 +267,7 @@ export async function toggleCloseFrined(userId: string, supabaseClient: Supabase
  * @param supabaseClient the Supabase client to use for the database operations
  * @returns the list of close friends for the user, as an array of User types.
  */
-export async function getAllCloseFriends(myUser: types.User, supabaseClient: SupabaseClient<Database>): Promise<types.UserList> {
+export async function getAllCloseFriends(myUser: types.User, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { data, error } = await supabaseClient
         .from('people_to_close_friends')
         .select('close_friend, usersettings!close_friend (*)')
@@ -284,25 +278,25 @@ export async function getAllCloseFriends(myUser: types.User, supabaseClient: Sup
         throw error;
     }
 
-    return await Promise.all(data.map((friend) => types.createUserTypeWithData(friend.usersettings)));
+    //return await Promise.all(data.map((friend) => types.createUserTypeWithData(friend.usersettings)));
 }
 
-export async function viewCalendarOf(userId: string, supabaseClient: SupabaseClient<Database>): Calendar {
-    throw new Error('Function not implemented.'); // This function is not fully implemented yet, so we throw an error for now.
-    const { data, error } = await supabaseClient
-        .from('calendar_events')
-        .select('*')
-        .eq('user_id', userId);
+// export async function viewCalendarOf(userId: string, supabaseClient: SupabaseClient<Database>): Calendar {
+//     throw new Error('Function not implemented.'); // This function is not fully implemented yet, so we throw an error for now.
+//     const { data, error } = await supabaseClient
+//         .from('calendar_events')
+//         .select('*')
+//         .eq('user_id', userId);
 
-    if (error) {
-        console.error('Error fetching calendar events:', error.message);
-        throw error;
-    }
+//     if (error) {
+//         console.error('Error fetching calendar events:', error.message);
+//         throw error;
+//     }
 
-    return data.map(event => ({
-        id: event.id,
-        title: event.title,
-        start: new Date(event.start),
-        end: new Date(event.end)
-    }));
-}
+//     return data.map(event => ({
+//         id: event.id,
+//         title: event.title,
+//         start: new Date(event.start),
+//         end: new Date(event.end)
+//     }));
+// }

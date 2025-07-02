@@ -122,6 +122,8 @@ export interface ProfileSummary {
     theyclosefriend: boolean;
     youblockedthem: boolean;
     theyblockedyou: boolean;
+    isprivate: boolean;
+    isownprofile: boolean;
     categories: {
       categoryName: string;
       posts: { id: string, imageLink: string }[];
