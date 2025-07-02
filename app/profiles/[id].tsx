@@ -257,16 +257,6 @@ const otherProfile = () => {
         />}
     </View>
   );
-
-
-
-
-
-
-
-
-
-
 }
 
 export default otherProfile

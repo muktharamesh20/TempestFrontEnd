@@ -1,6 +1,7 @@
 import { drawerProps } from '@/components/CalendarDrawer';
 import DayCalendar from '@/components/DayCalendar';
 import MonthCalendar from '@/components/MonthCalendar';
+import DraggablePlusButton from '@/components/todosEvents/draggableButton';
 import WeekCalendar from '@/components/WeekCalendar';
 import { EventDetailsForNow } from '@/services/utils';
 import { useIsFocused } from '@react-navigation/native';
@@ -29,7 +30,7 @@ const calendar = () => {
     );
   };
 
-  const INITIAL_HEIGHT = 60;
+  const INITIAL_HEIGHT = 30;
 
   const [hourHeight, setHourHeight] = useState<number>(INITIAL_HEIGHT);
 
@@ -54,6 +55,12 @@ const calendar = () => {
           <MonthCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} />
         </>
       )}
+
+      <>
+    <DraggablePlusButton />
+    </>
+
+
     </View>
   );
 }
