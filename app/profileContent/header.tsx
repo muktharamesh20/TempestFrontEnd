@@ -12,9 +12,10 @@ interface headerProps {
   setUser: React.Dispatch<React.SetStateAction<ProfileSummary | null>>;
   id: string;
   myId: string;
+  editProfile?:  () => void;
 }
 
-const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId }: headerProps) => {
+const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId, editProfile }: headerProps) => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [modalType, setModalType] = useState<'Followers' | 'Following' | null>(null);
 
@@ -84,7 +85,7 @@ const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId }: heade
 
         <View className="flex-row px-5 mt-3 gap-2 flex-1">
           {user.isownprofile ? (
-            <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center">
+            <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center" onPress={editProfile}>
               <Text className="text-sm font-medium">Edit Profile</Text>
             </TouchableOpacity>
           ) : (

@@ -1,11 +1,6 @@
-import {createClient, SupabaseClient} from '@supabase/supabase-js'
-import { QueryResult, QueryData, QueryError } from '@supabase/supabase-js'
-import { Database, Tables, Enums } from '../databasetypes'
-import {signInAndGetToken, signOut, getSupabaseClient, decodeToken, createUser, deleteAccount} from './auth'
-import assert from 'assert'
-import dotenv from 'dotenv';
-import { get } from 'http'
-import { create } from 'domain'
+import { SupabaseClient } from '@supabase/supabase-js'
+import dotenv from 'dotenv'
+import { Database } from '../databasetypes'
 import * as types from './utils.js'
 
 //allows us to use process.env to get environment variables
@@ -98,18 +93,7 @@ export async function getAllViewershipTags(supabaseClient: SupabaseClient<Databa
     return data;
 }
 
-export async function getAllCategories(supabaseClient: SupabaseClient<Database>): Promise<any[]> {
-    const { data, error } = await supabaseClient
-        .from('categories')
-        .select('*');
 
-    if (error) {
-        console.error('Error fetching categories:', error.message);
-        throw error;
-    }
-
-    return data;
-}
 
 export async function changeViewershipTagsOfTodo(todo: types.Todo, tags: string[], supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient

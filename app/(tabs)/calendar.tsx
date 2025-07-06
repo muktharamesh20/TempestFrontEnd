@@ -57,7 +57,7 @@ const calendar = () => {
       )}
 
       <>
-    <DraggablePlusButton />
+    <DraggablePlusButton onPress={() => console.log('buttonPressed!')}/>
     </>
 
 

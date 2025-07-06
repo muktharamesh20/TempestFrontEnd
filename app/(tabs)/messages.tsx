@@ -20,6 +20,7 @@ type Message = {
 
 
 import SimpleHeader from '@/components/CustomHeader';
+import DraggablePlusButton from '@/components/todosEvents/draggableButton';
 import { numbers } from '@/constants/numbers';
 import { SB_STORAGE_CONFIG } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons'; // or another icon lib
@@ -238,10 +239,11 @@ export default function MessagesScreen() {
       <Divider />
 
       <Text className='ml-5 text-[25px] font-extrabold text-secondary my-1'>Messages</Text>
-
+      
       </>
         }
       />
+      <DraggablePlusButton onPress={() => console.log("will eventually be able to create groups")}/>
     </View>
   );
 }

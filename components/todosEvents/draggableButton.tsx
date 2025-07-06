@@ -8,7 +8,7 @@ const MARGIN = 30;
 const DRAG_MARGIN_VERTICAL = 100000; // vertical margin above and below button to activate drag
 const DRAG_MARGIN_HORIZONTAL = 100000; // horizontal margin around button to activate drag
 
-const DraggablePlusButton = () => {
+const DraggablePlusButton = ({onPress}: {onPress: () => void}) => {
   // Start button at bottom right
   const pan = useRef(new Animated.ValueXY({ x: SCREEN_WIDTH - BUTTON_SIZE - MARGIN, y: 0 })).current;
 
@@ -54,10 +54,6 @@ const DraggablePlusButton = () => {
     })
   ).current;
 
-  const handlePress = () => {
-    console.log('Plus button pressed!');
-  };
-
   return (
     <View
       {...panResponder.panHandlers}
@@ -74,7 +70,7 @@ const DraggablePlusButton = () => {
           { top: DRAG_MARGIN_VERTICAL }, // push button down inside wrapper
         ]}
       >
-        <TouchableOpacity onPress={handlePress} style={styles.touchable} activeOpacity={0.7}>
+        <TouchableOpacity onPress={onPress} style={styles.touchable} activeOpacity={0.7}>
           <Text style={styles.text}>＋</Text>
         </TouchableOpacity>
       </Animated.View>

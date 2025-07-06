@@ -1,3 +1,4 @@
+import { numbers } from '@/constants/numbers';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Image } from 'react-native';
 import { Database } from '../databasetypes';
@@ -64,16 +65,78 @@ export async function changePublicOrPrivate(public_or_private: 'public' | 'priva
  * @param user the user to change the bio for
  * @param supabaseClient the Supabase client to use for the database operations
  */
-export async function changeBio(newBio: string, user: types.User, supabaseClient: SupabaseClient<Database>): Promise<void> {
-  const { data, error } = await supabaseClient
+export async function changeBio(newBio: string, user: string | null, supabaseClient: SupabaseClient<Database>): Promise<void> {
+  if(user)  {
+    const { data, error } = await supabaseClient
       .from('usersettings') 
       .update({ bio: newBio }) 
-      .eq('id', user.user_id); 
+      .eq('id', user); 
 
-  if (error) {
-      console.error('Error changing bio:', error.message);
-      throw error;
+      if (error) {
+        console.error('Error changing bio:', error.message);
+        throw error;
+    }
+  }else {
+    console.error('null username')
   }
+}
+
+export async function changeVisibleCTs(
+    categories: types.Category[],
+    userId: string,
+    supabaseClient: SupabaseClient<Database>
+  ): Promise<void> {
+    const toShow = categories.filter(cat => cat.visible).map(cat => cat.id);
+    const toHide = categories.filter(cat => !cat.visible).map(cat => cat.id);
+  
+    const errors = [];
+  
+    if (toShow.length > 0) {
+      const { error } = await supabaseClient
+        .from('calendar_category_tags')
+        .update({ appear_on_profile: true })
+        .in('id', toShow)
+        .eq('person_who_owns_tag', userId);
+      if (error) errors.push(error);
+    }
+  
+    if (toHide.length > 0) {
+      const { error } = await supabaseClient
+        .from('calendar_category_tags')
+        .update({ appear_on_profile: false })
+        .in('id', toHide)
+        .eq('person_who_owns_tag', userId);
+      if (error) errors.push(error);
+    }
+  
+    if (errors.length > 0) {
+      console.error('Error updating some categories:', errors.map(e => e.message));
+      throw errors[0]; // Throw the first error
+    }
+  }  
+  
+
+export async function getAllCategories(userId: string, supabaseClient: SupabaseClient<Database>): Promise<types.Category[]> {
+    const { data, error } = await supabaseClient
+        .from('calendar_category_tags')
+        .select('*')
+        .eq('person_who_owns_tag', userId);
+
+    if (error) {
+        console.error('Error fetching categories:', error.message);
+        throw error;
+    }
+
+    console.log('getting all categories!', data)
+
+    return data.map((value) => {
+        return {
+          name: value.category_name,
+          id: value.id,
+          visible: value.appear_on_profile,
+          color: value.tag_color || numbers.secondaryColor
+        };
+      });
 }
 
 /**

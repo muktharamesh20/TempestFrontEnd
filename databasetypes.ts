@@ -617,7 +617,7 @@ export type Database = {
         }
         Insert: {
           close_friend: string
-          person_id: string
+          person_id?: string
         }
         Update: {
           close_friend?: string
@@ -625,18 +625,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "people_to_close_friends_close_friend_fkey"
-            columns: ["close_friend"]
-            isOneToOne: false
-            referencedRelation: "usersettings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "people_to_close_friends_person_id_fkey"
-            columns: ["person_id"]
-            isOneToOne: false
-            referencedRelation: "usersettings"
-            referencedColumns: ["id"]
+            foreignKeyName: "people_to_close_friends_person_id_close_friend_fkey"
+            columns: ["person_id", "close_friend"]
+            isOneToOne: true
+            referencedRelation: "people_to_following"
+            referencedColumns: ["followed_id", "follower_id"]
           },
         ]
       }
@@ -1347,18 +1340,21 @@ export type Database = {
         Row: {
           bio: string | null
           id: string
+          last_active_ping: string
           public_or_private: string
           username: string | null
         }
         Insert: {
           bio?: string | null
           id?: string
+          last_active_ping?: string
           public_or_private?: string
           username?: string | null
         }
         Update: {
           bio?: string | null
           id?: string
+          last_active_ping?: string
           public_or_private?: string
           username?: string | null
         }
