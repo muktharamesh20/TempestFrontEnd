@@ -26,13 +26,13 @@ const TABS = ['Backlog', 'To Do', 'Done', 'Events'] as const;
 type Tab = typeof TABS[number];
 
 const addOptionIcons = [
-  <Plus color="white" size={18} />,
+  //<Plus color="white" size={18} />,
   <List color="white" size={18} />,
   <Calendar color="white" size={18} />,
   <CheckCircle color="white" size={18} />
 ];
 const sortOptionIcons = [
-  <SortAsc color="white" size={18} />,
+  //<SortAsc color="white" size={18} />,
   <Clock color="white" size={18} />,
   <CheckCircle color="white" size={18} />
 ];
@@ -144,8 +144,8 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
           {(showAddOptions || showSortOptions) && (
             <View className="mb-2 rounded-lg px-0 py-0" style={{ minWidth: 140 }}>
               {(showAddOptions
-                ? ['To-do', 'Task', 'Event', 'Category']
-                : ['Auto', 'Deadline', 'Priority']
+                ? ['Task', 'Event', 'Category'] //'To-do', 
+                : ['Deadline', 'Priority']
               ).map((label, index) => {
                 const icon = showAddOptions ? addOptionIcons[index] : sortOptionIcons[index];
                 const dotColor = showAddOptions ? '#000000' : numbers.secondaryColor;
