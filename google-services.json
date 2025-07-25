@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "889771163582",
+    "project_id": "tempest-82c32",
+    "storage_bucket": "tempest-82c32.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:889771163582:android:571b4cbf9bb8c45a97c3ef",
+        "android_client_info": {
+          "package_name": "muktharamesh.Tempest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "889771163582-bqqqm1ept4rd7n0cpeb2lsnckmdgop9j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZSIFleKwr_VPnFXOimUxdbSscDEYBCpc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "889771163582-bqqqm1ept4rd7n0cpeb2lsnckmdgop9j.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "889771163582-e9sm8cst162r1qlrtsjnoupi604a7q1a.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "muktharamesh.Tempest"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

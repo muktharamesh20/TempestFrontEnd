@@ -23,6 +23,7 @@ import SimpleHeader from '@/components/CustomHeader';
 import DraggablePlusButton from '@/components/todosEvents/draggableButton';
 import { numbers } from '@/constants/numbers';
 import { SB_STORAGE_CONFIG } from '@/services/api';
+import { sendIndividualMessage } from '@/services/pushNotifications';
 import { Ionicons } from '@expo/vector-icons'; // or another icon lib
 import { useRouter } from 'expo-router';
 import { TextInput } from 'react-native-gesture-handler';
@@ -243,7 +244,7 @@ export default function MessagesScreen() {
       </>
         }
       />
-      <DraggablePlusButton onPress={() => console.log("will eventually be able to create groups")}/>
+      <DraggablePlusButton onPress={async () => {console.log("will eventually be able to create groups"); await sendIndividualMessage(); }}/>
     </View>
   );
 }

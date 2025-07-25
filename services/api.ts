@@ -11,6 +11,10 @@ export const SB_STORAGE_CONFIG = {
     }
 }
 
+/**
+ * 
+ * @returns [actualUserId, actualUsername] if user is logged in and has a username set
+ */
 export async function getUserId() {
     const currUserId = (await AsyncStorage.getItem('userId'))?.split(',');
     if (currUserId) {

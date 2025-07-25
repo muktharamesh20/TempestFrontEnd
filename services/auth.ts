@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthSessionMissingError, createClient, processLock, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '../databasetypes';
+import { unregisterPushNotificationsAsync } from './pushNotifications';
 
 // Create a single supabase client for interacting with your database
 export function getSupabaseClient(): SupabaseClient<Database> {
@@ -76,6 +77,7 @@ export async function signInAndGetToken(email: string, password: string, supabas
 export async function signOut(token: string, supabaseClient: SupabaseClient<Database>, scope?: 'global' | 'local' | 'others'): Promise<void> {
   //const { error } = await supabase.auth.signOut();
   const { error: revokeError } = await supabaseClient.auth.admin.signOut(token, scope);
+  unregisterPushNotificationsAsync(false);
 
   if (revokeError) {
     if (revokeError instanceof AuthSessionMissingError) {

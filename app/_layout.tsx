@@ -1,5 +1,6 @@
 import { supabase } from "@/constants/supabaseClient";
 import { getUserId } from "@/services/api";
+import { registerForPushNotificationsAsync, unregisterPushNotificationsAsync } from "@/services/pushNotifications";
 import { Session } from "@supabase/supabase-js";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter, useSegments } from "expo-router";
@@ -18,6 +19,7 @@ export default function RootLayout() {
   const [mustAddUsername, setMustAddUsername] = useState(false);
   const router = useRouter();
   const segments = useSegments();
+  const HEARTBEAT_INTERVAL =  60 * 1000 / 6; // 10 seconds
 
   // Fetch session on mount and subscribe to auth changes
   useEffect(() => {
@@ -84,10 +86,52 @@ export default function RootLayout() {
       router.replace("/(login)/onboarding");
     } else if (session && inLoginGroup) {
       getUserId();
+
       // If logged in and on login pages but username is set, redirect to home
       router.replace("/(tabs)/home");
     }
   }, [session, segments, loading]);
+
+  //register for push notifications on mount if session exists and user allows push notifications
+  useEffect(() => {
+    const registerPushNotifications = async () => {
+      if (session) {
+        const userID = await getUserId();
+        if (userID[0]) {
+          const {data, error} = await supabase.from("usersettings")
+                .select("allow_push_notifications").eq("id", userID[0]).single();
+
+          if (data?.allow_push_notifications) {
+            registerForPushNotificationsAsync();
+          }
+        }
+        
+      } else {
+        await unregisterPushNotificationsAsync(false); // Unregister if no session
+      }
+    };
+
+    registerPushNotifications();
+  })
+
+  //heartbeat for active
+  
+  useEffect(() => {
+    if (!session) return;
+
+    const updateLastSeen = async () => {
+      const { error } = await supabase
+        .from("usersettings")
+        .update({ id: session.user.id, last_active_ping: new Date().toISOString() })
+        .eq("id", session.user.id);
+      if (error) console.error("Heartbeat failed:", error);
+    };
+
+    const interval = setInterval(updateLastSeen, HEARTBEAT_INTERVAL);
+    updateLastSeen(); // run right away
+
+    return () => clearInterval(interval); // cleanup
+  }, [session]);
 
   // Optional loading indicator while checking session or username
   if (loading) {
