@@ -1,9 +1,9 @@
-import { drawerProps } from '@/components/CalendarDrawer';
+
 import DayCalendar from '@/components/DayCalendar';
 import MonthCalendar from '@/components/MonthCalendar';
 import DraggablePlusButton from '@/components/todosEvents/draggableButton';
 import WeekCalendar from '@/components/WeekCalendar';
-import { EventDetailsForNow } from '@/services/utils';
+import { calendarGroupProps, calendarPersonProps, drawerProps, EventDetailsForNow } from '@/services/utils';
 import { useIsFocused } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
@@ -16,9 +16,13 @@ const calendar = () => {
       , { isPublic: true, categoryId: 'blahblah3', categoryName: 'blah3aaaaaaaaaaaaaaaaaaaaaaa aaaaa aaaaaaaaaaaaaaaaaaaa', categoryColor: '#000000' },
     { isPublic: false, categoryId: 'blahblah4', categoryName: 'blah4', categoryColor: 'red' }
     ];
+  const peopleShown: calendarPersonProps[] = [{personId: 'person1', personName: 'Person 1',  isChecked: false}, {personId: 'person2', personName: 'Person 2', isChecked: true}, {personId: 'person3', personName: 'Person 3', isChecked: false}];
+  const groupsShown: calendarGroupProps[] = [{groupId: 'group1', groupName: 'Group 1', isChecked: true}, {groupId: 'group2', groupName: 'Group 2', isChecked: true}, {groupId: 'group3', groupName: 'Group 3', isChecked: false}];
   const isFocused = useIsFocused();
   const [date, setDate] = React.useState<Date>(new Date());
   const [categories, setCategories] = React.useState<drawerProps[]>(categoriesShown);
+  const [people, setPeople] = React.useState<calendarPersonProps[]>(peopleShown);
+  const [groups, setGroups] = React.useState<calendarGroupProps[]>(groupsShown);
   const [view, setView] = React.useState<'day' | 'week' | 'month'>('day');
   useEffect(() => { console.log(date.toDateString()) }, [date]);
 
@@ -26,6 +30,22 @@ const calendar = () => {
     setCategories(prev =>
       prev.map(cat =>
         cat.categoryId === categoryId ? { ...cat, isPublic: newValue } : cat
+      )
+    );
+  };
+
+  const handlePersonToggle = (personId: string, newValue: boolean) => {
+    setPeople(prev =>
+      prev.map(person =>
+        person.personId === personId ? { ...person, isChecked: newValue } : person
+      )
+    );
+  };
+
+  const handleGroupToggle = (groupId: string, newValue: boolean) => {
+    setGroups(prev =>
+      prev.map(group =>
+        group.groupId === groupId ? { ...group, isChecked: newValue } : group
       )
     );
   };
@@ -40,19 +60,19 @@ const calendar = () => {
       {view === 'day' && (
         <>
           {isFocused ? <StatusBar style="light" /> : null}
-          <DayCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} />
+          <DayCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} people={people} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle} />
         </>
       )}
       {view === 'week' && (
         <>
           {isFocused ? <StatusBar style="light" /> : null}
-          <WeekCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} />
+          <WeekCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} people={people} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle}/>
         </>
       )}
       {view === 'month' && (
         <>
           {isFocused ? <StatusBar style="light" /> : null}
-          <MonthCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} />
+          <MonthCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} people={people} hourHeight={hourHeight} setHourHeight={setHourHeight} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle}/>
         </>
       )}
 

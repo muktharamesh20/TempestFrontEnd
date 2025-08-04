@@ -1,6 +1,6 @@
 import { icons } from '@/constants/icons';
 import { numbers } from '@/constants/numbers';
-import { EventDetailsForNow } from '@/services/utils';
+import { calendarProps } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
 import { addMonths, format, isValid, startOfYear } from 'date-fns';
 import React, { useEffect, useRef, useState } from 'react';
@@ -16,19 +16,10 @@ import {
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CalendarDrawer, { drawerProps } from './CalendarDrawer'; // Adjust the import path as needed
+import CalendarDrawer from './CalendarDrawer'; // Adjust the import path as needed
 import { TaskCardDetails } from './TaskCard';
 import TaskCardCarosel from './TaskCardCarosel';
 import MultiMonthView from './todosEvents/multiMonthCalendar';
-
-interface calendarProps {
-  events: EventDetailsForNow[];
-  viewingDate: Date;
-  setViewingDateFunc: (date: Date) => void;
-  categories: drawerProps[];
-  handleCategoryToggle: (categoryId: string, newValue: boolean) => void;
-  setView: (view: 'day' | 'week' | 'month') => void;
-}
 
 const createMonthsArray = (day: Date) => {
   const today = startOfYear(new Date());
@@ -50,7 +41,7 @@ const monthDiff = (date1: Date, date2: Date) => {
   return (date1.getFullYear() - date2.getFullYear()) * 12 + (date1.getMonth() - date2.getMonth());
 };
 
-const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle }: calendarProps) => {
+const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, groups, handleGroupToggle, people, handlePersonToggle }: calendarProps) => {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
@@ -294,6 +285,10 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
             <CalendarDrawer
               categories={categories}
               handleCategoryToggle={handleCategoryToggle}
+              groups={groups}
+              handleGroupToggle={handleGroupToggle}
+              people={people}
+              handlePersonToggle={handlePersonToggle}
               setView={setView}
             />
           </View>

@@ -44,6 +44,41 @@ export type postDetails = {
     archived: boolean;
 
 }
+
+export interface drawerProps {
+    isPublic: boolean;
+    categoryId: string;
+    categoryName: string;
+    categoryColor: string;
+  }
+
+export interface CalendarDrawerProps {
+  categories: drawerProps[];
+  handleCategoryToggle: (categoryId: string, newValue: boolean) => void;
+  groups: calendarGroupProps[];
+  people: calendarPersonProps[];
+  handlePersonToggle: (personId: string, newValue: boolean) => void;
+  handleGroupToggle: (groupId: string, newValue: boolean) => void;
+  setView: (view: 'day' | 'week' | 'month') => void;
+}
+
+export interface calendarGroupProps { groupId: string; groupName: string; isChecked: boolean }
+export interface calendarPersonProps { personId: string; personName: string; isChecked: boolean }
+
+export interface calendarProps {
+    events: EventDetailsForNow[];
+    viewingDate: Date;
+    setViewingDateFunc: (date: Date) => void;
+    categories: drawerProps[];
+    handleCategoryToggle: (categoryId: string, newValue: boolean) => void;
+    groups: calendarGroupProps[];
+    handleGroupToggle: (groupId: string, newValue: boolean) => void;
+    people: calendarPersonProps[];
+    handlePersonToggle: (personId: string, newValue: boolean) => void;
+    setView: (view: 'day' | 'week' | 'month') => void;
+    hourHeight: number;
+    setHourHeight: React.Dispatch<React.SetStateAction<number>>;
+}
 export type MainComment = { id: CommentId, owner: User, content: Text, createdAt: Date, replies: ReplyComment[], deleted: boolean };
 export type ReplyComment = { id: CommentId, owner: User, content: Text, createdAt: Date, replyTo: MainComment };
 export type Calendar = { forNow: null }

@@ -1,6 +1,6 @@
 import { icons } from '@/constants/icons';
 import { numbers } from '@/constants/numbers';
-import { EventDetailsForNow } from '@/services/utils';
+import { calendarProps } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
 import { addDays, endOfWeek, format, isValid, startOfWeek } from 'date-fns';
 import React, { useEffect, useRef, useState } from 'react';
@@ -19,21 +19,10 @@ import {
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CalendarDrawer, { drawerProps } from './CalendarDrawer'; // Adjust the import path as needed
+import CalendarDrawer from './CalendarDrawer'; // Adjust the import path as needed
 import { TaskCardDetails } from './TaskCard';
 import TaskCardCarosel from './TaskCardCarosel';
 import MultiDayCalendar from './todosEvents/multiDayCalendarView';
-
-interface calendarProps {
-  events: EventDetailsForNow[];
-  viewingDate: Date;
-  setViewingDateFunc: (date: Date) => void;
-  categories: drawerProps[];
-  handleCategoryToggle: (categoryId: string, newValue: boolean) => void;
-  setView: (view: 'day' | 'week' | 'month') => void;
-  hourHeight: number;
-  setHourHeight: React.Dispatch<React.SetStateAction<number>>;
-}
 
 const createWeekDaysArray = (day: Date) => {
   const todayStart = startOfWeek(new Date(), { weekStartsOn: 0 });
@@ -57,7 +46,7 @@ const createWeekDaysArray = (day: Date) => {
   return sundays;
 };
 
-const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, hourHeight, setHourHeight }: calendarProps) => {
+const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, hourHeight, setHourHeight, groups, handleGroupToggle, people, handlePersonToggle }: calendarProps) => {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
@@ -404,6 +393,10 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
             <CalendarDrawer
               categories={categories}
               handleCategoryToggle={handleCategoryToggle}
+              groups={groups}
+              handleGroupToggle={handleGroupToggle}
+              people={people}
+              handlePersonToggle={handlePersonToggle}
               setView={setView}
             />
           </View>
