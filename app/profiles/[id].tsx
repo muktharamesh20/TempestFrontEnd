@@ -1,18 +1,20 @@
 import OtherProfileHeader from '@/components/OtherProfileHeader';
 import { PostPreview, RenderRow } from '@/components/profileComponents/renderRow';
 import UserActionsModal from '@/components/profileModal';
+import EditProfileModal from '@/components/settings/editProfile';
 import { supabase } from '@/constants/supabaseClient';
 import { getUserId, SB_STORAGE_CONFIG } from '@/services/api';
 import { blockPersonFromCommenting, getTaggedPostsFrom, getUserProfileSummary, unblockPersonFromCommenting } from '@/services/posts';
 import { removeFollower, toggleCloseFrined, unFollow } from '@/services/users';
-import { ProfileSummary } from '@/services/utils';
+import { changeBio, changeUsername, changeVisibleCTs, getAllCategories } from '@/services/usersettings';
+import { Category, ProfileSummary } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import { useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { Dimensions, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import ProfileContentHeader from '../profileContent/header';
 
 
@@ -53,6 +55,8 @@ const otherProfile = () => {
   const [myId, setMyId] = useState<string | null>(null);
   const [myProfile, setMyProfile] = useState<boolean>(false);
   const [showUserActions, setShowUserActions] = useState<boolean>(false)
+  const [openEditProfile, setOpenEditProfile] = useState<boolean>(false);
+  const [allCategories, setAllCategories] = useState<Category[]>([]);
   const dummyRow: PostPreview = {
     categoryName: 'dummy', posts: Array.from({ length: 2 }, (_, i) => ({
       id: `${i + 1}`,
@@ -87,6 +91,7 @@ const otherProfile = () => {
         }
 
         setPostRows(grouped);
+        setAllCategories(await getAllCategories(myId[0] as string ,supabase));
       } catch (error) {
         console.error('Error fetching user or posts:', error);
       }
@@ -161,6 +166,8 @@ const otherProfile = () => {
       <OtherProfileHeader username={user.username ?? 'Unknown'} threeDotsPressed={threeDotsPressedFunc} />
       {isFocused && <StatusBar style="dark" />}
 
+      <EditProfileModal visible={openEditProfile} currentBio={user.bio || ''}  currentAvatar={profilePicture} currentUsername={user.username || ''} onClose={() => setOpenEditProfile(false)}  onSave = {async ({username, bio, selectedCategories}) => {await changeBio(bio, myId, supabase); try {await changeVisibleCTs(selectedCategories, myId || '', supabase);} catch {Alert.alert('Error changing Viewership Tags')}; try{await changeUsername(username, myId || '', supabase)} catch{Alert.alert('Username already taken or invalid username')}}} categories={allCategories}  currentId={myId || ''}/>
+
       <UserActionsModal
         visible={showUserActions}
         isSelf={user.isownprofile}
@@ -218,7 +225,7 @@ const otherProfile = () => {
           stickyHeaderIndices={[1]}
           ListHeaderComponent={
             <View>
-              <ProfileContentHeader profilePicture={profilePicture} user={user} setUser={setUser} id={id as string} myId={myId || ''} />
+              <ProfileContentHeader profilePicture={profilePicture} user={user} setUser={setUser} id={id as string} myId={myId || ''} editProfile={() => {setOpenEditProfile(true);}} />
             </View>
           }
           ListHeaderComponentStyle={{ zIndex: 1 }}
@@ -250,7 +257,7 @@ const otherProfile = () => {
           stickyHeaderIndices={[1]}
           ListHeaderComponent={
             <View>
-              <ProfileContentHeader profilePicture={profilePicture} user={user} setUser={setUser} id={id as string} myId={myId || ''} />
+              <ProfileContentHeader profilePicture={profilePicture} user={user} setUser={setUser} id={id as string} myId={myId || ''} editProfile={() => {setOpenEditProfile(true);}} />
             </View>}
           ListHeaderComponentStyle={{ zIndex: 1 }}
           ListFooterComponent={<View className="h-12" />}
