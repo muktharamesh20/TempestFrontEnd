@@ -270,12 +270,12 @@ const sampleEvents: EventDetailsForNow[] = [
   },
   {
     title: 'Birthday!',
-    start: new Date('2006-02-08T10:00:00'),
-    end: new Date('2006-02-09T00:00:00'),
+    start: new Date('2006-02-07T23:00:00'),
+    end: new Date('2006-02-08T23:00:00'),
     color: '#E91E63',
-    end_repeat: new Date('2026-05-24T20:00:00'),
-    repeat_schedule: 'weekly',
+    end_repeat: new Date('2028-05-24T20:00:00'),
+    repeat_schedule: 'yearly',
     days: [1],
-    isAllDay: false
+    isAllDay: true
   },
 ];

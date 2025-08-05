@@ -34,7 +34,7 @@ export function generateOccurrences(
   weekEnd: Date,
 ): EventDetailsForNow[] {
   function toDateOnly(date: Date): Date {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
   }
 
   const isAllDay = event.isAllDay ?? false;
