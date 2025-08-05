@@ -2,6 +2,7 @@
 import DayCalendar from '@/components/DayCalendar';
 import MonthCalendar from '@/components/MonthCalendar';
 import DraggablePlusButton from '@/components/todosEvents/draggableButton';
+import EventModal from '@/components/todosEvents/eventModal';
 import WeekCalendar from '@/components/WeekCalendar';
 import { calendarGroupProps, calendarPersonProps, drawerProps, EventDetailsForNow } from '@/services/utils';
 import { useIsFocused } from '@react-navigation/native';
@@ -24,6 +25,8 @@ const calendar = () => {
   const [people, setPeople] = React.useState<calendarPersonProps[]>(peopleShown);
   const [groups, setGroups] = React.useState<calendarGroupProps[]>(groupsShown);
   const [view, setView] = React.useState<'day' | 'week' | 'month'>('day');
+  const [eventModalVisible, setEventModalVisible] = React.useState<boolean>(false);
+  const [currEvent, setCurrEvent] = React.useState<EventDetailsForNow | null>(null);
   useEffect(() => { console.log(date.toDateString()) }, [date]);
 
   const handleTogglePublic = (categoryId: string, newValue: boolean) => {
@@ -50,6 +53,9 @@ const calendar = () => {
     );
   };
 
+  const handleChangedEvent = (eventDetails: EventDetailsForNow) => {}
+
+
   const INITIAL_HEIGHT = 30;
 
   const [hourHeight, setHourHeight] = useState<number>(INITIAL_HEIGHT);
@@ -60,24 +66,26 @@ const calendar = () => {
       {view === 'day' && (
         <>
           {isFocused ? <StatusBar style="light" /> : null}
-          <DayCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} people={people} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle} />
+          <DayCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} people={people} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle} onEventPress={(event) => {setCurrEvent(event); console.log('event switched', event); setEventModalVisible(true);}}/>
         </>
       )}
       {view === 'week' && (
         <>
           {isFocused ? <StatusBar style="light" /> : null}
-          <WeekCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} people={people} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle}/>
+          <WeekCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} people={people} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle} onEventPress={(event) => {setCurrEvent(event); setEventModalVisible(true);}}/>
         </>
       )}
       {view === 'month' && (
         <>
           {isFocused ? <StatusBar style="light" /> : null}
-          <MonthCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} people={people} hourHeight={hourHeight} setHourHeight={setHourHeight} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle}/>
+          <MonthCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} people={people} hourHeight={hourHeight} setHourHeight={setHourHeight} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle} onEventPress={(event) => {setCurrEvent(event); setEventModalVisible(true);}}/>
         </>
       )}
 
       <>
     <DraggablePlusButton onPress={() => console.log('buttonPressed!')}/>
+    <EventModal visible={eventModalVisible} onClose={(() => setEventModalVisible(false))} event ={currEvent} onSave={(event) => {setCurrEvent(event)}}/>
+
     </>
 
 
@@ -259,5 +267,15 @@ const sampleEvents: EventDetailsForNow[] = [
     end_repeat: new Date('2026-05-24T30:00:00'),
     repeat_schedule: 'weekly',
     days: [0,1,2,6]
+  },
+  {
+    title: 'Birthday!',
+    start: new Date('2006-02-08T10:00:00'),
+    end: new Date('2006-02-09T00:00:00'),
+    color: '#E91E63',
+    end_repeat: new Date('2026-05-24T20:00:00'),
+    repeat_schedule: 'weekly',
+    days: [1],
+    isAllDay: false
   },
 ];

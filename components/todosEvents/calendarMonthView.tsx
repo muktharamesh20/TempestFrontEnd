@@ -1,5 +1,5 @@
 import { EventDetailsForNow } from '@/services/utils';
-import { addMinutes } from 'date-fns';
+import { addMinutes, startOfDay } from 'date-fns';
 import React from 'react';
 import {
   Dimensions,
@@ -14,7 +14,7 @@ import { generateOccurrences } from './calendarWeekView';
 interface CalendarMonthViewProps {
   events: EventDetailsForNow[];
   onEventPress: (
-    event: EventDetailsForNow | { overflow: true; day: number; count: number }
+    event: EventDetailsForNow 
   ) => void;
   year?: number;
   month?: number; // 0-based month, default current month
@@ -82,8 +82,8 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
       );
 
       for (
-        let date = new Date(localStart);
-        date <= localEnd;
+        let date = startOfDay((new Date(localStart)));
+        date < localEnd;
         date.setDate(date.getDate() + 1)
       ) {
         if (date.getFullYear() === viewYear && date.getMonth() === viewMonth) {

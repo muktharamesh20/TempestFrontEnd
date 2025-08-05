@@ -33,9 +33,19 @@ export function generateOccurrences(
   weekStart: Date,
   weekEnd: Date,
 ): EventDetailsForNow[] {
+  function toDateOnly(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  const isAllDay = event.isAllDay ?? false;
+
+  const originalStart = isAllDay ? toDateOnly(event.start) : new Date(event.start);
+  const originalEnd = isAllDay ? toDateOnly(event.end) : new Date(event.end);
+
   const eventsForNow: EventDetailsForNow[] = [];
 
   const cloneDateWithTime = (base: Date, reference: Date): Date => {
+    if (isAllDay) return toDateOnly(base);
     const newDate = new Date(base);
     newDate.setHours(
       reference.getHours(),
@@ -46,12 +56,14 @@ export function generateOccurrences(
     return newDate;
   };
 
-  const startDate = new Date(event.start);
-  const endDate = new Date(event.end);
-  const endRepeatDate = new Date(event.end_repeat);
+  const startDate = isAllDay ? toDateOnly(event.start) : new Date(event.start);
+  const endDate = isAllDay ? toDateOnly(event.end) : new Date(event.end);
+  const endRepeatDate = isAllDay ? toDateOnly(event.end_repeat) : new Date(event.end_repeat);
 
-  const effectiveWeekStart = weekStart;
-  const effectiveWeekEnd = weekEnd > endRepeatDate ? endRepeatDate : weekEnd;
+  const effectiveWeekStart = isAllDay ? toDateOnly(weekStart) : weekStart;
+  const effectiveWeekEnd = isAllDay
+    ? toDateOnly(weekEnd > endRepeatDate ? endRepeatDate : weekEnd)
+    : weekEnd > endRepeatDate ? endRepeatDate : weekEnd;
 
   if (event.repeat_schedule === 'none') {
     if (startDate <= effectiveWeekEnd && endDate >= effectiveWeekStart) {
@@ -77,29 +89,20 @@ export function generateOccurrences(
   } else if (event.repeat_schedule === 'weekly' || event.repeat_schedule === 'biweekly') {
     const increment = event.repeat_schedule === 'weekly' ? 7 : 14;
 
-    // Find the first occurrence on or after weekStart aligned with the repeat pattern
-    // Calculate offset from the original event start week
     const startDay = startDate.getDay();
-
-    // Find the Monday (or start of week) of startDate
     const startWeekMonday = addDays(startDate, -startDay);
-
-    // Find the Monday of effectiveWeekStart
     const weekStartDay = addDays(new Date(effectiveWeekStart.getDate() - eventDuration), -1);
     const currentWeekMonday = addDays(effectiveWeekStart, -weekStartDay);
 
-    // Calculate how many increments (weeks) between startWeekMonday and currentWeekMonday
     const weeksDiff = Math.floor(
       (currentWeekMonday.getTime() - startWeekMonday.getTime()) / (7 * 24 * 60 * 60 * 1000)
     );
 
-    // Align to nearest increment
     let firstWeekMonday =
       weeksDiff >= 0
         ? addDays(startWeekMonday, Math.floor(weeksDiff / (increment / 7)) * increment)
         : startWeekMonday;
 
-    // Iterate weeks from firstWeekMonday until effectiveWeekEnd
     for (
       let weekStartDate = firstWeekMonday;
       weekStartDate <= effectiveWeekEnd;
@@ -117,27 +120,48 @@ export function generateOccurrences(
         ) {
           const start = cloneDateWithTime(day, startDate);
           const end = new Date(start.getTime() + eventDuration);
-          // Only add if after or equal to event start
-          // if (start >= startDate) {
           eventsForNow.push({ ...event, start, end });
-          // }
         }
       }
     }
+  } else if (event.repeat_schedule === 'yearly') {
+    for (
+      let year = startDate.getFullYear();
+      year <= endRepeatDate.getFullYear();
+      year++
+    ) {
+      const occurrenceStart = isAllDay
+        ? toDateOnly(new Date(year, startDate.getMonth(), startDate.getDate()))
+        : new Date(
+            year,
+            startDate.getMonth(),
+            startDate.getDate(),
+            startDate.getHours(),
+            startDate.getMinutes(),
+            startDate.getSeconds(),
+            startDate.getMilliseconds()
+          );
+
+      const occurrenceEnd = new Date(occurrenceStart.getTime() + eventDuration);
+
+      if (
+        occurrenceStart <= effectiveWeekEnd &&
+        occurrenceEnd >= effectiveWeekStart
+      ) {
+        eventsForNow.push({
+          ...event,
+          start: occurrenceStart,
+          end: occurrenceEnd,
+        });
+      }
+    }
   } else if (event.repeat_schedule === 'monthly') {
-    // We want to generate events on the same day of month as startDate within the effective week
     let monthCursor = new Date(startDate.getTime());
 
-    // If the first monthly occurrence is before effectiveWeekStart, move forward month by month until we reach or pass effectiveWeekStart
     while (monthCursor < addDays(new Date(effectiveWeekStart.getDate() - eventDuration), -1)) {
       monthCursor.setMonth(monthCursor.getMonth() - 1);
-      // Adjust day if month is shorter
       const daysInMonth = new Date(monthCursor.getFullYear(), monthCursor.getMonth() - 1, 0).getDate();
-      if (startDate.getDate() > daysInMonth) {
-        monthCursor.setDate(daysInMonth);
-      } else {
-        monthCursor.setDate(startDate.getDate());
-      }
+      monthCursor.setDate(Math.min(startDate.getDate(), daysInMonth));
     }
 
     while (monthCursor <= effectiveWeekEnd && monthCursor <= endRepeatDate) {
@@ -152,20 +176,14 @@ export function generateOccurrences(
       }
 
       monthCursor.setMonth(monthCursor.getMonth() + 1);
-      // Adjust day if month is shorter
       const daysInMonth = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0).getDate();
-      if (startDate.getDate() > daysInMonth) {
-        monthCursor.setDate(daysInMonth);
-      } else {
-        monthCursor.setDate(startDate.getDate());
-      }
+      monthCursor.setDate(Math.min(startDate.getDate(), daysInMonth));
     }
   }
 
-  //console.log('generated occurrences', eventsForNow.map((value) => value.start.getDate));
-
   return eventsForNow;
 }
+
 
 const hours = Array.from({ length: 24 }, (_, i) =>
   `${i.toString().padStart(2, '0')}:00`

@@ -6,7 +6,7 @@ import CalendarMonthView from './calendarMonthView';
 interface MultiMonthViewProps {
     events: EventDetailsForNow[];
     onEventPress: (
-        event: EventDetailsForNow | { overflow: true; day: number; count: number }
+        event: EventDetailsForNow
     ) => void;
     initialMonth?: number; // 0-based
     initialYear?: number;

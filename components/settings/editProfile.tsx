@@ -10,6 +10,7 @@ import {
   FlatList,
   Image,
   KeyboardAvoidingView,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -205,8 +206,14 @@ const EditProfileModal = ({
           multiline
         />
 
-          {allCategories.length !== 0 &&
-        <Text style={styles.sectionTitle}>Show on profile:</Text>}
+        {allCategories.length !== 0 &&
+        <View className = "flex-row items-center justify-between">
+          <Text style={styles.sectionTitle}>Show on profile:</Text>
+          <Pressable>
+            <Text style={{ color: numbers.secondaryColor, fontSize: 14 }}>Edit Categories</Text>
+          </Pressable>
+        </View>
+        }
         <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}

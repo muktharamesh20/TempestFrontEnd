@@ -41,7 +41,7 @@ const monthDiff = (date1: Date, date2: Date) => {
   return (date1.getFullYear() - date2.getFullYear()) * 12 + (date1.getMonth() - date2.getMonth());
 };
 
-const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, groups, handleGroupToggle, people, handlePersonToggle }: calendarProps) => {
+const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, groups, handleGroupToggle, people, handlePersonToggle, onEventPress }: calendarProps) => {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
@@ -245,7 +245,7 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
       events={events}
       onEventPress={(event) => console.log('Pressed event:', event)}
       /> */}
-        <MultiMonthView events={events} onEventPress={(event) => console.log('Pressed event:', event)} setView={setView} focusedDay={focusedDay} setViewingDateFunc={setViewingDateFunc} setFocusedDay={setFocusedDay} />
+        <MultiMonthView events={events} onEventPress={(event) => {console.log('Tapped event', event); onEventPress(event)}} setView={setView} focusedDay={focusedDay} setViewingDateFunc={setViewingDateFunc} setFocusedDay={setFocusedDay} />
       </ScrollView>
 
       {/* Overlay and Drawer */}

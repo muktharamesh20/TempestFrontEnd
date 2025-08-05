@@ -38,7 +38,7 @@ const createWeekDaysArray = (day: Date) => {
   return sundays;
 };
 
-const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, hourHeight, setHourHeight, groups, handleGroupToggle, people,handlePersonToggle }: calendarProps) => {
+const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, hourHeight, setHourHeight, groups, handleGroupToggle, people,handlePersonToggle, onEventPress }: calendarProps) => {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
@@ -301,7 +301,7 @@ const WeekCalendar = ({ events, setView, viewingDate, setViewingDateFunc, catego
           currFocusedDay={viewingDate}
           changeViewingDate={(date) => { setViewingDateFunc(date); scrollToDate(date) }}
           events={events}
-          onEventPress={(event) => console.log('Pressed event:', event)}
+          onEventPress={(event) => {console.log('Tapped event', event); onEventPress(event)}}
           hourHeight={hourHeight}
           setHourHeight={setHourHeight}
         />

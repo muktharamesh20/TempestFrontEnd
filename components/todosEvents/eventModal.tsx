@@ -1,5 +1,6 @@
 import { images } from '@/constants/images';
-import React, { useState } from 'react';
+import { EventDetailsForNow } from '@/services/utils';
+import React, { useEffect, useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
@@ -12,18 +13,20 @@ const avatars = [
 interface eventModalProps {
   visible: boolean;
   onClose: () => void;
+  event: EventDetailsForNow | null;
+  onSave: (event: EventDetailsForNow | null) => void;
 }
 
 const allCategories = ['Work', 'UI', 'Design', 'Engineering', 'Marketing', 'Research', 'Meeting'];
 
-export default function EventModal({ visible, onClose }: eventModalProps) {
+export default function EventModal({ visible, onClose, event, onSave }: eventModalProps) {
 
   const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState('Product Design Demo');
+  const [title, setTitle] = useState(event?.title);
   const [categories, setCategories] = useState(['Work']);
   const [startTime, setStartTime] = useState('12:00');
   const [endTime, setEndTime] = useState('13:30');
-  const [repetition, setRepetition] = useState('Every two weeks');
+  const [repetition, setRepetition] = useState<string>(event?.repeat_schedule || 'No Repeat');
   const [location, setLocation] = useState('London, Red Meeting Room');
   const [color, setColor] = useState('#FFD700'); // Gold default
 
@@ -33,17 +36,28 @@ export default function EventModal({ visible, onClose }: eventModalProps) {
     );
   };
 
+  useEffect(() => {
+    if (event) {
+      setTitle(event.title || '');
+      setRepetition(event.repeat_schedule || 'No Repeat');
+      setColor(event.color || '#FFD700');
+      // optionally update other fields like time, location, etc.
+    }
+  }, [event]);
+  
+
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.modalContainer}>
         <View style={[styles.card, { borderLeftColor: color }]}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={() => {onClose(); setIsEditing(false);}}>
               <Icon name="close" type="ionicon" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
-              <Icon name="create-outline" type="ionicon" />
+            <TouchableOpacity onPress={() => {if (isEditing) {onClose(); onSave(event);}; setIsEditing(!isEditing)}}>
+              { !isEditing ? <Icon name="create-outline" type="ionicon" /> : <Icon name="checkmark-outline" type="ionicon" /> }
+              
             </TouchableOpacity>
           </View>
 

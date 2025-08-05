@@ -46,7 +46,7 @@ const createWeekDaysArray = (day: Date) => {
   return sundays;
 };
 
-const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, hourHeight, setHourHeight, groups, handleGroupToggle, people, handlePersonToggle }: calendarProps) => {
+const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categories, handleCategoryToggle, hourHeight, setHourHeight, groups, handleGroupToggle, people, handlePersonToggle, onEventPress }: calendarProps) => {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
@@ -345,7 +345,7 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
           <MultiDayCalendar
             events={events}
             currFocusedDay={focusedDay}
-            onEventPress={(event) => console.log('Tapped event', event)}
+            onEventPress={(event) => {console.log('Tapped event', event); onEventPress(event)}}
             changeViewingDate={(date) => { setFocusedDay(date); scrollToDate(date) }}
             hourHeight={hourHeight}
             setHourHeight={setHourHeight}

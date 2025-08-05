@@ -78,6 +78,7 @@ export interface calendarProps {
     setView: (view: 'day' | 'week' | 'month') => void;
     hourHeight: number;
     setHourHeight: React.Dispatch<React.SetStateAction<number>>;
+    onEventPress: (event: EventDetailsForNow) => void;
 }
 export type MainComment = { id: CommentId, owner: User, content: Text, createdAt: Date, replies: ReplyComment[], deleted: boolean };
 export type ReplyComment = { id: CommentId, owner: User, content: Text, createdAt: Date, replyTo: MainComment };
@@ -201,7 +202,8 @@ export interface EventDetailsForNow {
     color: string;
     end_repeat: Date;
     days: number[]; //0 is sunday, 6 is saturday
-    repeat_schedule: 'weekly' | 'monthly' | 'biweekly' | 'daily' | 'none';
+    repeat_schedule: 'weekly' | 'monthly' | 'biweekly' | 'daily' | 'none' | 'yearly';
+    isAllDay?: boolean;
 }
 
 //created
