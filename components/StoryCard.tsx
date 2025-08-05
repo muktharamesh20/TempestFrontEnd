@@ -1,7 +1,7 @@
 import { numbers } from '@/constants/numbers';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SB_STORAGE_CONFIG } from '../services/api';
 
 export interface StoryCardDetails {
@@ -22,6 +22,7 @@ export interface StoryCardDetails {
 
 const StoryCard = ({ backlog, mytask, taskID, eventID, personID, taskName, groupName, dueDay, numNudges, nudged, finished, username, accomplished }: StoryCardDetails) => {
 	const [imageUrl, setImageUrl] = useState('');
+	const router = useRouter();
 
 	useEffect(() => {
 		const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${personID}.jpg`;
@@ -88,9 +89,11 @@ const StoryCard = ({ backlog, mytask, taskID, eventID, personID, taskName, group
 					{taskID &&
 						<View className="flex flex-row justify-between items-baseline ml-3 absolute bottom-4 w-[107px]">
 							{mytask &&
+							<Pressable onPress={() => router.push('/habitProgress/1')}>
 								<Text className="text-[12.5px] font-medium text-black bg-white border border-black px-3 py-1 rounded-full">
 									Done
 								</Text>
+							</Pressable>
 							}
 							{/**Leave gap if not ur task */}
 							{!mytask &&
