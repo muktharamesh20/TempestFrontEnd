@@ -259,21 +259,21 @@ const sampleEvents: EventDetailsForNow[] = [
     repeat_schedule: 'none',
     days: []
   },
-  {
-    title: 'Evening Yoga',
-    start: new Date('2025-07-31T19:00:00'),
-    end: new Date('2025-08-02T20:00:00'),
-    color: '#E91E63',
-    end_repeat: new Date('2026-05-24T30:00:00'),
-    repeat_schedule: 'weekly',
-    days: [0,1,2,6]
-  },
+  // {
+  //   title: 'Evening Yoga',
+  //   start: new Date('2025-07-31T19:00:00'),
+  //   end: new Date('2025-08-02T20:00:00'),
+  //   color: '#E91E63',
+  //   end_repeat: new Date('2026-05-24T30:00:00'),
+  //   repeat_schedule: 'weekly',
+  //   days: [0,1,2,6]
+  // },
   {
     title: 'Birthday!',
     start: new Date('2006-02-07T23:00:00'),
     end: new Date('2006-02-08T23:00:00'),
     color: '#E91E63',
-    end_repeat: new Date('2028-05-24T20:00:00'),
+    end_repeat: new Date('2100-08-09T23:00:00'),
     repeat_schedule: 'yearly',
     days: [1],
     isAllDay: true
