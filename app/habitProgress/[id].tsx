@@ -45,6 +45,22 @@ const HabitProgressCalendar = () => {
   
     return () => clearInterval(interval);
   }, [isLoadingMore]);
+
+  const shouldDoHabit = (date: Date) => {
+    if (isBefore(date, startDate) || isBefore(endDate, date)) return false;
+  
+    const weekday = getDay(date);
+  
+    if (frequency === 'daily') return true;
+    if (frequency === 'weekly') return days.includes(weekday);
+  
+    if (frequency === 'biweekly') {
+      const weeksBetween = differenceInCalendarWeeks(date, startDate);
+      return weeksBetween % 2 === 0 && days.includes(weekday);
+    }
+  
+    return false;
+  };
   
 
   const months: { label: string; dates: Date[] }[] = [];
@@ -62,46 +78,36 @@ const HabitProgressCalendar = () => {
     const monthStart = startOfMonth(current);
     const monthEnd = endOfMonth(current);
   
-    const fullMonthDates = eachDayOfInterval({
-        start: monthStart,
-        end: monthEnd,
+    // Clamp the visible range of this month to the startDate and current date
+    const clippedStart = isBefore(startDate, monthStart) ? monthStart : startDate;
+    const clippedEnd = [endDate, now, monthEnd].sort((a, b) => +a - +b)[0];
+  
+    // Skip if no visible dates in this month
+    if (isBefore(clippedEnd, clippedStart)) {
+      current = subMonths(current, 1);
+      continue;
+    }
+  
+    const visibleDates = eachDayOfInterval({
+      start: clippedStart,
+      end: clippedEnd,
+    });
+  
+    const hasActiveDays = visibleDates.some(date => {
+        const isInRange = !isBefore(date, startDate) && !isBefore(endDate, date);
+        return isInRange && shouldDoHabit(date);
       });
-      
-      const visibleDates = fullMonthDates.filter(
-        date => !isBefore(date, startDate) && !isBefore(endDate, date)
-      );
-      
-      if (visibleDates.length > 0) {
+    
+      if (hasActiveDays) {
         months.push({
           label: format(current, 'MMMM yyyy'),
-          dates: fullMonthDates, // still pass the full month for grid rendering
+          dates: visibleDates,
         });
       }
-      
-    // const intervalStart = isBefore(monthStart, startDate) ? startDate : monthStart;
-    // const intervalEnd = [
-    //   endDate,
-    //   now,
-    //   monthEnd,
-    // ].sort((a, b) => +a - +b)[0]; // Choose the earliest of the three
-  
-    // if (isBefore(intervalEnd, intervalStart)) {
-    //   current = subMonths(current, 1);
-    //   continue;
-    // }
-  
-    // const monthDates = eachDayOfInterval({
-    //   start: intervalStart,
-    //   end: intervalEnd,
-    // });
-  
-    // months.push({
-    //   label: format(current, 'MMMM yyyy'),
-    //   dates: monthDates,
-    // });
   
     current = subMonths(current, 1);
   }
+  
   
 
 
@@ -126,21 +132,7 @@ const HabitProgressCalendar = () => {
   
 
 
-const shouldDoHabit = (date: Date) => {
-  if (isBefore(date, startDate) || isBefore(endDate, date)) return false;
 
-  const weekday = getDay(date);
-
-  if (frequency === 'daily') return true;
-  if (frequency === 'weekly') return days.includes(weekday);
-
-  if (frequency === 'biweekly') {
-    const weeksBetween = differenceInCalendarWeeks(date, startDate);
-    return weeksBetween % 2 === 0 && days.includes(weekday);
-  }
-
-  return false;
-};
 
 
   return (
