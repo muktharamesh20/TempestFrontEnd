@@ -148,7 +148,7 @@ export default function MyProfile() {
       <ProfileHeader/>
       {isFocused && <StatusBar style="dark" />}
 
-      <EditProfileModal visible={openEditProfile} currentBio={user.bio || ''}  currentAvatar={profilePicture} currentUsername={user.username || ''} onClose={() => setOpenEditProfile(false)}  onSave = {async ({username, bio, selectedCategories}) => {await changeBio(bio, myId, supabase); try {await changeVisibleCTs(selectedCategories, myId || '', supabase);} catch {Alert.alert('Error changing Viewership Tags')}; try{await changeUsername(username, myId || '', supabase)} catch{Alert.alert('Username already taken or invalid username')}}} categories={allCategories}  currentId={myId || ''}/>
+      <EditProfileModal visible={openEditProfile} currentBio={user.bio || ''}  setCurrAvatar={setImageUrl}  currentAvatar={profilePicture} currentUsername={user.username || ''} onClose={() => setOpenEditProfile(false)}  onSave = {async ({username, bio, selectedCategories}) => {await changeBio(bio, myId, supabase); try {await changeVisibleCTs(selectedCategories, myId || '', supabase);} catch {Alert.alert('Error changing Viewership Tags')}; try{await changeUsername(username, myId || '', supabase)} catch{Alert.alert('Username already taken or invalid username')}}} categories={allCategories}  currentId={myId || ''}/>
 
       {activeTab === 'tagged' ?
         <FlatList

@@ -1,8 +1,12 @@
 import { numbers } from '@/constants/numbers';
 import { supabase } from '@/constants/supabaseClient';
+import { SB_STORAGE_CONFIG } from '@/services/api';
 import { Category } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Filter } from 'bad-words';
+import * as FileSystem from 'expo-file-system';
+import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
 import {
@@ -22,6 +26,7 @@ import Modal from 'react-native-modal';
 interface EditProfileModalProps {
     visible: boolean;
     currentAvatar: string | null;
+    setCurrAvatar: (uri: string | null) => void;
     currentUsername: string;
     currentBio: string;
     currentId: string;
@@ -68,6 +73,7 @@ interface EditProfileModalProps {
 const EditProfileModal = ({
   visible,
   currentAvatar,
+  setCurrAvatar,
   currentId,
   currentUsername,
   currentBio,
@@ -107,43 +113,85 @@ const EditProfileModal = ({
   
 
 
+
+  
   const uploadAvatar = async () => {
     try {
       setUploading(true);
-
+  
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         quality: 1,
       });
-
+  
       if (result.canceled || !result.assets || result.assets.length === 0) {
         return;
       }
-
+  
       const image = result.assets[0];
-      const response = await fetch(image.uri);
+  
+      // Resize and compress image to 300x300 and ~100KB
+      const manipulated = await ImageManipulator.manipulateAsync(
+        image.uri,
+        [{ resize: { width: 300, height: 300 } }],
+        {
+          compress: 0.7, // adjust if size is still too large
+          format: ImageManipulator.SaveFormat.JPEG,
+        }
+      );
+  
+      // Ensure file is under 100KB
+      const fileInfo = await FileSystem.getInfoAsync(manipulated.uri);
+      if (fileInfo.exists && typeof fileInfo.size === 'number' && fileInfo.size > 100 * 1024) {
+        Alert.alert('Image too large', 'Please choose a smaller image.');
+        return;
+      }
+  
+      // Convert to array buffer
+      const response = await fetch(manipulated.uri);
       const arrayBuffer = await response.arrayBuffer();
-      const fileExt = image.uri.split('.').pop()?.toLowerCase() ?? 'jpeg'
-    const fileName = `${currentId}.${fileExt}`
-      const contentType = image.mimeType ?? 'image/jpeg'
-
-        await supabase.storage.from('profile-images').remove([fileName]);
-        const { data, error: uploadError } = await supabase.storage
+  
+      const fileName = `${currentId}.jpg`;
+  
+      await supabase.storage.from('profile-images').remove([fileName]);
+  
+      const { error: uploadError } = await supabase.storage
         .from('profile-images')
-        .upload(fileName, arrayBuffer, { contentType, upsert: true })
+        .upload(fileName, arrayBuffer, {
+          contentType: 'image/jpeg',
+          upsert: true,
+        });
+  
+      if (uploadError) throw uploadError;
+  
+      // Cache bust
+      //setAvImage(`${currentAvatar}?t=${Date.now()}`);
+      setAvImage(`${SB_STORAGE_CONFIG.BASE_URL}${currentId}.jpg?t=${Date.now()}`)
+      const cacheKey = `profilePicture:${currentId}`;
+      const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+      const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${currentId}.jpg?t=${Date.now()}`;
 
-        if (uploadError) {
-            throw uploadError
-          }
+      // Prefetch and store in cache
+      try {
+        // Check cache
+        
+
+       // Prefetch and store in cache
+       await Image.prefetch(profilePicUrl);
+       setCurrAvatar(profilePicUrl);
+       await AsyncStorage.setItem(cacheKey, profilePicUrl);
+      } catch {
+        setCurrAvatar(defaultPicUrl);
+      }
 
     } catch (error: any) {
       Alert.alert('Avatar upload failed', error.message);
     } finally {
       setUploading(false);
-      setAvImage(`${currentAvatar}?t=${Date.now()}`)
     }
   };
+  
 
   
 
