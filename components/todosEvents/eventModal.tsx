@@ -28,7 +28,7 @@ const avatars = [images.googleLogo, images.googleLogo, images.googleLogo];
 
 export default function EventModal({ visible, onClose, event, onSave }: eventModalProps) {
   const [open, setOpen] = useState(false);
-  const [repeatValue, setRepeatValue] = useState('none');
+  const [repeatValue, setRepeatValue] = useState('None');
 const [isRepeatOpen, setIsRepeatOpen] = useState(false);
 const [endRepeat, setEndRepeat] = useState<Date | undefined>(undefined);
 const [days, setDays] = useState<number[] | undefined>(undefined);
@@ -409,8 +409,8 @@ useEffect(() => {
 const getFrequencyLabel = (frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'yearly', days: number[], date: Date, allDay: boolean) => {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   if (frequency === 'daily') return 'Repeats Daily';
-  if (frequency === 'weekly') return `Weekly on ${days?.map(d => dayNames[d]).join(', ')}`;
-  if (frequency === 'biweekly') return `Every Other Week on ${days?.map(d => dayNames[d]).join(', ')}`;
+  if (frequency === 'weekly') return `Weekly on ${days?.sort().map(d => dayNames[d]).join(', ')}`;
+  if (frequency === 'biweekly') return `Every Other Week on ${days?.sort().map(d => dayNames[d]).join(', ')}`;
   if (frequency === 'monthly') return `Repeats Monthly`;
   if (frequency === 'yearly') return `Repeats Yearly`;
   return '';
