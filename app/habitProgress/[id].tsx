@@ -3,11 +3,13 @@ import { images } from '@/constants/images';
 import { numbers } from '@/constants/numbers';
 import { useIsFocused } from '@react-navigation/native';
 import { differenceInCalendarWeeks, eachDayOfInterval, endOfMonth, format, getDay, isBefore, isSameDay, startOfMonth, subMonths } from 'date-fns';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
-import { Image, ImageBackground, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 interface HabitProgressCalendarProps {
   title: string;
@@ -299,13 +301,15 @@ const getStreakStats = (dates: Date[]) => {
                   <Image source={{ uri: img }} style={styles.image} />
                 ) : (
                     isDue ? (
-                        <ImageBackground
-                          source={require('../../assets/images/border.png')}
-                          style={styles.cellBorderImage}
-                          imageStyle={styles.borderImageStyle}
-                        >
-                          <View style={styles.cellInnerBlue} />
-                        </ImageBackground>
+                        <LinearGradient
+                    colors={['#4facfe', '#0A1929']} // your diagonal gradient colors
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.cellGradient}
+                    >
+                    <View style={styles.cellInnerBlue} />
+                    </LinearGradient>
+
                       ) : (
                         <View
                           style={[
@@ -476,7 +480,16 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#D2E5F5',
     borderRadius: 9,
+  },cellGradient: {
+    width: cellSize * 0.9,
+    height: 60,
+    borderRadius: 12,
+    padding: 2.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
   },
+  
   
   
   

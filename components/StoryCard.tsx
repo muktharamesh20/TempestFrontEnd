@@ -1,8 +1,10 @@
 import { numbers } from '@/constants/numbers';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SB_STORAGE_CONFIG } from '../services/api';
+
 
 export interface StoryCardDetails {
 	taskID?: string;
@@ -35,12 +37,12 @@ const StoryCard = ({ backlog, mytask, taskID, eventID, personID, taskName, group
 	}, [personID]);
 	return (
 		<Link href={taskID ? `../infoScreen/todo/${taskID}` : `../infoScreen/event/${eventID}`} asChild>
-			<ImageBackground
-				source={(!accomplished && require('../assets/images/border.png'))}
-				style={styles.border}
-				className={accomplished ? "border border-black" : ""}
-				imageStyle={{ borderRadius: 12 }}
-			>
+			<LinearGradient
+					colors={['#4facfe', '#0A1929']} // diagonal gradient colors
+					start={{ x: 0, y: 0 }}
+					end={{ x: 1, y: 1 }}
+					style={styles.border}
+				>
 				<View style={styles.innerBox} className="w-[130px] h-[170px] bg-primary">
 					<View className="mt-[13px] ml-[13px] mr-[13px] mb-[13px] flex flex-col flex-start gap-0">
 						{/** The profile picture and username */}
@@ -119,7 +121,7 @@ const StoryCard = ({ backlog, mytask, taskID, eventID, personID, taskName, group
 						</View>
 					}
 				</View>
-			</ImageBackground>
+				</LinearGradient>
 		</Link>
 	);
 };
