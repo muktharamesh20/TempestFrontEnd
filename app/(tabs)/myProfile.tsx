@@ -49,6 +49,7 @@ export default function MyProfile() {
   const [myId, setMyId] = useState<string | null>(null);
   const [openEditProfile, setOpenEditProfile] = useState<boolean>(false);
   const [allCategories, setAllCategories] = useState<Category[]>([]);
+  const [visibleRowCount, setVisibleRowCount] = useState(5);
   const dummyRow: PostPreview = {
     categoryName: 'dummy', posts: Array.from({ length: 2 }, (_, i) => ({
       id: `${i + 1}`,
@@ -141,6 +142,20 @@ export default function MyProfile() {
 
   if (!user) return <Text className="text-center mt-10">Loading...</Text>;
 
+  
+
+const handleShowMoreRows = () => {
+  setVisibleRowCount(prev => prev + 5);
+};
+
+
+const handleEndReached = async () => {
+  // optional: prevent firing repeatedly
+  if (visibleRowCount >= user.categories.length) return;
+
+  setVisibleRowCount(prev => Math.min(prev + 5, user.categories.length));
+};
+
 
 
   return (
@@ -202,7 +217,7 @@ export default function MyProfile() {
         />
         //if not tagged tabƒ
         : <FlatList
-          data={[dummyRow, ...user.categories]}
+        data={[dummyRow, ...user.categories.slice(0, visibleRowCount)]}
           keyExtractor={(_, index) => `row-${index}`}
           renderItem={({ item, index }) => {
             if (index === 0) {
@@ -230,6 +245,9 @@ export default function MyProfile() {
             </View>}
           ListHeaderComponentStyle={{ zIndex: 1 }}
           ListFooterComponent={<View className="h-12" />}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.4}
+
         />}
     </View>
 

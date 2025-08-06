@@ -505,7 +505,7 @@ const example2: HabitProgressCalendarProps = {
   startDate: new Date('2025-02-01'),
   endDate: new Date('2025-12-31'),
   frequency: "weekly",
-  days: [1, 2, 3, 4, 5],
+  days: [1, 2, 5, 4, 3],
   completionImages: {
     '2025-02-05': 'https://example.com/duck1.jpg',
     '2025-03-04': 'https://example.com/duck2.jpg',
@@ -517,8 +517,8 @@ const example: HabitProgressCalendarProps = {
   title: "Watch the ducks",
   startDate: new Date('2025-02-01'),
   endDate: new Date('2025-03-31'),
-  frequency: "weekly",
-  days: [1, 2, 3, 4, 5],
+  frequency: "daily",
+  days: [1, 2, 4, 0],
   completionImages: {
     '2025-02-01': images.googleLogo,
     '2025-02-02': images.googleLogo,
