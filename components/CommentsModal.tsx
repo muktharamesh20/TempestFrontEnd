@@ -21,6 +21,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Comment } from '@/services/utils';
 import { Link } from 'expo-router';
 
+const COMMENTS_PAGE_SIZE = 15;
+const REPLIES_PAGE_SIZE = 8;
+
+
+
 interface CommentsModalProps {
   visible: boolean;
   comments: Comment[];
@@ -51,6 +56,11 @@ const CommentItem = ({
   postOwnerId,
   onDelete,
   onBlock,
+  showMoreReplies,
+  onShowMoreReplies,
+  totalReplies,
+  isExpanded,
+  onHideReplies,
 }: {
   onClose: () => void;
   comment: Comment;
@@ -60,10 +70,12 @@ const CommentItem = ({
   postOwnerId: string;
   onDelete: (id: string) => void;
   onBlock: (person_id: string) => void;
+  showMoreReplies: boolean;
+  onShowMoreReplies: () => void;
+  totalReplies: number;
+  isExpanded: boolean;
+  onHideReplies: () => void;
 }) => {
-  const [showAllReplies, setShowAllReplies] = useState(false);
-  const sortedReplies = replies.slice().sort((a, b) => a.timeCreated.getTime() - b.timeCreated.getTime());
-  const displayedReplies = showAllReplies ? sortedReplies : sortedReplies.slice(0, 1);
   const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
@@ -81,10 +93,7 @@ const CommentItem = ({
 
     if (isOwnComment || isPostOwner) {
       const actions: AlertButton[] = [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete',
           style: 'destructive',
@@ -104,32 +113,14 @@ const CommentItem = ({
     }
   };
 
-
   return (
     <View style={{ marginBottom: 10, paddingRight: 10 }}>
-      {(comment.authorId === currentUserId || postOwnerId === currentUserId) ?
-        <TouchableOpacity onLongPress={handleLongPress} delayLongPress={300}>
-          <View style={{ flexDirection: 'row' }}>
-          <Link href = {`/profiles/${comment.authorId}`} asChild>
-          <Pressable onPress={onClose}>
-              <Image source={{ uri: imageUrl }} style={styles.avatar} />
-          </Pressable>
-          </Link>
-            <View style={styles.commentContent}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={styles.author}>{comment.author}</Text>
-                <Text style={styles.timeText}> • {timeSince(comment.timeCreated)}</Text>
-              </View>
-              <Text>{comment.content}</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-        :
+      <TouchableOpacity onLongPress={handleLongPress} delayLongPress={300}>
         <View style={{ flexDirection: 'row' }}>
-          <Link href = {`/profiles/${comment.authorId}`} asChild>
-          <Pressable onPress={onClose}>
-            <Image source={{ uri: imageUrl }} style={styles.avatar} />
-          </Pressable>
+          <Link href={`/profiles/${comment.authorId}`} asChild>
+            <Pressable onPress={onClose}>
+              <Image source={{ uri: imageUrl }} style={styles.avatar} />
+            </Pressable>
           </Link>
           <View style={styles.commentContent}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -138,10 +129,11 @@ const CommentItem = ({
             </View>
             <Text>{comment.content}</Text>
           </View>
-        </View>}
+        </View>
+      </TouchableOpacity>
 
       <View style={{ marginLeft: 24, marginTop: 3 }}>
-        {displayedReplies.map((reply) => (
+        {replies.map((reply) => (
           <ReplyItem
             onClose={onClose}
             key={reply.id}
@@ -152,13 +144,21 @@ const CommentItem = ({
           />
         ))}
 
-        {replies.length > 1 && (
-          <TouchableOpacity onPress={() => setShowAllReplies(!showAllReplies)}>
+        {showMoreReplies && (totalReplies - replies.length > 0) && (
+          <TouchableOpacity onPress={onShowMoreReplies}>
             <Text style={{ color: '#888888', fontSize: 13, marginTop: 4, marginLeft: 35 }}>
-              {showAllReplies ? 'Hide replies' : `Show more replies (${replies.length - 1})`}
+              Show more replies ({totalReplies - replies.length})
             </Text>
           </TouchableOpacity>
         )}
+        {isExpanded && (totalReplies > REPLIES_PAGE_SIZE) && (
+  <TouchableOpacity onPress={onHideReplies}>
+    <Text style={{ color: '#888888', fontSize: 13, marginTop: 4, marginLeft: 35 }}>
+      Hide replies
+    </Text>
+  </TouchableOpacity>
+)}
+
 
         <View style={{ flexDirection: 'row', marginTop: replies.length === 0 ? -8 : 0 }}>
           <TouchableOpacity onPress={() => onReply(comment)} style={{ marginLeft: replies.length === 0 ? 22 : 35 }}>
@@ -169,6 +169,7 @@ const CommentItem = ({
     </View>
   );
 };
+
 
 const ReplyItem = ({
   onClose,
@@ -224,6 +225,12 @@ const ReplyItem = ({
 
 // ... rest of the file remains unchanged
 
+// ... all your existing imports
+
+
+interface ReplyState {
+  [commentId: string]: number; // commentId -> number of replies shown
+}
 
 export default function CommentsModal({
   visible,
@@ -239,14 +246,25 @@ export default function CommentsModal({
   const [replyTo, setReplyTo] = useState<Comment | null>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [currentUserId, setCurrentUserId] = useState('');
+  const [commentsToShow, setCommentsToShow] = useState(COMMENTS_PAGE_SIZE);
+  const [replyPages, setReplyPages] = useState<ReplyState>(() => {
+    const initial: ReplyState = {};
+    comments.forEach((c) => {
+      if (c.parentId) {
+        initial[c.parentId] = 1; // initialize each parentId to 1 reply
+      }
+    });
+    return initial;
+  });
+  
+  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
+
 
   useEffect(() => {
     getUserId().then((res) => setCurrentUserId(res[0]));
   }, []);
 
-
-  const sortedComments = comments //.slice().sort((a, b) => a.timeCreated - b.timeCreated);
-
+  const sortedComments = comments;
   const topLevelComments = sortedComments.filter((c) => !c.parentId);
   const repliesByParent = sortedComments.reduce<Record<string, Comment[]>>((acc, comment) => {
     if (comment.parentId) {
@@ -259,7 +277,7 @@ export default function CommentsModal({
   useEffect(() => {
     const fetchProfilePic = async () => {
       try {
-        const userId = await getUserId().then((value) => value[0]);;
+        const userId = await getUserId().then((value) => value[0]);
         const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${userId}.jpg`;
         await Image.prefetch(profilePicUrl);
         setImageUrl(profilePicUrl);
@@ -268,10 +286,8 @@ export default function CommentsModal({
         setImageUrl(defaultPicUrl);
       }
     };
-
     fetchProfilePic();
   }, []);
-
 
   const handlePost = () => {
     if (text.trim()) {
@@ -281,17 +297,58 @@ export default function CommentsModal({
     }
   };
 
+  const handleShowMoreReplies = (commentId: string) => {
+    setReplyPages((prev) => ({
+      ...prev,
+      [commentId]: (prev[commentId] || REPLIES_PAGE_SIZE) + REPLIES_PAGE_SIZE,
+    }));
+    setExpandedComments((prev) => ({ ...prev, [commentId]: true }));
+  };
+
+  const handleHideReplies = (commentId: string) => {
+    setReplyPages((prev) => ({ ...prev, [commentId]: 1 }));
+    setExpandedComments((prev) => ({ ...prev, [commentId]: false }));
+  };
+  
+  
+  
+
+  const renderComment = ({ item }: { item: Comment }) => {
+    const replies = repliesByParent[item.id] || [];
+    const shownCount = replyPages[item.id] || REPLIES_PAGE_SIZE;
+    const shownReplies = replies.slice(0, shownCount);
+    const hasMoreReplies = shownCount < replies.length;
+    const isExpanded = expandedComments[item.id] ?? false;
+  
+    return (
+      <CommentItem
+        onClose={onClose}
+        comment={item}
+        replies={shownReplies}
+        totalReplies={replies.length}
+        showMoreReplies={hasMoreReplies}
+        onShowMoreReplies={() => handleShowMoreReplies(item.id)}
+        onHideReplies={() => handleHideReplies(item.id)}
+        isExpanded={isExpanded}
+        onReply={setReplyTo}
+        currentUserId={currentUserId}
+        postOwnerId={postOwnerId}
+        onDelete={onDeleteComment}
+        onBlock={onBlockPersonFromCommenting}
+      />
+    );
+  };
+  
+
   return (
     <Modal
       isVisible={visible}
       onSwipeComplete={onClose}
-      //   swipeDirection="down"
       onBackdropPress={onClose}
       style={styles.modal}
       propagateSwipe
     >
       <KeyboardAvoidingView style={styles.container} behavior={'padding'}>
-        {/* <View style={styles.dragHandle} /> */}
         <View style={styles.header}>
           <View style={{ width: 24 }} />
           <Text style={styles.title}>Comments</Text>
@@ -304,20 +361,15 @@ export default function CommentsModal({
           <Text style={styles.emptyText}>No comments yet.</Text>
         ) : (
           <FlatList
-            data={topLevelComments}
+            data={topLevelComments.slice(0, commentsToShow)}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <CommentItem
-                onClose={onClose}
-                comment={item}
-                replies={repliesByParent[item.id] || []}
-                onReply={setReplyTo}
-                currentUserId={currentUserId}
-                postOwnerId={postOwnerId}
-                onDelete={onDeleteComment}
-                onBlock={onBlockPersonFromCommenting}
-              />
-            )}
+            renderItem={renderComment}
+            onEndReached={() => {
+              if (commentsToShow < topLevelComments.length) {
+                setCommentsToShow((prev) => prev + COMMENTS_PAGE_SIZE);
+              }
+            }}
+            onEndReachedThreshold={0.5}
             contentContainerStyle={{ paddingBottom: 80 }}
           />
         )}
@@ -349,6 +401,7 @@ export default function CommentsModal({
     </Modal>
   );
 }
+
 
 const styles = StyleSheet.create({
   modal: {

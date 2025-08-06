@@ -24,9 +24,12 @@ interface LikesModalProps {
   onClose: () => void;
 }
 
+const LIKES_PAGE_SIZE = 20;
+
 const LikesModal = ({ visible, likes, onClose }: LikesModalProps): React.JSX.Element => {
   const insets = useSafeAreaInsets();
   const [search, setSearch] = useState('');
+  const [likesToShow, setLikesToShow] = useState(LIKES_PAGE_SIZE);
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
   const navigation = useRouter();
 
@@ -56,24 +59,31 @@ const LikesModal = ({ visible, likes, onClose }: LikesModalProps): React.JSX.Ele
     }
   }, [likes, visible]);
 
+  // Reset pagination on modal open or search change
+  useEffect(() => {
+    if (visible) {
+      setLikesToShow(LIKES_PAGE_SIZE);
+    }
+  }, [visible, search]);
+
   const filteredLikes = likes.filter((like) =>
     like.username.toLowerCase().includes(search.toLowerCase())
   );
 
+  const paginatedLikes = filteredLikes.slice(0, likesToShow);
+
   const renderLikeItem = ({ item }: { item: Like }) => {
     return (
-      <Link href = {`/profiles/${item.id}`} asChild>
+      <Link href={`/profiles/${item.id}`} asChild>
         <Pressable onPress={onClose}>
-      <View style={styles.likeItem}>
-        
-          <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
-        
-        <View style={{ marginLeft: 12 }}>
-          <Text style={styles.username}>{item.username}</Text>
-        </View>
-      </View>
-      </Pressable>
-        </Link>
+          <View style={styles.likeItem}>
+            <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
+            <View style={{ marginLeft: 12 }}>
+              <Text style={styles.username}>{item.username}</Text>
+            </View>
+          </View>
+        </Pressable>
+      </Link>
     );
   };
 
@@ -111,13 +121,19 @@ const LikesModal = ({ visible, likes, onClose }: LikesModalProps): React.JSX.Ele
             <Text style={styles.emptyText}>No likes found.</Text>
           ) : (
             <FlatList
-              data={filteredLikes}
+              data={paginatedLikes}
               keyExtractor={(item) => item.id}
               renderItem={renderLikeItem}
               contentContainerStyle={{ marginBottom: 0 }}
               scrollEnabled={true}
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
+              onEndReached={() => {
+                if (likesToShow < filteredLikes.length) {
+                  setLikesToShow((prev) => prev + LIKES_PAGE_SIZE);
+                }
+              }}
+              onEndReachedThreshold={0.5}
             />
           )}
         </View>
@@ -128,7 +144,6 @@ const LikesModal = ({ visible, likes, onClose }: LikesModalProps): React.JSX.Ele
 
 export default LikesModal;
 
-// Styles stay the same
 const styles = StyleSheet.create({
   modal: {
     justifyContent: 'flex-end',
@@ -142,7 +157,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     maxHeight: '90%',
-    minHeight: '60%'
+    minHeight: '60%',
   },
   header: {
     flexDirection: 'row',
@@ -188,9 +203,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: numbers.secondaryColor,
-  },
-  timeText: {
-    fontSize: 13,
-    color: '#999',
   },
 });
