@@ -1,8 +1,13 @@
+import ProgressHeader from '@/components/ProgressHeader';
 import { images } from '@/constants/images';
+import { numbers } from '@/constants/numbers';
+import { useIsFocused } from '@react-navigation/native';
 import { differenceInCalendarWeeks, eachDayOfInterval, endOfMonth, format, getDay, isBefore, isSameDay, startOfMonth, subMonths } from 'date-fns';
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface HabitProgressCalendarProps {
   title: string;
@@ -13,6 +18,8 @@ interface HabitProgressCalendarProps {
   completionImages: Record<string, string>; // 'yyyy-MM-dd': imageUrl
 }
 
+//let paddingBottom = 200; // Adjust based on your bottom navigation height
+
 const getFrequencyLabel = (frequency: string, days?: number[]) => {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   if (frequency === 'daily') return 'Every Day';
@@ -21,13 +28,21 @@ const getFrequencyLabel = (frequency: string, days?: number[]) => {
   return '';
 };
 const { width: screenWidth } = useWindowDimensions();
-const calendarPadding = 16 * 2; // same as your container padding
-const spacing = 6 * 2; // 6 gaps between 7 cells, each 2px
-const availableWidth = screenWidth - calendarPadding - spacing;
-const cellSize = Math.floor(availableWidth / 7);
+//paddingBottom = 100 + insets.bottom;
+const calendarPadding = 16 * 2; // same as container padding
+const totalGaps = 6;
+const availableWidth = screenWidth - calendarPadding;
+const gapSize = Math.floor(availableWidth * 0.01); // e.g., 1% of available width
+const totalGapWidth = gapSize * totalGaps;
+const cellSize = Math.floor((availableWidth - totalGapWidth) / 7);
+
+const totalCells = 7;
+const horizontalGap = (availableWidth - cellSize * totalCells) / totalGaps;
+
+
 const HabitProgressCalendar = () => {
 
-
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [visibleMonthCount, setVisibleMonthCount] = useState(3);
@@ -122,7 +137,7 @@ const HabitProgressCalendar = () => {
       setIsLoadingMore(true);
   
       // 👇 Artificial delay to see pagination – delete this later
-      await new Promise(res => setTimeout(res, 500));
+      //await new Promise(res => setTimeout(res, 500));
   
       setVisibleMonthCount(prev => prev + 1);
       setIsLoadingMore(false);
@@ -133,22 +148,24 @@ const HabitProgressCalendar = () => {
 
 
 
-
+  const isFocused = useIsFocused();
 
   return (
+    <View style={{ flex: 1, backgroundColor: numbers.primaryColor }}>
+    <ProgressHeader title={title} frequencey={getFrequencyLabel(frequency, days)} />
+    {isFocused && <StatusBar style="dark" />}
+
     <ScrollView
       ref={scrollRef}
       onScroll={handleScroll}
       scrollEventThrottle={16}
       onContentSizeChange={(_, height) => setContentHeight(height)}
-      contentContainerStyle={styles.container}
+      contentContainerStyle={{
+        ...styles.container,
+        paddingBottom: insets.bottom + 30, // <-- not marginBottom!
+        backgroundColor: numbers.primaryColor
+      }}
     >
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Text style={styles.backText}>← Back</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.subtitle}>{getFrequencyLabel(frequency, days)}</Text>
 
       {visibleMonths.map((month, i) => (
         <View key={i} style={styles.monthContainer}>
@@ -161,43 +178,51 @@ const HabitProgressCalendar = () => {
           <View style={styles.grid}>
   {(() => {
     const cells = [];
-    const firstDate = startOfMonth(month.dates[0]); // use month start
-    const weekdayOffset = getDay(firstDate); // 0=Sun ... 6=Sat
-  
-    // Add leading blank cells
-    for (let i = 0; i < weekdayOffset; i++) {
-      cells.push(<View key={`blank-${i}`} style={styles.dayCell} />);
+    const firstDate = startOfMonth(month.dates[0]);
+    const weekdayOffset = getDay(firstDate);
+    const allDates: (Date | null)[] = Array(weekdayOffset).fill(null).concat(month.dates);
+
+    // Pad to full weeks (multiples of 7)
+    while (allDates.length % 7 !== 0) {
+      allDates.push(null);
     }
-  
-    for (let j = 0; j < month.dates.length; j++) {
-      const date = month.dates[j];
-      const dateStr = format(date, 'yyyy-MM-dd');
-      const isInRange = !isBefore(date, startDate) && !isBefore(endDate, date);
-      const isDue = isInRange && shouldDoHabit(date);
-      const img = isInRange ? completionImages[dateStr] : undefined;
-  
+
+    for (let i = 0; i < allDates.length; i += 7) {
+      const week = allDates.slice(i, i + 7);
       cells.push(
-        <View key={dateStr} style={styles.dayCell}>
-          {img ? (
-            <Image source={{ uri: img }} style={styles.image} />
-          ) : (
-            <View
-              style={[
-                styles.rect,
-                isInRange ? (isDue ? styles.blue : styles.grey) : { backgroundColor: '#f0f0f0' },
-              ]}
-            />
-          )}
+        <View key={`week-${i}`} style={styles.gridRow}>
+          {week.map((date, j) => {
+            if (!date) {
+              return <View key={`blank-${i}-${j}`} style={styles.dayCell} />;
+            }
+
+            const dateStr = format(date, 'yyyy-MM-dd');
+            const isInRange = !isBefore(date, startDate) && !isBefore(endDate, date);
+            const isDue = isInRange && shouldDoHabit(date);
+            const img = isInRange ? completionImages[dateStr] : undefined;
+
+            return (
+              <View key={dateStr} style={styles.dayCell}>
+                {img ? (
+                  <Image source={{ uri: img }} style={styles.image} />
+                ) : (
+                  <View
+                    style={[
+                      styles.rect,
+                      isInRange ? (isDue ? styles.blue : styles.grey) : { backgroundColor: '#f0f0f0' },
+                    ]}
+                  />
+                )}
+              </View>
+            );
+          })}
         </View>
       );
     }
-  
+
     return cells;
   })()}
-  
-        
-
-          </View>
+</View>
         </View>
       ))}
       <View className='flex flex-row items-start justify-center w-full'>
@@ -206,13 +231,13 @@ const HabitProgressCalendar = () => {
             )}
         </View>
     </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    paddingBottom: 100,
   },
   backButton: {
     marginBottom: 12,
@@ -245,27 +270,26 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   dayHeader: {
-    width: 40,
+    width: cellSize,
     textAlign: 'center',
     fontWeight: '600',
     color: '#888',
   },
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    gap: 4,
   },
   dayCell: {
     width: cellSize,
-    height: 50,
-    marginRight: 2,
-    marginBottom: 4,
+    height: 60,
+    marginTop: horizontalGap/2,
+    //marginBottom: horizontalGap/2,
     justifyContent: 'center',
     alignItems: 'center',
   },
   
   rect: {
     width: '90%',
-    height: '90%',
+    height: '100%',
     borderRadius: 12,
   },
   
@@ -275,11 +299,19 @@ const styles = StyleSheet.create({
   grey: {
     backgroundColor: '#ddd',
   },
+  gridRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  
   image: {
-    width: 38,
-    height: 48,
+    width: '90%',
+    height: '100%',
     borderRadius: 12,
     resizeMode: 'cover',
+    borderWidth: 1,
+    borderColor: numbers.secondaryColor
   },
   loadingText: {
     textAlign: 'center',

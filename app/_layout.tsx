@@ -164,6 +164,10 @@ export default function RootLayout() {
             name="infoScreen"
             options={{ headerShown: false, animation: 'none'}}
           />
+          <Stack.Screen
+            name="habitProgress/[id]"
+            options={{ headerShown: false}}
+          />
         </Stack>
 
         <Modal visible={mustAddUsername} transparent animationType="fade">

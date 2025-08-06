@@ -89,11 +89,14 @@ const StoryCard = ({ backlog, mytask, taskID, eventID, personID, taskName, group
 					{taskID &&
 						<View className="flex flex-row justify-between items-baseline ml-3 absolute bottom-4 w-[107px]">
 							{mytask &&
-							<Pressable onPress={() => router.push('/habitProgress/1')}>
-								<Text className="text-[12.5px] font-medium text-black bg-white border border-black px-3 py-1 rounded-full">
-									Done
-								</Text>
-							</Pressable>
+								<Link href = {`/habitProgress/${taskID}`} asChild>
+								<Pressable>
+									<Text className="text-[12.5px] font-medium text-black bg-white border border-black px-3 py-1 rounded-full">
+										Done
+									</Text>
+								</Pressable>
+								</Link>
+
 							}
 							{/**Leave gap if not ur task */}
 							{!mytask &&
