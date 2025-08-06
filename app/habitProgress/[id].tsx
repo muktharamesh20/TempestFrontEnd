@@ -6,7 +6,7 @@ import { differenceInCalendarWeeks, eachDayOfInterval, endOfMonth, format, getDa
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, ImageBackground, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface HabitProgressCalendarProps {
@@ -39,7 +39,8 @@ const cellSize = Math.floor((availableWidth - totalGapWidth) / 7);
 const totalCells = 7;
 const horizontalGap = (availableWidth - cellSize * totalCells) / totalGaps;
 
-
+const dayCellHeight = 60;
+const dayCellInnerWidth = Math.floor(cellSize * 0.9); // 90% of width like before
 const HabitProgressCalendar = () => {
 
   const insets = useSafeAreaInsets();
@@ -51,6 +52,10 @@ const HabitProgressCalendar = () => {
   const { height: windowHeight } = useWindowDimensions();
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [loadingDots, setLoadingDots] = useState('');
+
+  
+    
+
   useEffect(() => {
     if (!isLoadingMore) return;
   
@@ -60,6 +65,9 @@ const HabitProgressCalendar = () => {
   
     return () => clearInterval(interval);
   }, [isLoadingMore]);
+
+  //utility functions
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const shouldDoHabit = (date: Date) => {
     if (isBefore(date, startDate) || isBefore(endDate, date)) return false;
@@ -76,6 +84,64 @@ const HabitProgressCalendar = () => {
   
     return false;
   };
+
+const getStreakStats = (dates: Date[]) => {
+    const sortedDates = dates
+      .filter(date => {
+        const dateStr = format(date, 'yyyy-MM-dd');
+        return shouldDoHabit(date);
+      })
+      .sort((a, b) => a.getTime() - b.getTime());
+  
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+  
+    for (let i = 0; i < sortedDates.length; i++) {
+      const date = sortedDates[i];
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const completed = !!completionImages[dateStr];
+  
+      if (completed) {
+        tempStreak++;
+        if (tempStreak > longestStreak) longestStreak = tempStreak;
+      } else {
+        tempStreak = 0;
+      }
+    }
+  
+    // Calculate current streak by going backwards
+    for (let i = sortedDates.length - 1; i >= 0; i--) {
+      const date = sortedDates[i];
+      const dateStr = format(date, 'yyyy-MM-dd');
+      if (completionImages[dateStr]) {
+        currentStreak++;
+      } else {
+        break;
+      }
+    }
+  
+    return { currentStreak, longestStreak };
+  };
+  
+  const getCompletionStats = (dates: Date[]) => {
+    let total = 0;
+    let completed = 0;
+  
+    dates.forEach(date => {
+      if (shouldDoHabit(date)) {
+        total++;
+        if (completionImages[format(date, 'yyyy-MM-dd')]) {
+          completed++;
+        }
+      }
+    });
+  
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return { completed, total, percentage };
+  };
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
 
   const months: { label: string; dates: Date[] }[] = [];
@@ -147,7 +213,15 @@ const HabitProgressCalendar = () => {
   
 
 
+  const allDates: Date[] = [];
 
+  months.forEach(month => {
+    allDates.push(...month.dates);
+  });
+  const { currentStreak, longestStreak } = getStreakStats(allDates);
+  const { completed, total, percentage } = getCompletionStats(allDates);
+
+  
   const isFocused = useIsFocused();
 
   return (
@@ -156,16 +230,34 @@ const HabitProgressCalendar = () => {
     {isFocused && <StatusBar style="dark" />}
 
     <ScrollView
-      ref={scrollRef}
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-      onContentSizeChange={(_, height) => setContentHeight(height)}
-      contentContainerStyle={{
-        ...styles.container,
-        paddingBottom: insets.bottom + 30, // <-- not marginBottom!
-        backgroundColor: numbers.primaryColor
-      }}
-    >
+  ref={scrollRef}
+  onScroll={handleScroll}
+  scrollEventThrottle={16}
+  onContentSizeChange={(_, height) => setContentHeight(height)}
+  contentContainerStyle={{
+    ...styles.container,
+    paddingBottom: insets.bottom + 30,
+    backgroundColor: numbers.primaryColor,
+  }}
+//   stickyHeaderIndices={[0]} // <-- makes the first child sticky
+>
+  {/* Sticky Header
+  <View style={styles.stickyStatsContainer}>
+    <View style={styles.statsRow}>
+      <View style={styles.statsLeft}>
+        <Text style={styles.statsText}>Current Streak: {currentStreak} 🔥</Text>
+        <Text style={styles.statsText}>Longest Streak: {longestStreak} 🏆</Text>
+      </View>
+      <View style={styles.statsRight}>
+        <Text style={styles.statsText}>
+          Completion: {percentage}% ({completed}/{total})
+        </Text>
+      </View>
+    </View>
+    <View style={styles.divider} />
+  </View> */}
+
+
 
       {visibleMonths.map((month, i) => (
         <View key={i} style={styles.monthContainer}>
@@ -206,12 +298,23 @@ const HabitProgressCalendar = () => {
                 {img ? (
                   <Image source={{ uri: img }} style={styles.image} />
                 ) : (
-                  <View
-                    style={[
-                      styles.rect,
-                      isInRange ? (isDue ? styles.blue : styles.grey) : { backgroundColor: '#f0f0f0' },
-                    ]}
-                  />
+                    isDue ? (
+                        <ImageBackground
+                          source={require('../../assets/images/border.png')}
+                          style={styles.cellBorderImage}
+                          imageStyle={styles.borderImageStyle}
+                        >
+                          <View style={styles.cellInnerBlue} />
+                        </ImageBackground>
+                      ) : (
+                        <View
+                          style={[
+                            styles.rect,
+                            isInRange ? styles.grey : { backgroundColor: '#f0f0f0' },
+                          ]}
+                        />
+                      )
+                      
                 )}
               </View>
             );
@@ -280,7 +383,7 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     width: cellSize,
-    height: 60,
+    height: dayCellHeight,
     marginTop: horizontalGap/2,
     //marginBottom: horizontalGap/2,
     justifyContent: 'center',
@@ -292,12 +395,10 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 12,
   },
-  
-  blue: {
-    backgroundColor: '#007bff',
-  },
+
   grey: {
-    backgroundColor: '#ddd',
+    backgroundColor: 'black',
+    opacity: 0.09
   },
   gridRow: {
     flexDirection: 'row',
@@ -318,7 +419,68 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#007bff',
     marginTop: 10,
+  },statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+    paddingHorizontal: 4,
   },
+  statsLeft: {
+    flex: 1,
+  },
+  statsRight: {
+    alignItems: 'flex-end',
+  },
+  statsText: {
+    fontSize: 14,
+    color: '#444',
+    marginBottom: 2,
+    fontWeight: '500',
+  },stickyStatsContainer: {
+    backgroundColor: numbers.primaryColor,
+    zIndex: 10,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#ccc',
+    marginTop: 8,
+  },imageBorder: {
+    width: '90%',
+    height: '100%',
+    padding: 2, // adjust based on your border image
+    borderRadius: 12,
+  },
+  innerRect: {
+    flex: 1,
+    backgroundColor: '#3898F3', // solid fill inside border
+    borderRadius: 10,
+    opacity: 0.0
+  },  cellBorderImage: {
+    width: dayCellInnerWidth,
+    height: dayCellHeight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 2.5,
+    borderRadius: 12,
+    alignSelf: 'center', // <-- centers inside dayCell
+  },
+
+  borderImageStyle: {
+    borderRadius: 12,
+    resizeMode: 'stretch',
+  },
+
+  cellInnerBlue: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#D2E5F5',
+    borderRadius: 9,
+  },
+  
+  
+  
+  
   
 });
 

@@ -22,7 +22,7 @@ const ProgressHeader = ({ title, frequencey }: HeaderProps) => {
       >
         {/* Right: Back Button */}
         <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
-          <Ionicons name="arrow-back" size={24} color={numbers.secondaryColor} />
+          <Ionicons name="chevron-back" size={30} color={numbers.secondaryColor} />
         </TouchableOpacity>
 
         {/* Center: Title + Frequency */}
@@ -34,7 +34,7 @@ const ProgressHeader = ({ title, frequencey }: HeaderProps) => {
 
         {/* Bell icon on the right */}
         {/* <Ionicons name="three-dots" size={24} color={numbers.secondaryColor} /> */}
-        <Entypo name="dots-three-horizontal" size={24} color="black" />
+        <Entypo name="dots-three-horizontal" size={24} color={numbers.primaryColor} />
 
         
       </View>
