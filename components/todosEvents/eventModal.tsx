@@ -343,7 +343,7 @@ useEffect(() => {
 
 
           {/* Location */}
-          <View style={styles.detailBox}>
+          <View className='flex flex-row items-center '> {/*border-black border-2*/}
   <Icon name="location-outline" type="ionicon" size={20} />
   {isEditing ? (
     <LocationSearch
@@ -355,6 +355,10 @@ useEffect(() => {
   )}
 </View>
 
+<View style={styles.detailBox}>
+
+
+  </View>
 
 
           {/* Color Picker */}
