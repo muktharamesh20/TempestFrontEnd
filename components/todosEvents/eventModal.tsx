@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Icon, Switch } from 'react-native-elements';
+import LocationSearch from './mapSearch';
 
 interface eventModalProps {
   visible: boolean;
@@ -45,6 +46,7 @@ const [endTime, setEndTime] = useState(new Date(new Date().getTime() + 90 * 6000
 const [showStartPicker, setShowStartPicker] = useState(false);
 const [showEndPicker, setShowEndPicker] = useState(false);
 const [selectedDay, setSelectedDay] = useState<number>(startDate.getDay())
+const [tempLocation, setTempLocation] = useState(location); // holds edits while editing
 
 useEffect(() => {
   if (isAllDay) {
@@ -160,6 +162,7 @@ useEffect(() => {
                 };
                 
                 onSave(eventToSave);
+                setLocation(tempLocation); // finally commit it
                 
                 // onClose(); <-----------------------uncomment later
               }
@@ -197,6 +200,7 @@ useEffect(() => {
   <>
     {isAllDay ? (
       <>
+      <View className='flex flex-row items-center gap-3'>
       <Icon name="time-outline" type="ionicon" size={20} />
         <DateTimePicker
           value={startDate}
@@ -206,11 +210,12 @@ useEffect(() => {
             if (selectedDate) setStartDate(selectedDate); setEndDate(addDays(selectedDate ?? new Date(), 1))
           }}
         />
+        </View>
       </>
     ) : (
       <>
       <View className='flex flex-col gap-2'>
-        <View className='flex flex-row items-center gap-2'>
+        <View className='flex flex-row items-center gap-3'>
       <Icon name="time-outline" type="ionicon" size={20} />
         <DateTimePicker
           value={startTime}
@@ -220,7 +225,7 @@ useEffect(() => {
             if (selectedDate) setStartTime(selectedDate);
           }}
         /></View>
-        <View className='flex flex-row items-center gap-2'>
+        <View className='flex flex-row items-center gap-3'>
         <Icon name="time-outline" type="ionicon" size={20} />
         <DateTimePicker
           value={endTime}
@@ -289,7 +294,6 @@ useEffect(() => {
 
 
 
-
               </View>
             ) : (
               <Text style={styles.detailText}>
@@ -340,13 +344,18 @@ useEffect(() => {
 
           {/* Location */}
           <View style={styles.detailBox}>
-            <Icon name="location-outline" type="ionicon" size={20} />
-            {isEditing ? (
-              <TextInput style={styles.detailText} value={location} onChangeText={setLocation} />
-            ) : (
-              <Text style={styles.detailText}>{location}</Text>
-            )}
-          </View>
+  <Icon name="location-outline" type="ionicon" size={20} />
+  {isEditing ? (
+    <LocationSearch
+      setTempLocation={setTempLocation}
+      tempLocation = {location} // pass current location for initial value
+    />
+  ) : (
+    <Text style={styles.detailText}>{location}</Text> // use final confirmed value
+  )}
+</View>
+
+
 
           {/* Color Picker */}
           {isEditing && (
