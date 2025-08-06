@@ -57,6 +57,8 @@ const otherProfile = () => {
   const [showUserActions, setShowUserActions] = useState<boolean>(false)
   const [openEditProfile, setOpenEditProfile] = useState<boolean>(false);
   const [allCategories, setAllCategories] = useState<Category[]>([]);
+  const [visibleRowCount, setVisibleRowCount] = useState(5);
+
   const dummyRow: PostPreview = {
     categoryName: 'dummy', posts: Array.from({ length: 2 }, (_, i) => ({
       id: `${i + 1}`,
@@ -158,6 +160,21 @@ const otherProfile = () => {
 
   if (!user) return <Text className="text-center mt-10">Loading...</Text>;
 
+  const handleEndReached = () => {
+    if (visibleRowCount < user.categories.length) {
+      setVisibleRowCount(prev => prev + 5);
+    }
+  };
+  // const handleEndReached = async () => {
+  //   // optional: prevent firing repeatedly
+  //   if (visibleRowCount >= user.categories.length) return;
+  
+  //   // Wait for 300ms before loading more
+  //   await new Promise(resolve => setTimeout(resolve, 300));
+  
+  //   setVisibleRowCount(prev => Math.min(prev + 5, user.categories.length));
+  // };
+  
   
 
 
@@ -233,7 +250,8 @@ const otherProfile = () => {
         />
         //if not tagged tabƒ
         : <FlatList
-          data={[dummyRow, ...user.categories]}
+        data={[dummyRow, ...user.categories.slice(0, visibleRowCount)]}
+
           keyExtractor={(_, index) => `row-${index}`}
           renderItem={({ item, index }) => {
             if (index === 0) {
@@ -261,6 +279,9 @@ const otherProfile = () => {
             </View>}
           ListHeaderComponentStyle={{ zIndex: 1 }}
           ListFooterComponent={<View className="h-12" />}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.4}
+
         />}
     </View>
   );

@@ -1,7 +1,9 @@
 import { images } from '@/constants/images';
+import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
+
 
 const avatars = [
   images.googleLogo,
@@ -80,17 +82,12 @@ export default function TodoModal({ visible, onClose }: eventModalProps) {
             <Icon name="time-outline" type="ionicon" size={20} />
             {isEditing ? (
               <>
-                <TextInput
-                  style={styles.inlineInput}
-                  value={startTime}
-                  onChangeText={setStartTime}
-                />
-                <Text style={{ marginHorizontal: 5 }}>–</Text>
-                <TextInput
-                  style={styles.inlineInput}
-                  value={endTime}
-                  onChangeText={setEndTime}
-                />
+               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+  <TimePickerDropdown time={startTime} setTime={setStartTime} />
+  <Text style={{ marginHorizontal: 5 }}>–</Text>
+  <TimePickerDropdown time={endTime} setTime={setEndTime} />
+</View>
+
               </>
             ) : (
               <Text style={styles.detailText}>{`Wed, Jun 9 • ${startTime} – ${endTime}`}</Text>
@@ -101,11 +98,16 @@ export default function TodoModal({ visible, onClose }: eventModalProps) {
           <View style={styles.detailBox}>
             <Icon name="repeat-outline" type="ionicon" size={20} />
             {isEditing ? (
-              <TextInput
-                style={styles.detailText}
-                value={repetition}
-                onChangeText={setRepetition}
-              />
+              <Picker
+              selectedValue={repetition}
+              style={{ flex: 1 }}
+              onValueChange={(value) => setRepetition(value)}
+            >
+              {['None', 'Daily', 'Weekly', 'Biweekly', 'Monthly', 'Yearly'].map((option) => (
+                <Picker.Item key={option} label={option} value={option} />
+              ))}
+            </Picker>
+            
             ) : (
               <Text style={styles.detailText}>{repetition}</Text>
             )}
@@ -153,6 +155,99 @@ export default function TodoModal({ visible, onClose }: eventModalProps) {
     </Modal>
   );
 }
+
+function TimeDropdown({ time, setTime }: { time: string; setTime: (val: string) => void }) {
+  const [hour, minute, period] = parseTime(time);
+
+  const updateTime = (newHour: string, newMinute: string, newPeriod: string) => {
+    setTime(`${newHour}:${newMinute} ${newPeriod}`);
+  };
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Picker
+        selectedValue={hour}
+        style={{ height: 40, width: 60 }}
+        onValueChange={(itemValue) => updateTime(itemValue, minute, period)}
+      >
+        {Array.from({ length: 12 }, (_, i) => {
+          const val = (i + 1).toString().padStart(2, '0');
+          return <Picker.Item key={val} label={val} value={val} />;
+        })}
+      </Picker>
+      <Text>:</Text>
+      <Picker
+        selectedValue={minute}
+        style={{ height: 40, width: 60 }}
+        onValueChange={(itemValue) => updateTime(hour, itemValue, period)}
+      >
+        {['00', '15', '30', '45'].map((m) => (
+          <Picker.Item key={m} label={m} value={m} />
+        ))}
+      </Picker>
+      <Picker
+        selectedValue={period}
+        style={{ height: 40, width: 60 }}
+        onValueChange={(itemValue) => updateTime(hour, minute, itemValue)}
+      >
+        <Picker.Item label="AM" value="AM" />
+        <Picker.Item label="PM" value="PM" />
+      </Picker>
+    </View>
+  );
+}
+
+function TimePickerDropdown({ time, setTime }: { time: string; setTime: (val: string) => void }) {
+  const [hour, minute, period] = parseTime(time);
+
+  const updateTime = (newHour: string, newMinute: string, newPeriod: string) => {
+    setTime(`${newHour}:${newMinute} ${newPeriod}`);
+  };
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Picker
+        selectedValue={hour}
+        style={{ height: 40, width: 60 }}
+        onValueChange={(value) => updateTime(value, minute, period)}
+      >
+        {Array.from({ length: 12 }, (_, i) => {
+          const h = (i + 1).toString().padStart(2, '0');
+          return <Picker.Item key={h} label={h} value={h} />;
+        })}
+      </Picker>
+      <Text>:</Text>
+      <Picker
+        selectedValue={minute}
+        style={{ height: 40, width: 60 }}
+        onValueChange={(value) => updateTime(hour, value, period)}
+      >
+        {['00', '15', '30', '45'].map((m) => (
+          <Picker.Item key={m} label={m} value={m} />
+        ))}
+      </Picker>
+      <Picker
+        selectedValue={period}
+        style={{ height: 40, width: 60 }}
+        onValueChange={(value) => updateTime(hour, minute, value)}
+      >
+        <Picker.Item label="AM" value="AM" />
+        <Picker.Item label="PM" value="PM" />
+      </Picker>
+    </View>
+  );
+}
+
+function parseTime(time: string): [string, string, string] {
+  const match = time.match(/(\d{1,2}):(\d{2}) ?(AM|PM)?/i);
+  if (!match) return ['12', '00', 'AM'];
+  let [, h, m, p] = match;
+  h = h.padStart(2, '0');
+  p = (p || (parseInt(h) >= 12 ? 'PM' : 'AM')).toUpperCase();
+  return [h, m, p];
+}
+
+
 
 const styles = StyleSheet.create({
   modalContainer: {

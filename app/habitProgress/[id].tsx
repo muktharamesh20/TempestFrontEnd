@@ -22,7 +22,7 @@ interface HabitProgressCalendarProps {
 
 //let paddingBottom = 200; // Adjust based on your bottom navigation height
 
-const getFrequencyLabel = (frequency: string, days?: number[]) => {
+const getFrequencyLabel = (frequency: 'daily' | 'weekly' | 'biweekly', days?: number[]) => {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   if (frequency === 'daily') return 'Every Day';
   if (frequency === 'weekly') return `Weekly on ${days?.map(d => dayNames[d]).join(', ')}`;
