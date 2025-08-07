@@ -1,7 +1,8 @@
 import { numbers } from '@/constants/numbers';
 import { Ionicons } from '@expo/vector-icons'; // Assuming you're using Expo for the bell icon
+import { Link } from 'expo-router';
 import React from 'react';
-import { Image, View } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ProfileHeader = () => {
@@ -17,7 +18,11 @@ const ProfileHeader = () => {
 
         {/* Bell icon on the right */}
         <View className='flex flex-row gap-5 mr-[2px]'>
-        <Ionicons name='settings-outline' size={24}/>
+        <Link href={'/settings/settings'} asChild>
+          <Pressable>
+            <Ionicons name='settings-outline' size={24}/>
+          </Pressable>
+        </Link>
         <Ionicons name="notifications-outline" size={24} color={numbers.secondaryColor} />
         </View>
       </View>

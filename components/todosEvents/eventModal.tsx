@@ -69,7 +69,7 @@ useEffect(() => {
 
 useEffect(() => {
   if (isAllDay) {
-    if (repeatValue === 'Weekly' || repeatValue === 'Biweekly') {
+    if (repeatValue.toLowerCase() === 'weekly' || repeatValue.toLowerCase() === 'biweekly') {
       setSelectedDay(startTime.getUTCDay())
       setDays((prev) => {
         if (!(prev?.includes(startTime.getUTCDay()))) {
@@ -80,7 +80,7 @@ useEffect(() => {
     }
   }
   else {
-    if (repeatValue === 'Weekly' || repeatValue === 'Biweekly') {
+    if (repeatValue.toLowerCase() === 'weekly' || repeatValue.toLowerCase() === 'biweekly') {
       console.log('in if statment')
       setSelectedDay(startTime.getDay())
       setDays((prev) => {
@@ -387,12 +387,12 @@ useEffect(() => {
         value={repeatValue}
         setValue={(val) => setRepeatValue(val())}
         items={[
-          { label: 'None', value: 'None' },
-          { label: 'Daily', value: 'Daily' },
-          { label: 'Weekly', value: 'Weekly' },
-          { label: 'Biweekly', value: 'Biweekly' },
-          { label: 'Monthly', value: 'Monthly' },
-          { label: 'Yearly', value: 'Yearly' },
+          { label: 'None', value: 'none' },
+          { label: 'Daily', value: 'daily' },
+          { label: 'Weekly', value: 'weekly' },
+          { label: 'Biweekly', value: 'biweekly' },
+          { label: 'Monthly', value: 'monthly' },
+          { label: 'Yearly', value: 'yearly' },
         ]}
         zIndex={isRepeatOpen ? 4000 : 1000}
         zIndexInverse={isRepeatOpen ? 1000 : 4000}
@@ -402,19 +402,19 @@ useEffect(() => {
       </View>
     ) : ( <Text style={styles.detailText}>
       {{
-        None: 'Does Not Repeat',
-        Daily: 'Repeats Every Day',
-        Weekly: getFrequencyLabel('weekly', days ?? [], startDate, isAllDay),
-        Biweekly: getFrequencyLabel('biweekly', days ?? [], startDate, isAllDay),
-        Monthly: getFrequencyLabel('monthly', days ?? [], startDate, isAllDay),
-        Yearly: getFrequencyLabel('yearly', days ?? [], startDate, isAllDay),
+        none: 'Does Not Repeat',
+        daily: 'Repeats Every Day',
+        weekly: getFrequencyLabel('weekly', days ?? [], startDate, isAllDay),
+        biweekly: getFrequencyLabel('biweekly', days ?? [], startDate, isAllDay),
+        monthly: getFrequencyLabel('monthly', days ?? [], startDate, isAllDay),
+        yearly: getFrequencyLabel('yearly', days ?? [], startDate, isAllDay),
       }[repeatValue]}
     </Text>
     )}
 </View>
 
 
-{isEditing && (repeatValue === 'Weekly' || repeatValue ==="Biweekly") && (
+{isEditing && (repeatValue.toLowerCase() === 'weekly' || repeatValue.toLowerCase() ==="biweekly") && (
   <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginVertical: 10 }}>
     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => {
       //const isStartDay = idx === startDate.getDay();
@@ -509,7 +509,7 @@ useEffect(() => {
             </View>
           )}
 
-{!isEditing && (
+{!isEditing && categories.length !==0 && (
   <View style={{ marginTop: 10 }}>
     <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Categories:</Text>
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
