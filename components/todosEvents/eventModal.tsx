@@ -8,6 +8,7 @@ import {
   Alert,
   Image,
   Modal,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -204,9 +205,9 @@ useEffect(() => {
     {attendees.length > 0 ? (
       <>
         {attendees.slice(0, 4).map((user) => (
-          <TouchableOpacity key={user.id} onPress={() => setShowAttendeeModal(true)}>
+          <Pressable key={user.id} onPress={() => setShowAttendeeModal(true)}>
             <Image source={user.avatar} style={styles.avatar} />
-          </TouchableOpacity>
+          </Pressable>
         ))}
         <TouchableOpacity onPress={() => setShowInviteModal(true)}>
           <View style={styles.moreAvatar}>
