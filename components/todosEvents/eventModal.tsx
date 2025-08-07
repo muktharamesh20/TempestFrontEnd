@@ -269,113 +269,26 @@ useEffect(() => {
           </View>
 
           {/* Repetition */}
-          {/* <View style={styles.detailBox}>
-            <Icon name="repeat-outline" type="ionicon" size={20} />
-            {isEditing ? (
-              <View style={{ flex: 1, marginLeft: 15, zIndex: 1000 }}>
-             <DropDownPicker
-  open={isRepeatOpen}
-  setOpen={setIsRepeatOpen}
-  value={repeatValue}
-  setValue={(val) => setRepeatValue(val())}
-  items={[
-    { label: 'None', value: 'None' },
-    { label: 'Daily', value: 'Daily' },
-    { label: 'Weekly', value:'Weekly' },
-    { label: 'Biweekly', value: 'Biweekly'  },
-    { label: 'Monthly', value: 'Monthly'  },
-    { label: 'Yearly', value: 'Yearly'  },
-  ]}
-  zIndex={3000}
-  zIndexInverse={1000}
-  style={{ borderColor: '#ccc' }}
-  dropDownContainerStyle={{ borderColor: '#ccc' }}
-/>
-
-
-
-              </View>
-            ) : (
-              <Text style={styles.detailText}>
-                {{
-                  None: 'Does Not Repeat',
-                  Daily: 'Repeats Every Day',
-                  Weekly: getFrequencyLabel('weekly', days ?? [], startDate, isAllDay),
-                  Biweekly: getFrequencyLabel('biweekly', days ?? [], startDate, isAllDay),
-                  Monthly: getFrequencyLabel('monthly', days ?? [], startDate, isAllDay),
-                  Yearly: getFrequencyLabel('yearly', days ?? [], startDate, isAllDay),
-                }[repeatValue]}
-              </Text>
-            )}
-          </View>
-      
-          {isEditing && (repeatValue === 'Weekly' || repeatValue ==="Biweekly") && (
-  <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginVertical: 10 }}>
-    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => {
-      //const isStartDay = idx === startDate.getDay();
-      const selected = days?.includes(idx);
-
-      return (
-        <TouchableOpacity
-          key={idx}
-          onPress={() => {
-            if (idx === selectedDay) return; // Prevent unselecting the start day
-            setDays((prev) =>
-              selected
-                ? prev?.filter((d) => d !== idx)
-                : [...(prev || []), idx]
-            );
-          }}
-          style={{
-            padding: 7,
-            borderRadius: 10,
-            margin: 4,
-            backgroundColor: selected ? '#add8e6' : '#e3e3e3',
-            opacity: selectedDay === idx ? 0.5 : 1, // optional: dim start day for clarity
-          }}
-        >
-          <Text>{day}</Text>
-        </TouchableOpacity>
-      );
-    })}
-  </View>
-)}
- */}
-
-        {/* Location
-<View style={{ zIndex: 10 }} className="flex flex-row items-center mt-1">
-  <Icon name="location-outline" type="ionicon" size={20} />
-
-  {isEditing ? (
-    <LocationSearch
-      setTempLocation={setTempLocation}
-      tempLocation={location} // pass current location for initial value
-    />
-  ) : location ? (
-    <Text style={styles.detailText}>{location}</Text>
-  ) : (
-    <Text style={{...styles.detailText, color: '#888'}}>No location set</Text>
-  )}
-</View> */}
-
-{/* Location
-<View style={{ zIndex: 4000 }} className="flex flex-row items-center mt-1">
-  <Icon name="location-outline" type="ionicon" size={20} />
-  {isEditing ? (
-    <LocationSearch
-      setTempLocation={setTempLocation}
-      tempLocation={location}
-    />
-  ) : location ? (
-    <Text style={styles.detailText}>{location}</Text>
-  ) : (
-    <Text style={{ ...styles.detailText, color: '#888' }}>No location set</Text>
-  )}
-</View> */}
 
 
 
 {/* Repeat Dropdown (opens downward) - higher on screen */}
+
+{isEditing && repeatValue.toLowerCase() !== 'none' && (
+  <View className="flex flex-row items-center mb-1">
+    <Icon name="calendar-outline" type="ionicon" size={20} />
+    <Text style={{ marginLeft: 10, marginRight: 10 }}>Ends On</Text>
+    <DateTimePicker
+      value={endRepeat ?? endDate}
+      mode="date"
+      display="default"
+      onChange={(event, selectedDate) => {
+        if (selectedDate) setEndRepeat(selectedDate);
+      }}
+    />
+  </View>
+)}
+
 <View style={{...styles.detailBox, zIndex: isRepeatOpen ? 4000 : 1000}}>
    <Icon name="repeat-outline" type="ionicon" size={20} />
    {isEditing ? (
@@ -444,9 +357,17 @@ useEffect(() => {
       );
     })}
   </View>)}
+
+
+  {!isEditing && endRepeat && repeatValue.toLowerCase() !== 'none' && (
+  <View style={styles.detailBox}>
+    <Icon name="calendar-outline" type="ionicon" size={20} />
+    <Text style={styles.detailText}>Repeats until {endRepeat.toDateString()}</Text>
+  </View>
+)}
   
 {/* Location Search (opens upward) - lower on screen */}
-<View style={{ zIndex: !isRepeatOpen ? 4000 : 1000 }} className="flex flex-row items-center mt-1">
+<View style={{ zIndex: !isRepeatOpen ? 4000 : 1000, marginTop: isEditing ? 4 : 8 }} className="flex flex-row items-center">
   <Icon name="location-outline" type="ionicon" size={20} />
   {isEditing ? (
     <LocationSearch
@@ -454,7 +375,7 @@ useEffect(() => {
       tempLocation={location}
     />
   ) : location ? (
-    <Text style={styles.detailText}>{location}</Text>
+    <Text style={{...styles.detailText}}>{location}</Text>
   ) : (
     <Text style={{ ...styles.detailText, color: '#888' }}>No location set</Text>
   )}
