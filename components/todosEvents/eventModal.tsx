@@ -1,4 +1,5 @@
 import { images } from '@/constants/images';
+import { numbers } from '@/constants/numbers';
 import { EventDetailsForNow } from '@/services/utils';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { addDays } from 'date-fns';
@@ -24,8 +25,19 @@ interface eventModalProps {
   onSave: (event: EventDetailsForNow | null) => void;
 }
 
+interface avatar {
+  id: string;
+  avatar: string; // Replace with appropriate type for avatar image
+  name: string;
+  status: 'confirmed' | 'pending';
+}
+
 const allCategories = ['Work', 'UI', 'Design', 'Engineering', 'Marketing', 'Research', 'Meeting'];
-const avatars = [images.googleLogo, images.googleLogo, images.googleLogo];
+const attendees: avatar[] = [
+  { id: '1', avatar: images.googleLogo, name: 'Alice', status: 'confirmed' },
+  { id: '2', avatar: images.googleLogo, name: 'Bob', status: 'pending' },
+];
+
 
 export default function EventModal({ visible, onClose, event, onSave }: eventModalProps) {
   const [open, setOpen] = useState(false);
@@ -47,6 +59,10 @@ const [showStartPicker, setShowStartPicker] = useState(false);
 const [showEndPicker, setShowEndPicker] = useState(false);
 const [selectedDay, setSelectedDay] = useState<number>(startDate.getDay())
 const [tempLocation, setTempLocation] = useState(location); // holds edits while editing
+const [showInviteModal, setShowInviteModal] = useState(false);
+const [searchQuery, setSearchQuery] = useState('');
+const [showAttendeeModal, setShowAttendeeModal] = useState(false);
+
 
 useEffect(() => {
   if (isAllDay) {
@@ -182,12 +198,124 @@ useEffect(() => {
 
 
           {/* Avatars */}
-          <View style={styles.avatarGroup}>
-            {avatars.map((src, idx) => (
-              <Image key={idx} source={src} style={styles.avatar} />
-            ))}
-            <View style={styles.moreAvatar}><Text style={styles.moreText}>35+</Text></View>
+{(attendees.length > 0 || isEditing) && (
+  <View style={styles.avatarGroup}>
+    {attendees.length > 0 ? (
+      <>
+        {attendees.slice(0, 4).map((user) => (
+          <TouchableOpacity key={user.id} onPress={() => setShowAttendeeModal(true)}>
+            <Image source={user.avatar} style={styles.avatar} />
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity onPress={() => setShowInviteModal(true)}>
+          <View style={styles.moreAvatar}>
+            <Text style={styles.moreText}>
+              +{attendees.length > 4 ? attendees.length - 4 : ''}
+            </Text>
           </View>
+        </TouchableOpacity>
+      </>
+    ) : (
+      isEditing && (
+        <TouchableOpacity
+          onPress={() => setShowInviteModal(true)}
+          style={styles.invitePill}
+        >
+          <Text style={styles.inviteText}>+ Invite People</Text>
+        </TouchableOpacity>
+      )
+    )}
+  </View>
+)}
+
+
+
+
+
+<Modal visible={showAttendeeModal} animationType="slide" transparent>
+  <View style={inviteStyles.overlay}>
+    <View style={inviteStyles.modal}>
+      <Text style={inviteStyles.title}>Attendees</Text>
+
+      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+  {attendees.length === 0 ? (
+    <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
+      No attendees yet.
+    </Text>
+  ) : (
+    attendees.map(user => (
+      <View key={user.id} style={inviteStyles.userRow}>
+        <Image
+          source={user.avatar}
+          style={[
+            inviteStyles.avatar,
+            user.status === 'pending' && { opacity: 0.4 },
+          ]}
+        />
+        <View>
+          <Text style={inviteStyles.userName}>{user.name}</Text>
+          <Text style={{ fontSize: 12, color: '#888' }}>
+            {user.status === 'pending' ? 'Pending' : 'Confirmed'}
+          </Text>
+        </View>
+      </View>
+    ))
+  )}
+</ScrollView>
+
+
+      <TouchableOpacity onPress={() => setShowAttendeeModal(false)} style={inviteStyles.closeButton}>
+        <Text style={{ color: '#fff' }}>Close</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
+
+
+<Modal visible={showInviteModal} animationType="slide" transparent>
+  <View style={inviteStyles.overlay}>
+    <View style={inviteStyles.modal}>
+      <Text style={inviteStyles.title}>Invite People</Text>
+
+      <TextInput
+        placeholder="Search by name"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        style={inviteStyles.searchInput}
+      />
+
+      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+      {attendees
+  .filter(user =>
+    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+  .map(user => (
+    <View key={user.id} style={inviteStyles.userRow}>
+      <Image source={user.avatar} style={inviteStyles.avatar} />
+      <View style={{ flex: 1 }}>
+        <Text style={inviteStyles.userName}>{user.name}</Text>
+      </View>
+      <TouchableOpacity
+        onPress={() => console.log(`Invited ${user.name}`)} // Replace with real invite logic
+        style={inviteStyles.inviteButton}
+      >
+        <Text style={inviteStyles.inviteButtonText}>Invite</Text>
+      </TouchableOpacity>
+    </View>
+  ))}
+
+      </ScrollView>
+
+      <TouchableOpacity onPress={() => setShowInviteModal(false)} style={inviteStyles.closeButton}>
+        <Text style={{ color: '#fff' }}>Close</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
+
+
 
           {/* Time */}
           <View style={styles.detailBox}>
@@ -504,7 +632,7 @@ const styles = StyleSheet.create({
   avatarGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 10,
+    marginBottom: 5,
   },
   avatar: {
     width: 40,
@@ -592,3 +720,82 @@ const styles = StyleSheet.create({
   
   
 });
+
+const inviteStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: '#00000088',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modal: {
+    width: '85%',
+    maxHeight: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 8,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  userRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomColor: '#eee',
+    borderBottomWidth: 1,
+  },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginRight: 12,
+  },
+  userName: {
+    fontSize: 16,
+  },
+  closeButton: {
+    marginTop: 15,
+    backgroundColor:'#444',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+  },inviteButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#444',
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  
+  inviteButtonText: {
+    color: numbers.primaryColor,
+    fontWeight: 'bold',
+    fontSize: 14,
+  },invitePill: {
+    backgroundColor: '#eee',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginLeft: 4,
+  },
+  
+  inviteText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  
+  
+});
+
