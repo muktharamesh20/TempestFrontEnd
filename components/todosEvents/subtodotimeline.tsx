@@ -1,7 +1,11 @@
+import { supabase } from '@/constants/supabaseClient';
+import { deleteTodo } from '@/services/myCalendar';
 import { Subtodo } from '@/services/utils';
+import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { format, isBefore, parseISO } from 'date-fns';
-import { useEffect } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 interface Mastertodo {
@@ -19,6 +23,7 @@ export default function SubtodoTimeline({
   subtodos,
   setSubtodos,
   isEditing,
+  onClose,
 }: {
   currSubtodoId: string;
   setCurrSubTodoId: React.Dispatch<React.SetStateAction<string>>;
@@ -27,12 +32,20 @@ export default function SubtodoTimeline({
   subtodos: Subtodo[];
   setSubtodos: React.Dispatch<React.SetStateAction<Subtodo[]>>;
   isEditing: boolean;
+  onClose: () => void;
 }) {
   const toggleSubtodo = (id: string) => {
     setSubtodos(prev =>
       prev.map(st => (st.id === id ? { ...st, completed: !st.completed } : st))
     );
   };
+
+  const [showAddModal, setShowAddModal] = useState(false);
+const [newSubTitle, setNewSubTitle] = useState('');
+const [newSubDueDate, setNewSubDueDate] = useState<Date | null>(null);
+const [showDatePicker, setShowDatePicker] = useState(false);
+const [color, setColor] = useState('#66C7C5'); // Default color
+
 
   const addSubtodo = () => {
     const newSub = {
@@ -47,6 +60,28 @@ export default function SubtodoTimeline({
   const removeSubtodo = (id: string) => {
     setSubtodos(prev => prev.filter(st => st.id !== id));
   };
+
+  const removeMasterTodo = (id: string) => {
+    Alert.alert(
+      'Are you sure you would like to delete this todo?',
+      'Deleting this todo will also delete all sub-todos.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deleteTodo(id, supabase).then(onClose);
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+  
 
   const updateTitle = (id: string, title: string) => {
     setSubtodos(prev =>
@@ -84,8 +119,138 @@ export default function SubtodoTimeline({
     );
   };
 
+  
+
   return (
     <View style={{ marginVertical: 10 }}>
+
+{/**Modal woohoooooooooo */}
+{showAddModal && (
+  <Modal
+    transparent
+    animationType="fade"
+    visible={showAddModal}
+    onRequestClose={() => setShowAddModal(false)}
+  >
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <View
+        style={{
+          backgroundColor: 'white',
+          padding: 20,
+          borderRadius: 12,
+          width: '85%',
+        }}
+      >
+        <Text style={{ fontWeight: '600', fontSize: 16, marginBottom: 10 }}>
+          Add Subtodo
+        </Text>
+
+        <TextInput
+          placeholder="Subtodo Title"
+          value={newSubTitle}
+          onChangeText={setNewSubTitle}
+          placeholderTextColor={'#999'}
+          style={{
+            borderColor: '#ccc',
+            borderWidth: 1,
+            borderRadius: 8,
+            padding: 10,
+            marginBottom: 12,
+          }}
+        />
+
+        {/* <TouchableOpacity
+          onPress={() => setShowDatePicker(true)}
+          style={{
+            borderColor: '#ccc',
+            borderWidth: 1,
+            borderRadius: 8,
+            padding: 10,
+            marginBottom: 12,
+          }}
+        >
+          <Text style={{ color: newSubDueDate ? '#000' : '#888' }}>
+            {newSubDueDate
+              ? format(newSubDueDate, 'MMM dd yyyy')
+              : 'Select Due Date'}
+          </Text>
+        </TouchableOpacity> */}
+
+        (
+            <View style = {{
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 6,
+    gap: 4
+  }}>
+            <Ionicons name="calendar-outline" size={24} color="#555" onPress={() => setShowDatePicker(true)} />
+          <DateTimePicker
+            mode="datetime"
+            value={newSubDueDate || new Date()}
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowDatePicker(false);
+              if (selectedDate) setNewSubDueDate(selectedDate);
+            }}
+          />
+          </View>
+        )
+
+         {/* Color Picker */}
+         {isEditing && (
+            <View>
+              <Text style={{ fontWeight: '600', marginTop: 10 }}>Select Priority:</Text>
+              <View style={styles.colorRow}>
+                {["#66C7C5", "#FFD56B", "#FF9E6D", "#FF607F", "#FF3B3B"].map((c, idx) => (
+                  <TouchableOpacity key={idx} onPress={() => setColor(c)} style={[styles.colorDot, { backgroundColor: c, borderWidth: c === color ? 2 : 0 }]} />
+                ))}
+              </View>
+            </View>
+          )}
+
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+          <TouchableOpacity
+            onPress={() => {
+              setShowAddModal(false);
+              setNewSubTitle('');
+              setNewSubDueDate(null);
+            }}
+            style={{ marginRight: 15 }}
+          >
+            <Text style={{ color: '#888' }}>Cancel</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              if (!newSubTitle.trim()) return;
+              const newSub = {
+                id: Date.now().toString(),
+                title: newSubTitle,
+                completed: false,
+                dueDate: newSubDueDate?.toISOString() || '',
+              };
+              setSubtodos(prev => [...prev, newSub]);
+              setNewSubTitle('');
+              setNewSubDueDate(null);
+              setShowAddModal(false);
+            }}
+          >
+            <Text style={{ color: '#007AFF', fontWeight: '600' }}>Add</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  </Modal>
+)}
+
+
       {sortedSubtodos.map(st => (
         <View
           key={st.id}
@@ -174,18 +339,17 @@ export default function SubtodoTimeline({
         {renderDueDate(masterTodo.dueDate, masterTodo.completed)}
 
         {isEditing && (
-          <TouchableOpacity
-            onPress={() => removeSubtodo(masterTodo.id)}
-            style={{ marginLeft: 8 }}
-          >
-            <Icon name="close" type="ionicon" color="#999" size={18} />
-          </TouchableOpacity>
-        )}
+            <TouchableOpacity onPress={() => removeMasterTodo(masterTodo.id)} style={{ marginLeft: 8 }}>
+              <Icon name="close" type="ionicon" color="#999" size={18} />
+            </TouchableOpacity>
+          )}
+
       </View>
 
       {isEditing && (
         <TouchableOpacity
-          onPress={addSubtodo}
+        onPress={() => setShowAddModal(true)}
+
           style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}
         >
           <Icon name="add-circle-outline" type="ionicon" color="#555" />
@@ -195,3 +359,16 @@ export default function SubtodoTimeline({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+    colorRow: {
+        flexDirection: 'row',
+        marginVertical: 10,
+        justifyContent: 'space-between',
+      },
+      colorDot: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        marginHorizontal: 5,
+      }, });

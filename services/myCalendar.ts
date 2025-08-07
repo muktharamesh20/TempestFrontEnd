@@ -1,10 +1,8 @@
-import { SupabaseClient } from '@supabase/supabase-js'
-import dotenv from 'dotenv'
-import { Database } from '../databasetypes'
-import * as types from './utils.js'
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '../databasetypes';
+import * as types from './utils.js';
 
-//allows us to use process.env to get environment variables
-dotenv.config();
+
 
 export async function getMyCalendar(user: types.User, supabaseClient: SupabaseClient<Database>, from: Date, to: Date): Promise<any[]> {
     const { data, error } = await supabaseClient
@@ -56,9 +54,9 @@ export async function getKanban(user: types.User, supabaseClient: SupabaseClient
     return data;
 }
 
-export async function deleteTodo(todo: types.Todo, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function deleteTodo(todoId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
-        .from('todos')
+        .from('todo')
         .delete()
         .eq('id', todoId);
 
@@ -68,9 +66,9 @@ export async function deleteTodo(todo: types.Todo, supabaseClient: SupabaseClien
     }
 }
 
-export async function deleteEvent(event: types.Event, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function deleteEvent(eventId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
-        .from('events')
+        .from('event')
         .delete()
         .eq('id', eventId);
 

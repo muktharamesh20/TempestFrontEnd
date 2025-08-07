@@ -61,6 +61,16 @@ export default function EventModal({ visible, onClose, event, onSave }: eventMod
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAttendeeModal, setShowAttendeeModal] = useState(false);
+  const [privacySetting, setPrivacySetting] = useState<PrivacySetting>('private');
+
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showPrivacyViewer, setShowPrivacyViewer] = useState(false);
+
+  const visibleUsers = [
+    { id: 1, name: 'Alice', avatar: images.googleLogo },
+    { id: 2, name: 'Bob', avatar: images.googleLogo },
+    { id: 3, name: 'Charlie', avatar: images.googleLogo },
+  ];
 
 
   useEffect(() => {
@@ -150,6 +160,10 @@ export default function EventModal({ visible, onClose, event, onSave }: eventMod
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.modalContainer}>
         <View style={[styles.card, { borderLeftColor: color }]}>
+        {/* <ScrollView
+      style={{ maxHeight: '100%' }} 
+      showsVerticalScrollIndicator={false}
+    > */}
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => { onClose(); setIsEditing(false); }}>
@@ -571,6 +585,122 @@ export default function EventModal({ visible, onClose, event, onSave }: eventMod
 
           </View>
 
+            {/* Privacy */}
+
+            <Modal visible={showPrivacyViewer} animationType="slide" transparent>
+  <View style={inviteStyles.overlay}>
+    <View style={inviteStyles.modal}>
+      <Text style={inviteStyles.title}>Who Can View This</Text>
+
+      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+        {visibleUsers.map(user => (
+          <View key={user.id} style={inviteStyles.userRow}>
+            <Image source={images.googleLogo} style={inviteStyles.avatar} />
+            <Text style={inviteStyles.userName}>{user.name}</Text>
+          </View>
+        ))}
+      </ScrollView>
+
+      <TouchableOpacity onPress={() => setShowPrivacyViewer(false)} style={inviteStyles.closeButton}>
+        <Text style={{ color: '#fff' }}>Close</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
+
+
+
+
+
+
+
+
+           <View style={{ marginTop: 10 }}>
+  <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Privacy:</Text>
+  {isEditing ? (
+    <>
+      {/* Basic Options */}
+      <RadioOption
+        icon="🔒"
+        label="Private"
+        value="private"
+        selected={privacySetting === 'private'}
+        onPress={setPrivacySetting}
+      />
+      <RadioOption
+        icon="🧍‍♂️"
+        label="Close Friends"
+        value="closeFriends"
+        selected={privacySetting === 'closeFriends'}
+        onPress={setPrivacySetting}
+      />
+      <RadioOption
+        icon="🌍"
+        label="Followers"
+        value="followers"
+        selected={privacySetting === 'followers'}
+        onPress={setPrivacySetting}
+      />
+
+      {/* Advanced Toggle */}
+      <TouchableOpacity onPress={() => setShowAdvanced(!showAdvanced)} style={{ marginVertical: 6 }}>
+        <Text style={{ fontWeight: '500', color: '#555' }}>
+          {showAdvanced ? '▼ Hide Advanced' : '▶ Show Advanced'}
+        </Text>
+      </TouchableOpacity>
+
+      {showAdvanced && (
+        <>
+          <RadioOption
+            icon="🗂️"
+            label="Category-Based (Close Friends Only)"
+            value="categoryCF"
+            selected={privacySetting === 'categoryCF'}
+            onPress={setPrivacySetting}
+          />
+          <RadioOption
+            icon="🗂️"
+            label="Category-Based (Followers Only)"
+            value="categoryFollowers"
+            selected={privacySetting === 'categoryFollowers'}
+            onPress={setPrivacySetting}
+          />
+        </>
+      )}
+    </>
+  ) : (
+    // View Mode
+    <TouchableOpacity onPress={() => setShowPrivacyViewer(true)} style={styles.detailBox}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+      <Text style={{ fontSize: 18, marginRight: 8 }}>
+        {{
+          private: '🔒',
+          closeFriends: '🧍‍♂️',
+          followers: '🌍',
+          categoryCF: '🗂️',
+          categoryFollowers: '🗂️',
+        }[privacySetting]}
+      </Text>
+      <Text style={{ fontSize: 16 }}>
+        {{
+          private: 'Private',
+          closeFriends: 'Close Friends',
+          followers: 'Followers',
+          categoryCF: 'Categories (CF Only)',
+          categoryFollowers: 'Categories (Followers)',
+        }[privacySetting]}
+      </Text>
+    </View>
+    </TouchableOpacity>
+  )}
+
+
+
+</View>
+
+
+
 
 
           {/* Category Selection */}
@@ -605,7 +735,7 @@ export default function EventModal({ visible, onClose, event, onSave }: eventMod
               </ScrollView>
             </View>
           )}
-
+  {/* </ScrollView> */}
         </View>
       </View>
     </Modal>
@@ -633,6 +763,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: 'white',
     width: '90%',
+    maxHeight: '90%',
     borderRadius: 25,
     padding: 20,
     borderLeftWidth: 6,
@@ -836,3 +967,53 @@ const inviteStyles = StyleSheet.create({
 
 });
 
+
+type PrivacySetting = 'private' | 'closeFriends' | 'followers' | 'categoryCF' | 'categoryFollowers';
+
+const RadioOption = ({
+  icon,
+  label,
+  value,
+  selected,
+  onPress
+}: {
+  icon: string;
+  label: string;
+  value: PrivacySetting;
+  selected: boolean;
+  onPress: (val: PrivacySetting) => void;
+}) => (
+  <TouchableOpacity
+    onPress={() => onPress(value)}
+    style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: 4,
+    }}
+  >
+    <Text style={{ fontSize: 18, marginRight: 10 }}>{icon}</Text>
+    <Text style={{ fontSize: 16, flex: 1 }}>{label}</Text>
+    <View
+      style={{
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: '#444',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {selected && (
+        <View
+          style={{
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+            backgroundColor: '#444',
+          }}
+        />
+      )}
+    </View>
+  </TouchableOpacity>
+);

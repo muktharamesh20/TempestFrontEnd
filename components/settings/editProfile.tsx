@@ -14,12 +14,11 @@ import {
   FlatList,
   Image,
   KeyboardAvoidingView,
-  Pressable,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import Modal from 'react-native-modal';
 
@@ -43,16 +42,20 @@ const CategoryPill = ({
   label,
   selected,
   onPress,
+  addOrEdit
 }: {
   label: string;
   selected: boolean;
   onPress: () => void;
+  addOrEdit?: boolean;
 }) => (
   <TouchableOpacity
     onPress={onPress}
     style={[
       styles.pill,
-      { backgroundColor: selected ? numbers.secondaryColor : '#eee' },
+      { backgroundColor: selected ? numbers.secondaryColor : addOrEdit ?  numbers.primaryColor : '#eee' , 
+        borderWidth: addOrEdit ? 0.5 : 1,
+      },
     ]}
   >
     <Text
@@ -243,12 +246,12 @@ const EditProfileModal = ({
           multiline
         />
 
-        {allCategories.length !== 0 &&
+        {
           <View className="flex-row items-center justify-between">
             <Text style={styles.sectionTitle}>Show on profile:</Text>
-            <Pressable>
+            {/* <Pressable>
               <Text style={{ color: numbers.secondaryColor, fontSize: 14 }}>Edit Categories</Text>
-            </Pressable>
+            </Pressable> */}
           </View>
         }
         <FlatList
@@ -264,6 +267,16 @@ const EditProfileModal = ({
             />
           )}
           contentContainerStyle={{ gap: 8 }}
+          ListFooterComponent={
+            <>
+              <CategoryPill
+                label="Add/Edit Categories"
+                selected={false}
+                addOrEdit = {true}
+                onPress={() => console.log('will redirect to creating categories')}
+                />
+            </>
+          }
         />
 
 

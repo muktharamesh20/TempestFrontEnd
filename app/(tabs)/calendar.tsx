@@ -84,7 +84,7 @@ const calendar = () => {
 
       <>
         <DraggablePlusButton onPress={() => console.log('buttonPressed!')} />
-        {/*<EventModal visible={eventModalVisible} onClose={(() => setEventModalVisible(false))} event={currEvent} onSave={(event) => { setCurrEvent(event) }} />*/}
+        {/* <EventModal visible={eventModalVisible} onClose={(() => setEventModalVisible(false))} event={currEvent} onSave={(event) => { setCurrEvent(event) }} /> */}
         <TodoModal visible={eventModalVisible} onClose={() => setEventModalVisible(false)}/>
       </>
 
