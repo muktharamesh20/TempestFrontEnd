@@ -5,6 +5,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { addDays } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   Image,
   Modal,
   ScrollView,
@@ -530,13 +531,53 @@ useEffect(() => {
             </View>
           )}
 
-<View style={styles.detailBox}>
+<View style={styles.detailBox} className='flex flex-row justify-between'>
+  <View style = {styles.detailBox}>
   <Text style={{ marginRight: 10 }}>All Day</Text>
   <Switch
     value={isAllDay}
     onValueChange={isEditing ? setIsAllDay : () => {}}
     disabled={!isEditing}
   />
+  </View>
+
+{/**delete box */}
+{isEditing && (
+  <View style={{ alignItems: 'center'}}>
+    <TouchableOpacity
+      onPress={() => {
+        Alert.alert(
+          'Delete Event',
+          'Are you sure you want to delete this event?',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Delete',
+              style: 'destructive',
+              onPress: () => {
+                onSave(null); // this should trigger deletion
+                onClose();
+                setIsEditing(false); // reset editing state
+              },
+            },
+          ],
+          { cancelable: true }
+        );
+      }}
+      style={{
+        backgroundColor: '#fff0f0',
+        borderColor: '#ff4d4d',
+        borderWidth: 1,
+        paddingVertical: 6,
+        paddingHorizontal: 14,
+        borderRadius: 8,
+      }}
+    >
+      <Text style={{ color: '#ff4d4d', fontWeight: 'bold' }}>Delete Event</Text>
+    </TouchableOpacity>
+  </View>
+)}
+
 </View>
 
 
