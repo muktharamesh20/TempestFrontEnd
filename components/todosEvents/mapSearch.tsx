@@ -26,7 +26,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   setTempLocation,
 }) => {
   const [results, setResults] = useState<NominatimResult[]>([]);
-  const [inputText, setInputText] = useState(tempLocation); // for debouncing
+  const [inputText, setInputText] = useState(tempLocation);
+  const [isFocused, setIsFocused] = useState(false); // 👈 add this
 
   // Debounce effect
   useEffect(() => {
@@ -36,7 +37,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       } else {
         setResults([]);
       }
-    }, 500); // 500ms debounce
+    }, 500);
 
     return () => clearTimeout(delayDebounce);
   }, [inputText]);
@@ -56,35 +57,43 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   return (
     <View style={styles.wrapper}>
       <View style={styles.inputWrapper}>
-        <Autocomplete
-          data={results}
-          defaultValue={tempLocation}
-          value={inputText}
-          onChangeText={(text: string) => {
-            setInputText(text);
-            setTempLocation(text); // update shared state
-          }}
-          inputContainerStyle={styles.inputContainer}
-          containerStyle={{ flex: 1 }}
-          placeholder={tempLocation || 'Search location...'}
-          placeholderTextColor={'#888'}
-          flatListProps={{
-            style: styles.dropdownAbove,
-            keyExtractor: (_, index) => index.toString(),
-            renderItem: ({ item }) => (
-              <TouchableOpacity
-                style={styles.item}
-                onPress={() => {
-                  setTempLocation(item.display_name);
-                  setInputText(item.display_name);
-                  setResults([]);
-                }}
-              >
-                <Text>{item.display_name}</Text>
-              </TouchableOpacity>
-            ),
-          }}
-        />
+      <Autocomplete
+  data={isFocused ? results : []} // only show results if focused
+  defaultValue={tempLocation}
+  value={inputText}
+  onChangeText={(text: string) => {
+    setInputText(text);
+    setTempLocation(text);
+  }}
+  onFocus={() => setIsFocused(true)} // track focus
+  onBlur={() => {
+    // Delay to allow item press to register before hiding
+    setTimeout(() => setIsFocused(false), 100);
+  }}
+  inputContainerStyle={styles.inputContainer}
+  containerStyle={{ flex: 1 }}
+  placeholder={tempLocation || 'Set location... '}
+  placeholderTextColor={'#888'}
+  flatListProps={{
+    style: styles.dropdownAbove,
+    keyboardShouldPersistTaps: 'always',
+    keyExtractor: (_, index) => index.toString(),
+    renderItem: ({ item }) => (
+      <TouchableOpacity
+        style={styles.item}
+        onPress={() => {
+          setTempLocation(item.display_name);
+          setInputText(item.display_name);
+          setResults([]);
+          setIsFocused(false); // hide dropdown
+        }}
+      >
+        <Text>{item.display_name}</Text>
+      </TouchableOpacity>
+    ),
+  }}
+/>
+
       </View>
     </View>
   );
@@ -95,7 +104,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     marginRight: 20,
     marginVertical: 0,
-    zIndex: 10,
+    zIndex: 100000,
     height: 45,
   },
   inputWrapper: {
