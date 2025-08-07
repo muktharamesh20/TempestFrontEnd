@@ -1,8 +1,9 @@
 import { images } from '@/constants/images';
 import { Subtodo } from '@/services/utils';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-import React, { useState } from 'react';
-import { Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import SubtodoTimeline from './subtodotimeline';
 
@@ -45,6 +46,33 @@ export default function TodoModal({ visible, onClose }: eventModalProps) {
 
   const [subtodos, setSubtodos] = useState(subExamples)
   const [masterTodo, setMasterTodo] = useState({ id: '1', title: 'Master Todo', completed: false, dueDate: '2025-06-10' });
+  const [currSubTodoId, setCurrSubTodoId] = useState('1-1');
+  const [dueDate, setDueDate] = useState(new Date());
+
+  useEffect(() => {
+    const currentSubtodo = subtodos.find(subtodo => subtodo.id === currSubTodoId);
+    if (currentSubtodo) {
+      setTitle(currentSubtodo.title);
+      setDueDate(currentSubtodo.dueDate ? new Date(currentSubtodo.dueDate) : new Date());
+    }
+  }, [currSubTodoId, subtodos]);
+
+  const handleTitleChange = (newTitle: string) => {
+    setTitle(newTitle); // Only update local state
+  };
+
+  const saveAllChange = () => {
+    if (currSubTodoId === masterTodo.id) {
+      setMasterTodo(prev => ({ ...prev, title: title, dueDate: dueDate.toISOString() }));
+    } else {
+      setSubtodos(prev =>
+        prev.map(subtodo =>
+          subtodo.id === currSubTodoId ? { ...subtodo, title: title, dueDate: dueDate.toISOString() } : subtodo
+        )
+      );
+    }
+  };
+
 
 
   return (
@@ -56,8 +84,8 @@ export default function TodoModal({ visible, onClose }: eventModalProps) {
             <TouchableOpacity onPress={onClose}>
               <Icon name="close" type="ionicon" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
-              <Icon name="create-outline" type="ionicon" />
+            <TouchableOpacity onPress={() => { setIsEditing(!isEditing); saveAllChange() }}>
+              <Icon name={isEditing ? 'checkmark' : "create-outline"} type="ionicon" />
             </TouchableOpacity>
           </View>
 
@@ -66,34 +94,16 @@ export default function TodoModal({ visible, onClose }: eventModalProps) {
             <TextInput
               style={styles.titleInput}
               value={title}
-              onChangeText={setTitle}
+              onChangeText={handleTitleChange}
             />
           ) : (
             <Text style={styles.title}>{title}</Text>
           )}
 
-          {/* Tags */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tagContainer}>
-            {categories.map((tag, idx) => (
-              <View key={idx} style={styles.tag}>
-                <Text style={styles.tagText}>{tag}</Text>
-              </View>
-            ))}
-          </ScrollView>
-
-          {/* Avatars */}
-          <View style={styles.avatarGroup}>
-            {avatars.map((src, idx) => (
-              <Image key={idx} source={src} style={styles.avatar} />
-            ))}
-            <View style={styles.moreAvatar}><Text style={styles.moreText}>35+</Text></View>
-          </View>
-
-
-
 
           <SubtodoTimeline
-            currSubtodoId='1-1'
+            currSubtodoId={currSubTodoId}
+            setCurrSubTodoId={setCurrSubTodoId}
             masterTodo={masterTodo}
             setMasterTodo={setMasterTodo}
             subtodos={subtodos}
@@ -101,76 +111,56 @@ export default function TodoModal({ visible, onClose }: eventModalProps) {
             isEditing={isEditing}
           />
 
+
+
           {/* Time */}
           <View style={styles.detailBox}>
-            <Icon name="time-outline" type="ionicon" size={20} />
+            {/* <Icon name="time-outline" type="ionicon" size={20} /> */}
+
+
+
+
             {isEditing ? (
               <>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <TimePickerDropdown time={startTime} setTime={setStartTime} />
-                  <Text style={{ marginHorizontal: 5 }}>–</Text>
-                  <TimePickerDropdown time={endTime} setTime={setEndTime} />
-                </View>
 
+                <>
+                  <View className='flex flex-row items-center gap-3'>
+                    <Icon name="time-outline" type="ionicon" size={20} />
+                    <DateTimePicker
+                      value={dueDate}
+                      mode="date"
+                      display="default"
+                      onChange={(event, selectedDate) => {
+                        setDueDate(selectedDate || dueDate);
+                      }}
+                    />
+                  </View>
+                </>
               </>
             ) : (
-              <Text style={styles.detailText}>{`Wed, Jun 9 • ${startTime} – ${endTime}`}</Text>
+              <View className='flex flex-row items-center'>
+                <Icon name="time-outline" type="ionicon" size={20} />
+                <Text style={styles.detailText}>
+
+                  {dueDate.toDateString()}
+                </Text></View>
+
             )}
+
           </View>
 
-          {/* Repetition */}
-          <View style={styles.detailBox}>
-            <Icon name="repeat-outline" type="ionicon" size={20} />
-            {isEditing ? (
-              <Picker
-                selectedValue={repetition}
-                style={{ flex: 1 }}
-                onValueChange={(value) => setRepetition(value)}
-              >
-                {['None', 'Daily', 'Weekly', 'Biweekly', 'Monthly', 'Yearly'].map((option) => (
-                  <Picker.Item key={option} label={option} value={option} />
-                ))}
-              </Picker>
 
-            ) : (
-              <Text style={styles.detailText}>{repetition}</Text>
-            )}
-          </View>
 
-          {/* Location */}
-          <View style={styles.detailBox}>
-            <Icon name="location-outline" type="ionicon" size={20} />
-            {isEditing ? (
-              <TextInput
-                style={styles.detailText}
-                value={location}
-                onChangeText={setLocation}
-              />
-            ) : (
-              <Text style={styles.detailText}>{location}</Text>
-            )}
-          </View>
 
           {/* Color Picker */}
           {isEditing && (
-            <View style={styles.colorRow}>
-              {["#FFD700", "#87CEFA", "#FF69B4", "#98FB98", "#FFA07A"].map((c, idx) => (
-                <TouchableOpacity key={idx} onPress={() => setColor(c)} style={[styles.colorDot, { backgroundColor: c, borderWidth: c === color ? 2 : 0 }]} />
-              ))}
-            </View>
-          )}
-
-          {/* Category Selection */}
-          {isEditing && (
-            <View style={styles.categoryPicker}>
-              <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Add Categories:</Text>
-              <ScrollView horizontal>
-                {allCategories.map((cat, idx) => (
-                  <TouchableOpacity key={idx} onPress={() => toggleCategory(cat)} style={[styles.tag, { backgroundColor: categories.includes(cat) ? '#add8e6' : '#eee' }]}>
-                    <Text>{cat}</Text>
-                  </TouchableOpacity>
+            <View>
+              <Text style={{ fontWeight: '600', marginTop: 10 }}>Select Priority</Text>
+              <View style={styles.colorRow}>
+                {["#66C7C5", "#FFD56B", "#FF9E6D", "#FF607F", "#FF3B3B"].map((c, idx) => (
+                  <TouchableOpacity key={idx} onPress={() => setColor(c)} style={[styles.colorDot, { backgroundColor: c, borderWidth: c === color ? 2 : 0 }]} />
                 ))}
-              </ScrollView>
+              </View>
             </View>
           )}
 
