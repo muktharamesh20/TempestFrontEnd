@@ -242,6 +242,7 @@ export async function getTaggedPostsFrom(userId: string, supabaseClient: Supabas
 export async function toggleCloseFrined(myId: string, userId: string, isCloseFriend: boolean, supabaseClient: SupabaseClient<Database>): Promise<void> {
     //throw new Error('Function not implemented.'); // This function is not fully implemented yet, so we throw an error for now.
     if (isCloseFriend) {
+        console.log('Adding close friend:', myId, userId);
         const { error } = await supabaseClient
           .from('people_to_close_friends')
           .insert({ person_id: myId, close_friend: userId });

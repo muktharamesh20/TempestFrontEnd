@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthSessionMissingError, createClient, processLock, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, processLock, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '../databasetypes';
+import { resetUserId } from './api';
 import { unregisterPushNotificationsAsync } from './pushNotifications';
 
 // Create a single supabase client for interacting with your database
@@ -74,19 +75,11 @@ export async function signInAndGetToken(email: string, password: string, supabas
  * @throws Will throw an error if the sign out fails (already signed out, invalid token, etc.) Will throw 
  * AuthSessionMissingError if the token is invalid or the session has expired.
  */
-export async function signOut(token: string, supabaseClient: SupabaseClient<Database>, scope?: 'global' | 'local' | 'others'): Promise<void> {
+export async function signOut(supabaseClient: SupabaseClient<Database>): Promise<void> {
   //const { error } = await supabase.auth.signOut();
-  const { error: revokeError } = await supabaseClient.auth.admin.signOut(token, scope);
+  await resetUserId();
   unregisterPushNotificationsAsync(false);
-
-  if (revokeError) {
-    if (revokeError instanceof AuthSessionMissingError) {
-      console.error('Unauthorized: Invalid token or session expired');
-    } else {
-      console.error('Server-side sign out error:', revokeError.message);
-    };
-    throw revokeError;
-  }
+  await supabaseClient.auth.signOut(); // Sign out from client side  
 }
 
 /**

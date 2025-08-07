@@ -168,6 +168,10 @@ export default function RootLayout() {
             name="habitProgress/[id]"
             options={{ headerShown: false}}
           />
+          <Stack.Screen
+            name="settings"
+            options={{ headerShown: false }}
+          />
         </Stack>
 
         <Modal visible={mustAddUsername} transparent animationType="fade">

@@ -99,7 +99,7 @@ const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId, editPro
                     setUser({ ...user, youfollowing: true, numfollowers: user.numfollowers + 1 });
                   }
                 }}>
-                  <Text className="text-sm font-medium">Follow</Text>
+                  <Text className="text-sm font-medium">{user.theyfollowing ? 'Follow Back' : 'Follow'}</Text>
                 </TouchableOpacity>
               )}
               {!user.youfollowing && user.yourequestedfollow && (

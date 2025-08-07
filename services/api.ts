@@ -42,5 +42,7 @@ export async function getUserId() {
 }
 
 export async function resetUserId() {
+    console.log( 'resetting!');
     await AsyncStorage.removeItem('userId');
+    console.log('UserId reset!');
 }
