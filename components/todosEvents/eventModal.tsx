@@ -531,7 +531,7 @@ useEffect(() => {
             </View>
           )}
 
-<View style={styles.detailBox} className='flex flex-row justify-between'>
+<View style={{...styles.detailBox, marginVertical: isEditing ? 2 : -8}} className='flex flex-row justify-between'>
   <View style = {styles.detailBox}>
   <Text style={{ marginRight: 10 }}>All Day</Text>
   <Switch
@@ -548,7 +548,7 @@ useEffect(() => {
       onPress={() => {
         Alert.alert(
           'Delete Event',
-          'Are you sure you want to delete this event?',
+          'Are you sure you want to delete this event from your calendar?',
           [
             { text: 'Cancel', style: 'cancel' },
             {
@@ -586,7 +586,7 @@ useEffect(() => {
           {isEditing && (
             <View style={styles.categoryPicker}>
               <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Add Categories:</Text>
-              <ScrollView horizontal>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {allCategories.map((cat, idx) => (
                   <TouchableOpacity
                     key={idx}
@@ -595,6 +595,11 @@ useEffect(() => {
                     <Text>{cat}</Text>
                   </TouchableOpacity>
                 ))}
+                <TouchableOpacity
+                    onPress={() => console.log('add/edit categoriy')}
+                    style={[styles.tag, { borderColor: '#000', borderWidth: 1 }]}>
+                    <Text>Add/Edit Categories</Text>
+                  </TouchableOpacity>
               </ScrollView>
             </View>
           )}
