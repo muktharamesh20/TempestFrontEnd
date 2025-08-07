@@ -220,7 +220,17 @@ export function generateUUID(): string {
         return value.toString(16);
     });
 }
-
+export type Subtodo = {
+    id: string;
+    title: string;
+    completed: boolean;
+    dueDate: string;
+};
+export interface SubtodoTimelineProps {
+    subtodos: Subtodo[];
+    setSubtodos: React.Dispatch<React.SetStateAction<Subtodo[]>>;
+    isEditing: boolean;
+}
 
 type TodoDetails = {
     actual_time_taken: number | null;

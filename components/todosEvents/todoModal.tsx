@@ -1,8 +1,10 @@
 import { images } from '@/constants/images';
+import { Subtodo } from '@/services/utils';
 import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
+import SubtodoTimeline from './subtodotimeline';
 
 
 const avatars = [
@@ -34,6 +36,16 @@ export default function TodoModal({ visible, onClose }: eventModalProps) {
       prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
     );
   };
+
+  const subExamples: Subtodo[] = [
+    { id: '1-1', title: 'Finalize Landing Page', completed: false, dueDate: '2024-06-10' },
+    { id: '1-2', title: 'Bug Fixes', completed: true, dueDate: '2024-06-11' },
+    { id: '1-3', title: 'Invite Friends', completed: false, dueDate: '2024-06-12' },
+  ]
+
+  const [subtodos, setSubtodos] = useState(subExamples)
+  const [masterTodo, setMasterTodo] = useState({ id: '1', title: 'Master Todo', completed: false, dueDate: '2025-06-10' });
+
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -76,6 +88,18 @@ export default function TodoModal({ visible, onClose }: eventModalProps) {
             ))}
             <View style={styles.moreAvatar}><Text style={styles.moreText}>35+</Text></View>
           </View>
+
+
+
+
+          <SubtodoTimeline
+            currSubtodoId='1-1'
+            masterTodo={masterTodo}
+            setMasterTodo={setMasterTodo}
+            subtodos={subtodos}
+            setSubtodos={setSubtodos}
+            isEditing={isEditing}
+          />
 
           {/* Time */}
           <View style={styles.detailBox}>

@@ -138,13 +138,6 @@ export default function EventModal({ visible, onClose, event, onSave }: eventMod
     );
   };
 
-  const formatTime = (date: Date) => {
-    const hours = date.getHours() % 12 || 12;
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
-    return `${hours}:${minutes} ${ampm}`;
-  };
-
   useEffect(() => {
     if (event) {
       setTitle(event.title || '');

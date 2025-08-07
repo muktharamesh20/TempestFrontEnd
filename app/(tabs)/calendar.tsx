@@ -2,7 +2,7 @@
 import DayCalendar from '@/components/DayCalendar';
 import MonthCalendar from '@/components/MonthCalendar';
 import DraggablePlusButton from '@/components/todosEvents/draggableButton';
-import EventModal from '@/components/todosEvents/eventModal';
+import TodoModal from '@/components/todosEvents/todoModal';
 import WeekCalendar from '@/components/WeekCalendar';
 import { calendarGroupProps, calendarPersonProps, drawerProps, EventDetailsForNow } from '@/services/utils';
 import { useIsFocused } from '@react-navigation/native';
@@ -84,8 +84,8 @@ const calendar = () => {
 
       <>
         <DraggablePlusButton onPress={() => console.log('buttonPressed!')} />
-        <EventModal visible={eventModalVisible} onClose={(() => setEventModalVisible(false))} event={currEvent} onSave={(event) => { setCurrEvent(event) }} />
-
+        {/*<EventModal visible={eventModalVisible} onClose={(() => setEventModalVisible(false))} event={currEvent} onSave={(event) => { setCurrEvent(event) }} />*/}
+        <TodoModal visible={eventModalVisible} onClose={() => setEventModalVisible(false)}/>
       </>
 
 
@@ -95,6 +95,27 @@ const calendar = () => {
 
 export default calendar
 
+// Example props usage (for reference):
+/*
+<TodoModal
+  visible={true}
+  onClose={() => console.log('Closed')}
+  todo={{
+    title: 'Plan birthday party',
+    dueDate: '2025-08-10T00:00:00Z',
+    repeat: 'weekly',
+    location: 'Central Park',
+    allDay: true,
+    completed: false,
+  }}
+  subtodos={[
+    { id: '1', title: 'Buy cake', completed: true, completedBy: 'Alice', dueDate: '2025-08-08' },
+    { id: '2', title: 'Send invites', completed: false, dueDate: '2025-08-09' },
+    { id: '3', title: 'Book picnic spot', completed: false, dueDate: '2025-08-07', isMaster: true },
+  ]}
+  onSubtodoPress={(sub) => console.log('Subtodo pressed:', sub)}
+/>
+*/
 
 
 const sampleEvents: EventDetailsForNow[] = [
