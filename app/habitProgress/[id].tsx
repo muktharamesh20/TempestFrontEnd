@@ -4,7 +4,6 @@ import { numbers } from '@/constants/numbers';
 import { useIsFocused } from '@react-navigation/native';
 import { differenceInCalendarWeeks, eachDayOfInterval, endOfMonth, format, getDay, isBefore, isSameDay, startOfMonth, subMonths } from 'date-fns';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
@@ -46,11 +45,9 @@ const dayCellInnerWidth = Math.floor(cellSize * 0.9); // 90% of width like befor
 const HabitProgressCalendar = () => {
 
   const insets = useSafeAreaInsets();
-  const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [visibleMonthCount, setVisibleMonthCount] = useState(3);
   const [contentHeight, setContentHeight] = useState(0);
-  const [scrollY, setScrollY] = useState(0);
   const { height: windowHeight } = useWindowDimensions();
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [loadingDots, setLoadingDots] = useState('');
@@ -198,7 +195,6 @@ const getStreakStats = (dates: Date[]) => {
 
   const handleScroll = async (event: any) => {
     const { contentOffset } = event.nativeEvent;
-    setScrollY(contentOffset.y);
   
     const nearBottom = contentOffset.y + windowHeight >= contentHeight - 100;
     if (nearBottom && visibleMonthCount < months.length && !isLoadingMore) {
@@ -241,26 +237,7 @@ const getStreakStats = (dates: Date[]) => {
     paddingBottom: insets.bottom + 30,
     backgroundColor: numbers.primaryColor,
   }}
-//   stickyHeaderIndices={[0]} // <-- makes the first child sticky
 >
-  {/* Sticky Header
-  <View style={styles.stickyStatsContainer}>
-    <View style={styles.statsRow}>
-      <View style={styles.statsLeft}>
-        <Text style={styles.statsText}>Current Streak: {currentStreak} 🔥</Text>
-        <Text style={styles.statsText}>Longest Streak: {longestStreak} 🏆</Text>
-      </View>
-      <View style={styles.statsRight}>
-        <Text style={styles.statsText}>
-          Completion: {percentage}% ({completed}/{total})
-        </Text>
-      </View>
-    </View>
-    <View style={styles.divider} />
-  </View> */}
-
-
-
       {visibleMonths.map((month, i) => (
         <View key={i} style={styles.monthContainer}>
           <Text style={styles.monthLabel}>{month.label}</Text>
@@ -469,12 +446,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignSelf: 'center', // <-- centers inside dayCell
   },
-
-  borderImageStyle: {
-    borderRadius: 12,
-    resizeMode: 'stretch',
-  },
-
   cellInnerBlue: {
     width: '100%',
     height: '100%',
@@ -488,13 +459,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-  },
-  
-  
-  
-  
-  
-  
+  },  
 });
 
 export default HabitProgressCalendar;

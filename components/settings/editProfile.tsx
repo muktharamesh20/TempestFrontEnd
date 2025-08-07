@@ -84,24 +84,16 @@ const EditProfileModal = ({
   const [username, setUsername] = useState(currentUsername);
   const [bio, setBio] = useState(currentBio);
   const [uploading, setUploading] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [fullCategories, setFullCategories] = useState<Category[]>([]);
   const [avImage, setAvImage] = useState(currentAvatar);
 
   useEffect(() => {
-    setSelectedCategories(categories.filter((value) => value.visible === true).map((value) => value.name)) //(value) => value.group ? value.name + ' (group)': value.name)
     setAllCategories(categories.map((value) => value.name));
     setFullCategories(categories.map((value) => value))
   }, [categories])
 
   const toggleCategory = (category: string, categoryId: string) => {
-    setSelectedCategories(prev =>
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
-
     setFullCategories(
       fullCategories.map(value =>
         value.id === categoryId
@@ -174,9 +166,6 @@ const EditProfileModal = ({
 
       // Prefetch and store in cache
       try {
-        // Check cache
-
-
         // Prefetch and store in cache
         await Image.prefetch(profilePicUrl);
         setCurrAvatar(profilePicUrl);
@@ -360,15 +349,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-
-
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
     color: numbers.secondaryColor,
     marginBottom: 4,
   },
-
   pill: {
     paddingHorizontal: 10,
     paddingVertical: 4, // keep this small
@@ -379,6 +365,4 @@ const styles = StyleSheet.create({
     alignItems: 'center', // <-- centers text horizontally
     height: 28, // set explicit height to control vertical alignment
   },
-
-
 });

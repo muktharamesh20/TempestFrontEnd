@@ -45,7 +45,6 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
     TABS.map(tab => ({ key: tab, title: tab }))
   );
 
-  const [activeTab, setActiveTab] = useState<Tab>('To Do');
   const [showAddOptions, setShowAddOptions] = useState(false);
   const [showSortOptions, setShowSortOptions] = useState(false);
 

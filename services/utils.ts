@@ -195,6 +195,8 @@ export interface EventDetails {
     working_on_this_todo: string | null;
 }
 
+export const dummyPost: postDetails = { postId: "dummy", taskOrEventName: "Dummy Post", personID: "0", myPost: true, username: 'dummyUser', thoughts: "This is a dummy post for testing purposes.", hashtags: ['test', 'dummy'], timeCreated: new Date("2023-10-01T12:00:00Z"), likes: 0, comments: 0, alreadyLiked: false, alreadySaved: false, archived: false };
+
 export interface EventDetailsForNow {
     title: string;
     start: Date;

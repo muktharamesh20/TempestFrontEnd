@@ -64,8 +64,6 @@ const MultiWeekCalendar: React.FC<multiWeekCalendarView> = ({
     addDays(centerDate, 7),
   ];
 
-  const INITIAL_HEIGHT = 60;
-
   return (
     <ScrollView
       horizontal

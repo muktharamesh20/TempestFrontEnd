@@ -64,8 +64,6 @@ const MultiDayCalendar: React.FC<MultiDayCalendarProps> = ({
     addDays(centerDate, 1),
   ];
 
-  const INITIAL_HEIGHT = 60;
-
   return (
     <ScrollView
       horizontal

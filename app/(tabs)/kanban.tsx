@@ -1,13 +1,11 @@
 import KanbanPage from '@/components/kanban'
 import { numbers } from '@/constants/numbers'
 import { addDays } from 'date-fns'
-import React, { useState } from 'react'
+import React from 'react'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const kanban = () => {
-  const [visible, setVisible] = useState(true);
-  const [showModal, setShowModal] = useState(true);
   const insets = useSafeAreaInsets();
   return (
     <View style={{ flex: 1, backgroundColor: numbers.secondaryColor, paddingTop: insets.top }}>

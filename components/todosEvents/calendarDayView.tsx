@@ -477,43 +477,6 @@ const styles = StyleSheet.create({
   },
 });
 
-function isAllDay(ev: EventDetailsForNow): boolean {
-  const start = new Date(ev.start);
-  const end = new Date(ev.end);
-
-  // Detect if event starts at 00:00 and ends at 23:59 (typical all-day span)
-  return (
-    start.getHours() === 0 &&
-    start.getMinutes() === 0 &&
-    start.getSeconds() === 0 &&
-    end.getHours() === 23 &&
-    end.getMinutes() === 59
-  );
-}
-
-// Example usage in your code
-
-
-
-const getDayStart = () => {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-};
-
-const getDayEnd = () => {
-  const d = new Date();
-  d.setHours(23, 59, 59, 999);
-  return d;
-};
-
-// Updated check to see if event intersects the current day
-const doesEventIntersectDay = (start: Date, end: Date, dayStart: Date, dayEnd: Date) =>
-  end >= dayStart && start <= dayEnd;
-
-// More robust check for all-day events
-const isAllDayEvent = (start: Date, end: Date, dayStart: Date, dayEnd: Date) =>
-  start <= dayStart && end >= dayEnd;
 export default CalendarDayView;
 
 

@@ -2,7 +2,7 @@ import { numbers } from '@/constants/numbers';
 import { SB_STORAGE_CONFIG } from '@/services/api';
 import { ModalPersonType } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   FlatList,
@@ -16,7 +16,6 @@ import {
   View,
 } from 'react-native';
 import Modal from 'react-native-modal';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface personsModalProps {
   visible: boolean;
@@ -26,10 +25,8 @@ interface personsModalProps {
 }
 
 const PersonsModal = ({ visible, people, onClose, message }: personsModalProps): React.JSX.Element => {
-  const insets = useSafeAreaInsets();
   const [search, setSearch] = useState('');
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
-  const navigation = useRouter();
 
   useEffect(() => {
     const fetchImageUrls = async () => {
@@ -189,9 +186,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: numbers.secondaryColor,
-  },
-  timeText: {
-    fontSize: 13,
-    color: '#999',
   },
 });

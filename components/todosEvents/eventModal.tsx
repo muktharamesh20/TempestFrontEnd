@@ -42,7 +42,6 @@ const attendees: avatar[] = [
 
 
 export default function EventModal({ visible, onClose, event, onSave }: eventModalProps) {
-  const [open, setOpen] = useState(false);
   const [repeatValue, setRepeatValue] = useState('None');
   const [isRepeatOpen, setIsRepeatOpen] = useState(false);
   const [endRepeat, setEndRepeat] = useState<Date | undefined>(undefined);
@@ -57,8 +56,6 @@ export default function EventModal({ visible, onClose, event, onSave }: eventMod
   const [endDate, setEndDate] = useState(new Date());
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date(new Date().getTime() + 90 * 60000));
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
   const [selectedDay, setSelectedDay] = useState<number>(startDate.getDay())
   const [tempLocation, setTempLocation] = useState(location); // holds edits while editing
   const [showInviteModal, setShowInviteModal] = useState(false);

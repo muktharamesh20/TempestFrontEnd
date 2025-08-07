@@ -127,10 +127,6 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
   const today = new Date();
   const todayDate = format(today, 'd');
 
-  const handleTogglePublic = () => {
-    console.log('Toggle public clicked');
-  };
-
   return (
     <View style={{ flex: 1, backgroundColor: numbers.primaryColor }}>
       <View

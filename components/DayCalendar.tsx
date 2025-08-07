@@ -175,10 +175,6 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
       },
       onPanResponderRelease: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
         if (gestureState.dx > 20) {
-          // Swiped right — go to previous day
-          // setFocusedDay((prev) => addDays(prev, -1));
-          // setViewingDateFunc(addDays(focusedDay, -1));
-          //scrollToDate(addDays(focusedDay,-1))
           setFocusedDay((prev) => {
             const newDate = addDays(prev, -1);
             setViewingDateFunc(newDate);
@@ -186,10 +182,6 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
             return newDate;
           });
         } else if (gestureState.dx < -20) {
-          // Swiped left — go to next day
-          // setFocusedDay((prev) => addDays(prev, 1));
-          // setViewingDateFunc(addDays(focusedDay, 1));
-          //scrollToDate(addDays(focusedDay,1))
           setFocusedDay((prev) => {
             const newDate = addDays(prev, 1);
             setViewingDateFunc(newDate);

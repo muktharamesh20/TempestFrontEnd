@@ -39,9 +39,6 @@ export function generateOccurrences(
 
   const isAllDay = event.isAllDay ?? false;
 
-  const originalStart = isAllDay ? toDateOnly(event.start) : new Date(event.start);
-  const originalEnd = isAllDay ? toDateOnly(event.end) : new Date(event.end);
-
   const eventsForNow: EventDetailsForNow[] = [];
 
   const cloneDateWithTime = (base: Date, reference: Date): Date => {
@@ -189,13 +186,10 @@ const hours = Array.from({ length: 24 }, (_, i) =>
   `${i.toString().padStart(2, '0')}:00`
 );
 
-const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
 const MIN_HEIGHT = 30;
 const MAX_HEIGHT = 200;
 const INITIAL_HEIGHT = 60;
 
-const EVENT_TOP_OFFSET = 20;
 const SHOW_TIME_THRESHOLD = 90;
 
 // Helper function to interpolate font size between min and max based on hourHeight

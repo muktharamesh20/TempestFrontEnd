@@ -3,7 +3,6 @@ import { getUserId } from '@/services/api';
 import { changeUsername } from '@/services/usersettings';
 import { Filter } from 'bad-words';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -14,11 +13,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SetUsername = ({ closeFunction }: { closeFunction: Dispatch<SetStateAction<boolean>> }) => {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
   const [username, setUsername] = useState('');
 
   const fadeAnim = useRef(new Animated.Value(0)).current;

@@ -2,7 +2,7 @@ import { numbers } from '@/constants/numbers';
 import { SB_STORAGE_CONFIG } from '@/services/api';
 import { Like } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   FlatList,
@@ -16,7 +16,6 @@ import {
   View,
 } from 'react-native';
 import Modal from 'react-native-modal';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface LikesModalProps {
   visible: boolean;
@@ -27,11 +26,9 @@ interface LikesModalProps {
 const LIKES_PAGE_SIZE = 20;
 
 const LikesModal = ({ visible, likes, onClose }: LikesModalProps): React.JSX.Element => {
-  const insets = useSafeAreaInsets();
   const [search, setSearch] = useState('');
   const [likesToShow, setLikesToShow] = useState(LIKES_PAGE_SIZE);
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
-  const navigation = useRouter();
 
   useEffect(() => {
     const fetchImageUrls = async () => {
