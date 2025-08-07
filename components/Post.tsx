@@ -73,19 +73,19 @@ const PostCard = ({ post, onOpenModal, deleteFromFeed }: postCardProps) => {
         <View className="flex flex-col gap-0">
             {/* Post Card Header */}
             <View className='flex flex-row h-[60px] justify-between items-center pl-[12px] pr-4 w-full bg-primary'>
-            <Link href = {`/profiles/${post.personID}`} asChild>
-            <Pressable>
-                <View className='flex flex-row gap-2 items-center'>
-                    
+                <Link href={`/profiles/${post.personID}`} asChild>
+                    <Pressable>
+                        <View className='flex flex-row gap-2 items-center'>
+
                             <Image source={{ uri: imageUrl }} className='w-[45px] h-[45px] border rounded-full justify-center'
-                            resizeMode='cover' />
-                   
-                    <View className='flex flex-col justify-center mb-[2px] ml-[1px]'>
-                        <Text className='text-lg font-semibold text-black'>{post.taskOrEventName}</Text>
-                        <Text className='text-sm text-secondary mt-[-3px]'>{post.username}</Text>
-                    </View>
-                </View>
-                </Pressable>
+                                resizeMode='cover' />
+
+                            <View className='flex flex-col justify-center mb-[2px] ml-[1px]'>
+                                <Text className='text-lg font-semibold text-black'>{post.taskOrEventName}</Text>
+                                <Text className='text-sm text-secondary mt-[-3px]'>{post.username}</Text>
+                            </View>
+                        </View>
+                    </Pressable>
                 </Link>
 
                 {post.myPost &&
@@ -188,9 +188,9 @@ const PostCard = ({ post, onOpenModal, deleteFromFeed }: postCardProps) => {
 
                 <Text className='text-sm text-secondary mt-[-3px] capitalize px-4 pt-1'>{getRelativeTime(post.timeCreated)}</Text>
 
-                
+
                 <Pressable onPress={() => onOpenModal?.(post.postId, 'comments')}>
-                <Text className="text-xs text-secondary px-4 pb-2">View all comments</Text>
+                    <Text className="text-xs text-secondary px-4 pb-2">View all comments</Text>
                 </Pressable>
 
                 <PostOptionsModal

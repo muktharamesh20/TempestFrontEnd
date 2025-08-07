@@ -93,7 +93,7 @@ const otherProfile = () => {
         }
 
         setPostRows(grouped);
-        setAllCategories(await getAllCategories(myId[0] as string ,supabase));
+        setAllCategories(await getAllCategories(myId[0] as string, supabase));
       } catch (error) {
         console.error('Error fetching user or posts:', error);
       }
@@ -168,14 +168,14 @@ const otherProfile = () => {
   // const handleEndReached = async () => {
   //   // optional: prevent firing repeatedly
   //   if (visibleRowCount >= user.categories.length) return;
-  
+
   //   // Wait for 300ms before loading more
   //   await new Promise(resolve => setTimeout(resolve, 300));
-  
+
   //   setVisibleRowCount(prev => Math.min(prev + 5, user.categories.length));
   // };
-  
-  
+
+
 
 
   return (
@@ -183,7 +183,7 @@ const otherProfile = () => {
       <OtherProfileHeader username={user.username ?? 'Unknown'} threeDotsPressed={threeDotsPressedFunc} />
       {isFocused && <StatusBar style="dark" />}
 
-      <EditProfileModal visible={openEditProfile} currentBio={user.bio || ''}  currentAvatar={profilePicture} setCurrAvatar={setImageUrl} currentUsername={user.username || ''} onClose={() => setOpenEditProfile(false)}  onSave = {async ({username, bio, selectedCategories}) => {await changeBio(bio, myId, supabase); try {await changeVisibleCTs(selectedCategories, myId || '', supabase);} catch {Alert.alert('Error changing Viewership Tags')}; try{await changeUsername(username, myId || '', supabase)} catch{Alert.alert('Username already taken or invalid username')}}} categories={allCategories}  currentId={myId || ''}/>
+      <EditProfileModal visible={openEditProfile} currentBio={user.bio || ''} currentAvatar={profilePicture} setCurrAvatar={setImageUrl} currentUsername={user.username || ''} onClose={() => setOpenEditProfile(false)} onSave={async ({ username, bio, selectedCategories }) => { await changeBio(bio, myId, supabase); try { await changeVisibleCTs(selectedCategories, myId || '', supabase); } catch { Alert.alert('Error changing Viewership Tags') }; try { await changeUsername(username, myId || '', supabase) } catch { Alert.alert('Username already taken or invalid username') } }} categories={allCategories} currentId={myId || ''} />
 
       <UserActionsModal
         visible={showUserActions}
@@ -242,7 +242,7 @@ const otherProfile = () => {
           stickyHeaderIndices={[1]}
           ListHeaderComponent={
             <View>
-              <ProfileContentHeader profilePicture={profilePicture} user={user} setUser={setUser} id={id as string} myId={myId || ''} editProfile={() => {setOpenEditProfile(true);}} />
+              <ProfileContentHeader profilePicture={profilePicture} user={user} setUser={setUser} id={id as string} myId={myId || ''} editProfile={() => { setOpenEditProfile(true); }} />
             </View>
           }
           ListHeaderComponentStyle={{ zIndex: 1 }}
@@ -250,7 +250,7 @@ const otherProfile = () => {
         />
         //if not tagged tabƒ
         : <FlatList
-        data={[dummyRow, ...user.categories.slice(0, visibleRowCount)]}
+          data={[dummyRow, ...user.categories.slice(0, visibleRowCount)]}
 
           keyExtractor={(_, index) => `row-${index}`}
           renderItem={({ item, index }) => {
@@ -275,7 +275,7 @@ const otherProfile = () => {
           stickyHeaderIndices={[1]}
           ListHeaderComponent={
             <View>
-              <ProfileContentHeader profilePicture={profilePicture} user={user} setUser={setUser} id={id as string} myId={myId || ''} editProfile={() => {setOpenEditProfile(true);}} />
+              <ProfileContentHeader profilePicture={profilePicture} user={user} setUser={setUser} id={id as string} myId={myId || ''} editProfile={() => { setOpenEditProfile(true); }} />
             </View>}
           ListHeaderComponentStyle={{ zIndex: 1 }}
           ListFooterComponent={<View className="h-12" />}

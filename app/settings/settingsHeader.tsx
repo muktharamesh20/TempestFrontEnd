@@ -5,7 +5,7 @@ import React from 'react'
 import { Text, TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-const SettingsHeader = ({headerName}: {headerName: string}) => {
+const SettingsHeader = ({ headerName }: { headerName: string }) => {
   const insets = useSafeAreaInsets()
   const navigation = useNavigation()
 

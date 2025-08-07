@@ -65,7 +65,7 @@ export default function MyProfile() {
         const userDetails: ProfileSummary = await getUserProfileSummary(myId[0], supabase);
         setUser(userDetails);
         setMyId(myId[0])
-        
+
         const dummyPosts = Array.from({ length: 30 }, (_, i) => ({
           id: `${i + 1}`,
           imageLink: `${SB_STORAGE_CONFIG.BASE_URL}post${(i % 3) + 1}.jpg`,
@@ -78,8 +78,8 @@ export default function MyProfile() {
 
         setPostRows(grouped);
 
-        setAllCategories(await getAllCategories(myId[0] as string ,supabase));
-        console.log("fetched categories",allCategories)
+        setAllCategories(await getAllCategories(myId[0] as string, supabase));
+        console.log("fetched categories", allCategories)
       } catch (error) {
         console.error('Error fetching user or posts:', error);
       }
@@ -142,28 +142,28 @@ export default function MyProfile() {
 
   if (!user) return <Text className="text-center mt-10">Loading...</Text>;
 
-  
-
-const handleShowMoreRows = () => {
-  setVisibleRowCount(prev => prev + 5);
-};
 
 
-const handleEndReached = async () => {
-  // optional: prevent firing repeatedly
-  if (visibleRowCount >= user.categories.length) return;
+  const handleShowMoreRows = () => {
+    setVisibleRowCount(prev => prev + 5);
+  };
 
-  setVisibleRowCount(prev => Math.min(prev + 5, user.categories.length));
-};
+
+  const handleEndReached = async () => {
+    // optional: prevent firing repeatedly
+    if (visibleRowCount >= user.categories.length) return;
+
+    setVisibleRowCount(prev => Math.min(prev + 5, user.categories.length));
+  };
 
 
 
   return (
     <View className="flex-1 bg-primary">
-      <ProfileHeader/>
+      <ProfileHeader />
       {isFocused && <StatusBar style="dark" />}
 
-      <EditProfileModal visible={openEditProfile} currentBio={user.bio || ''}  setCurrAvatar={setImageUrl}  currentAvatar={profilePicture} currentUsername={user.username || ''} onClose={() => setOpenEditProfile(false)}  onSave = {async ({username, bio, selectedCategories}) => {await changeBio(bio, myId, supabase); try {await changeVisibleCTs(selectedCategories, myId || '', supabase);} catch {Alert.alert('Error changing Viewership Tags')}; try{await changeUsername(username, myId || '', supabase)} catch{Alert.alert('Username already taken or invalid username')}}} categories={allCategories}  currentId={myId || ''}/>
+      <EditProfileModal visible={openEditProfile} currentBio={user.bio || ''} setCurrAvatar={setImageUrl} currentAvatar={profilePicture} currentUsername={user.username || ''} onClose={() => setOpenEditProfile(false)} onSave={async ({ username, bio, selectedCategories }) => { await changeBio(bio, myId, supabase); try { await changeVisibleCTs(selectedCategories, myId || '', supabase); } catch { Alert.alert('Error changing Viewership Tags') }; try { await changeUsername(username, myId || '', supabase) } catch { Alert.alert('Username already taken or invalid username') } }} categories={allCategories} currentId={myId || ''} />
 
       {activeTab === 'tagged' ?
         <FlatList
@@ -209,7 +209,7 @@ const handleEndReached = async () => {
           stickyHeaderIndices={[1]}
           ListHeaderComponent={
             <View>
-              <ProfileContentHeader editProfile={() => {setOpenEditProfile(true); console.log('awww');}} profilePicture={profilePicture} user={user} setUser={setUser} id={myId as string} myId={myId || ''} />
+              <ProfileContentHeader editProfile={() => { setOpenEditProfile(true); console.log('awww'); }} profilePicture={profilePicture} user={user} setUser={setUser} id={myId as string} myId={myId || ''} />
             </View>
           }
           ListHeaderComponentStyle={{ zIndex: 1 }}
@@ -217,7 +217,7 @@ const handleEndReached = async () => {
         />
         //if not tagged tabƒ
         : <FlatList
-        data={[dummyRow, ...user.categories.slice(0, visibleRowCount)]}
+          data={[dummyRow, ...user.categories.slice(0, visibleRowCount)]}
           keyExtractor={(_, index) => `row-${index}`}
           renderItem={({ item, index }) => {
             if (index === 0) {
@@ -240,8 +240,8 @@ const handleEndReached = async () => {
           }}
           stickyHeaderIndices={[1]}
           ListHeaderComponent={
-            <View>
-              <ProfileContentHeader editProfile={() => {setOpenEditProfile(true); console.log('awww');}} profilePicture={profilePicture} user={user} setUser={setUser} id={myId as string} myId={myId || ''} />
+            <View>ƒ
+              <ProfileContentHeader editProfile={() => { setOpenEditProfile(true); console.log('awww'); }} profilePicture={profilePicture} user={user} setUser={setUser} id={myId as string} myId={myId || ''} />
             </View>}
           ListHeaderComponentStyle={{ zIndex: 1 }}
           ListFooterComponent={<View className="h-12" />}

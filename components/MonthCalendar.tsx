@@ -245,7 +245,7 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
       events={events}
       onEventPress={(event) => console.log('Pressed event:', event)}
       /> */}
-        <MultiMonthView events={events} onEventPress={(event) => {console.log('Tapped event', event); onEventPress(event)}} setView={setView} focusedDay={focusedDay} setViewingDateFunc={setViewingDateFunc} setFocusedDay={setFocusedDay} />
+        <MultiMonthView events={events} onEventPress={(event) => { console.log('Tapped event', event); onEventPress(event) }} setView={setView} focusedDay={focusedDay} setViewingDateFunc={setViewingDateFunc} setFocusedDay={setFocusedDay} />
       </ScrollView>
 
       {/* Overlay and Drawer */}

@@ -152,12 +152,12 @@ const CommentItem = ({
           </TouchableOpacity>
         )}
         {isExpanded && (totalReplies > REPLIES_PAGE_SIZE) && (
-  <TouchableOpacity onPress={onHideReplies}>
-    <Text style={{ color: '#888888', fontSize: 13, marginTop: 4, marginLeft: 35 }}>
-      Hide replies
-    </Text>
-  </TouchableOpacity>
-)}
+          <TouchableOpacity onPress={onHideReplies}>
+            <Text style={{ color: '#888888', fontSize: 13, marginTop: 4, marginLeft: 35 }}>
+              Hide replies
+            </Text>
+          </TouchableOpacity>
+        )}
 
 
         <View style={{ flexDirection: 'row', marginTop: replies.length === 0 ? -8 : 0 }}>
@@ -206,11 +206,11 @@ const ReplyItem = ({
   return (
     <TouchableOpacity onLongPress={handleLongPress} delayLongPress={300}>
       <View style={styles.replyContainer}>
-      <Link href = {`/profiles/${reply.authorId}`} asChild>
-      <Pressable onPress={onClose}>
-        <Image source={{ uri: replyImageUrl }} style={styles.avatarSmall} />
-      </Pressable>
-      </Link>
+        <Link href={`/profiles/${reply.authorId}`} asChild>
+          <Pressable onPress={onClose}>
+            <Image source={{ uri: replyImageUrl }} style={styles.avatarSmall} />
+          </Pressable>
+        </Link>
         <View style={styles.replyContent}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={styles.author}>{reply.author}</Text>
@@ -256,7 +256,7 @@ export default function CommentsModal({
     });
     return initial;
   });
-  
+
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
 
 
@@ -309,9 +309,9 @@ export default function CommentsModal({
     setReplyPages((prev) => ({ ...prev, [commentId]: 1 }));
     setExpandedComments((prev) => ({ ...prev, [commentId]: false }));
   };
-  
-  
-  
+
+
+
 
   const renderComment = ({ item }: { item: Comment }) => {
     const replies = repliesByParent[item.id] || [];
@@ -319,7 +319,7 @@ export default function CommentsModal({
     const shownReplies = replies.slice(0, shownCount);
     const hasMoreReplies = shownCount < replies.length;
     const isExpanded = expandedComments[item.id] ?? false;
-  
+
     return (
       <CommentItem
         onClose={onClose}
@@ -338,7 +338,7 @@ export default function CommentsModal({
       />
     );
   };
-  
+
 
   return (
     <Modal

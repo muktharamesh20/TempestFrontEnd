@@ -43,34 +43,34 @@ const SetUsername = ({ closeFunction }: { closeFunction: Dispatch<SetStateAction
     if (!username || username.length < 3 || username.length >= 15) {
       Alert.alert('Username must be at least 3 characters and less than 15.');
       return;
-    } 
+    }
     const regex = new RegExp("^[A-Za-z_.]+$"); // This works because no special escapes needed here
 
-    if(!regex.test(username)){
-        Alert.alert('Username must only contain letters, underscores, and periods.');
-        return;
+    if (!regex.test(username)) {
+      Alert.alert('Username must only contain letters, underscores, and periods.');
+      return;
     }
-    if(filter.isProfane(username)){
+    if (filter.isProfane(username)) {
       Alert.alert("This username may violate community guidelines.")
       return;
-    } 
+    }
     try {
-        const { data, error } = await supabase.auth.getUser();
-        if (error || !data.user) {
-          Alert.alert('No session detected.');
-          supabase.auth.signOut()
-          return;
-        }
-        const userId = data.user.id;
-        await changeUsername(username.trim(), userId, supabase);
-        closeFunction(false);
-        getUserId();
-      } catch (e: unknown) {
-        const errorMessage = e instanceof Error ? e.message : 'This username is already taken. Please choose another.';
-        Alert.alert(errorMessage);
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        Alert.alert('No session detected.');
+        supabase.auth.signOut()
         return;
       }
-   
+      const userId = data.user.id;
+      await changeUsername(username.trim(), userId, supabase);
+      closeFunction(false);
+      getUserId();
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'This username is already taken. Please choose another.';
+      Alert.alert(errorMessage);
+      return;
+    }
+
   };
 
   return (
@@ -114,7 +114,8 @@ const SetUsername = ({ closeFunction }: { closeFunction: Dispatch<SetStateAction
         </LinearGradient>
       </Animated.View>
     </Animated.View>
-  )};
+  )
+};
 
 const styles = StyleSheet.create({
   title: {

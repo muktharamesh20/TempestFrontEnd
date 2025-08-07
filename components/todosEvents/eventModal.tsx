@@ -44,72 +44,72 @@ const attendees: avatar[] = [
 export default function EventModal({ visible, onClose, event, onSave }: eventModalProps) {
   const [open, setOpen] = useState(false);
   const [repeatValue, setRepeatValue] = useState('None');
-const [isRepeatOpen, setIsRepeatOpen] = useState(false);
-const [endRepeat, setEndRepeat] = useState<Date | undefined>(undefined);
-const [days, setDays] = useState<number[] | undefined>(undefined);
-const [isAllDay, setIsAllDay] = useState<boolean>(false);
-const [title, setTitle] = useState(event?.title || '');
-const [categories, setCategories] = useState(['Work']);
-const [location, setLocation] = useState('London, Red Meeting Room');
-const [color, setColor] = useState('#FFD700');
-const [isEditing, setIsEditing] = useState(false);
-const [startDate, setStartDate] = useState(new Date());
-const [endDate, setEndDate] = useState(new Date());
-const [startTime, setStartTime] = useState(new Date());
-const [endTime, setEndTime] = useState(new Date(new Date().getTime() + 90 * 60000));
-const [showStartPicker, setShowStartPicker] = useState(false);
-const [showEndPicker, setShowEndPicker] = useState(false);
-const [selectedDay, setSelectedDay] = useState<number>(startDate.getDay())
-const [tempLocation, setTempLocation] = useState(location); // holds edits while editing
-const [showInviteModal, setShowInviteModal] = useState(false);
-const [searchQuery, setSearchQuery] = useState('');
-const [showAttendeeModal, setShowAttendeeModal] = useState(false);
+  const [isRepeatOpen, setIsRepeatOpen] = useState(false);
+  const [endRepeat, setEndRepeat] = useState<Date | undefined>(undefined);
+  const [days, setDays] = useState<number[] | undefined>(undefined);
+  const [isAllDay, setIsAllDay] = useState<boolean>(false);
+  const [title, setTitle] = useState(event?.title || '');
+  const [categories, setCategories] = useState(['Work']);
+  const [location, setLocation] = useState('London, Red Meeting Room');
+  const [color, setColor] = useState('#FFD700');
+  const [isEditing, setIsEditing] = useState(false);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date(new Date().getTime() + 90 * 60000));
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<number>(startDate.getDay())
+  const [tempLocation, setTempLocation] = useState(location); // holds edits while editing
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAttendeeModal, setShowAttendeeModal] = useState(false);
 
 
-useEffect(() => {
-  if (isAllDay) {
-    const startOfDayUTC = new Date(Date.UTC(
-      startDate.getFullYear(),
-      startDate.getMonth(),
-      startDate.getDate(),
-      0, 0, 0
-    ));
-    const endOfDayUTC = new Date(Date.UTC(
-      endDate.getFullYear(),
-      endDate.getMonth(),
-      endDate.getDate(),
-      23, 59, 59
-    ));
-    setStartTime(startOfDayUTC);
-    setEndTime(endOfDayUTC);
-  }
-}, [isAllDay, startDate, endDate]);
-
-useEffect(() => {
-  if (isAllDay) {
-    if (repeatValue.toLowerCase() === 'weekly' || repeatValue.toLowerCase() === 'biweekly') {
-      setSelectedDay(startTime.getUTCDay())
-      setDays((prev) => {
-        if (!(prev?.includes(startTime.getUTCDay()))) {
-          return [...(prev || []), startTime.getUTCDay()];
-        }
-        return prev;
-      });
+  useEffect(() => {
+    if (isAllDay) {
+      const startOfDayUTC = new Date(Date.UTC(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+        0, 0, 0
+      ));
+      const endOfDayUTC = new Date(Date.UTC(
+        endDate.getFullYear(),
+        endDate.getMonth(),
+        endDate.getDate(),
+        23, 59, 59
+      ));
+      setStartTime(startOfDayUTC);
+      setEndTime(endOfDayUTC);
     }
-  }
-  else {
-    if (repeatValue.toLowerCase() === 'weekly' || repeatValue.toLowerCase() === 'biweekly') {
-      console.log('in if statment')
-      setSelectedDay(startTime.getDay())
-      setDays((prev) => {
-        if (!(prev?.includes(startTime.getDay()))) {
-          return [...(prev || []), startTime.getDay()];
-        }
-        return prev;
-      });
+  }, [isAllDay, startDate, endDate]);
+
+  useEffect(() => {
+    if (isAllDay) {
+      if (repeatValue.toLowerCase() === 'weekly' || repeatValue.toLowerCase() === 'biweekly') {
+        setSelectedDay(startTime.getUTCDay())
+        setDays((prev) => {
+          if (!(prev?.includes(startTime.getUTCDay()))) {
+            return [...(prev || []), startTime.getUTCDay()];
+          }
+          return prev;
+        });
+      }
     }
-  }
-}, [startTime, repeatValue]);
+    else {
+      if (repeatValue.toLowerCase() === 'weekly' || repeatValue.toLowerCase() === 'biweekly') {
+        console.log('in if statment')
+        setSelectedDay(startTime.getDay())
+        setDays((prev) => {
+          if (!(prev?.includes(startTime.getDay()))) {
+            return [...(prev || []), startTime.getDay()];
+          }
+          return prev;
+        });
+      }
+    }
+  }, [startTime, repeatValue]);
 
 
 
@@ -129,10 +129,10 @@ useEffect(() => {
     { label: 'Monthly', value: 'monthly' },
     { label: 'Yearly', value: 'yearly' },
   ];
-  
 
-  
-  
+
+
+
 
 
   const toggleCategory = (category: string) => {
@@ -178,13 +178,13 @@ useEffect(() => {
                   days: days || [],
                   isAllDay,
                 };
-                
+
                 onSave(eventToSave);
                 setLocation(tempLocation); // finally commit it
-                
+
                 // onClose(); <-----------------------uncomment later
               }
-              
+
               setIsEditing(!isEditing);
             }}>
               <Icon name={isEditing ? "checkmark-outline" : "create-outline"} type="ionicon" />
@@ -200,121 +200,121 @@ useEffect(() => {
 
 
           {/* Avatars */}
-{(attendees.length > 0 || isEditing) && (
-  <View style={styles.avatarGroup}>
-    {attendees.length > 0 ? (
-      <>
-        {attendees.slice(0, 4).map((user) => (
-          <Pressable key={user.id} onPress={() => setShowAttendeeModal(true)}>
-            <Image source={user.avatar} style={styles.avatar} />
-          </Pressable>
-        ))}
-        <TouchableOpacity onPress={() => setShowInviteModal(true)}>
-          <View style={styles.moreAvatar}>
-            <Text style={styles.moreText}>
-              +{attendees.length > 4 ? attendees.length - 4 : ''}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </>
-    ) : (
-      isEditing && (
-        <TouchableOpacity
-          onPress={() => setShowInviteModal(true)}
-          style={styles.invitePill}
-        >
-          <Text style={styles.inviteText}>+ Invite People</Text>
-        </TouchableOpacity>
-      )
-    )}
-  </View>
-)}
+          {(attendees.length > 0 || isEditing) && (
+            <View style={styles.avatarGroup}>
+              {attendees.length > 0 ? (
+                <>
+                  {attendees.slice(0, 4).map((user) => (
+                    <Pressable key={user.id} onPress={() => setShowAttendeeModal(true)}>
+                      <Image source={user.avatar} style={styles.avatar} />
+                    </Pressable>
+                  ))}
+                  <TouchableOpacity onPress={() => setShowInviteModal(true)}>
+                    <View style={styles.moreAvatar}>
+                      <Text style={styles.moreText}>
+                        +{attendees.length > 4 ? attendees.length - 4 : ''}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                isEditing && (
+                  <TouchableOpacity
+                    onPress={() => setShowInviteModal(true)}
+                    style={styles.invitePill}
+                  >
+                    <Text style={styles.inviteText}>+ Invite People</Text>
+                  </TouchableOpacity>
+                )
+              )}
+            </View>
+          )}
 
 
 
 
 
-<Modal visible={showAttendeeModal} animationType="slide" transparent>
-  <View style={inviteStyles.overlay}>
-    <View style={inviteStyles.modal}>
-      <Text style={inviteStyles.title}>Attendees</Text>
+          <Modal visible={showAttendeeModal} animationType="slide" transparent>
+            <View style={inviteStyles.overlay}>
+              <View style={inviteStyles.modal}>
+                <Text style={inviteStyles.title}>Attendees</Text>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-  {attendees.length === 0 ? (
-    <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
-      No attendees yet.
-    </Text>
-  ) : (
-    attendees.map(user => (
-      <View key={user.id} style={inviteStyles.userRow}>
-        <Image
-          source={user.avatar}
-          style={[
-            inviteStyles.avatar,
-            user.status === 'pending' && { opacity: 0.4 },
-          ]}
-        />
-        <View>
-          <Text style={inviteStyles.userName}>{user.name}</Text>
-          <Text style={{ fontSize: 12, color: '#888' }}>
-            {user.status === 'pending' ? 'Pending' : 'Confirmed'}
-          </Text>
-        </View>
-      </View>
-    ))
-  )}
-</ScrollView>
-
-
-      <TouchableOpacity onPress={() => setShowAttendeeModal(false)} style={inviteStyles.closeButton}>
-        <Text style={{ color: '#fff' }}>Close</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
+                <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+                  {attendees.length === 0 ? (
+                    <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
+                      No attendees yet.
+                    </Text>
+                  ) : (
+                    attendees.map(user => (
+                      <View key={user.id} style={inviteStyles.userRow}>
+                        <Image
+                          source={user.avatar}
+                          style={[
+                            inviteStyles.avatar,
+                            user.status === 'pending' && { opacity: 0.4 },
+                          ]}
+                        />
+                        <View>
+                          <Text style={inviteStyles.userName}>{user.name}</Text>
+                          <Text style={{ fontSize: 12, color: '#888' }}>
+                            {user.status === 'pending' ? 'Pending' : 'Confirmed'}
+                          </Text>
+                        </View>
+                      </View>
+                    ))
+                  )}
+                </ScrollView>
 
 
+                <TouchableOpacity onPress={() => setShowAttendeeModal(false)} style={inviteStyles.closeButton}>
+                  <Text style={{ color: '#fff' }}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
-<Modal visible={showInviteModal} animationType="slide" transparent>
-  <View style={inviteStyles.overlay}>
-    <View style={inviteStyles.modal}>
-      <Text style={inviteStyles.title}>Invite People</Text>
 
-      <TextInput
-        placeholder="Search by name"
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        style={inviteStyles.searchInput}
-      />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-      {attendees
-  .filter(user =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-  .map(user => (
-    <View key={user.id} style={inviteStyles.userRow}>
-      <Image source={user.avatar} style={inviteStyles.avatar} />
-      <View style={{ flex: 1 }}>
-        <Text style={inviteStyles.userName}>{user.name}</Text>
-      </View>
-      <TouchableOpacity
-        onPress={() => console.log(`Invited ${user.name}`)} // Replace with real invite logic
-        style={inviteStyles.inviteButton}
-      >
-        <Text style={inviteStyles.inviteButtonText}>Invite</Text>
-      </TouchableOpacity>
-    </View>
-  ))}
+          <Modal visible={showInviteModal} animationType="slide" transparent>
+            <View style={inviteStyles.overlay}>
+              <View style={inviteStyles.modal}>
+                <Text style={inviteStyles.title}>Invite People</Text>
 
-      </ScrollView>
+                <TextInput
+                  placeholder="Search by name"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  style={inviteStyles.searchInput}
+                />
 
-      <TouchableOpacity onPress={() => setShowInviteModal(false)} style={inviteStyles.closeButton}>
-        <Text style={{ color: '#fff' }}>Close</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
+                <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+                  {attendees
+                    .filter(user =>
+                      user.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map(user => (
+                      <View key={user.id} style={inviteStyles.userRow}>
+                        <Image source={user.avatar} style={inviteStyles.avatar} />
+                        <View style={{ flex: 1 }}>
+                          <Text style={inviteStyles.userName}>{user.name}</Text>
+                        </View>
+                        <TouchableOpacity
+                          onPress={() => console.log(`Invited ${user.name}`)} // Replace with real invite logic
+                          style={inviteStyles.inviteButton}
+                        >
+                          <Text style={inviteStyles.inviteButtonText}>Invite</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+
+                </ScrollView>
+
+                <TouchableOpacity onPress={() => setShowInviteModal(false)} style={inviteStyles.closeButton}>
+                  <Text style={{ color: '#fff' }}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
 
 
@@ -322,73 +322,73 @@ useEffect(() => {
           {/* Time */}
           <View style={styles.detailBox}>
             {/* <Icon name="time-outline" type="ionicon" size={20} /> */}
-      
 
 
 
-{isEditing ? (
-  <>
-    {isAllDay ? (
-      <>
-      <View className='flex flex-row items-center gap-3'>
-      <Icon name="time-outline" type="ionicon" size={20} />
-        <DateTimePicker
-          value={startDate}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            if (selectedDate) setStartDate(selectedDate); setEndDate(addDays(selectedDate ?? new Date(), 1))
-          }}
-        />
-        </View>
-      </>
-    ) : (
-      <>
-      <View className='flex flex-col gap-2'>
-        <View className='flex flex-row items-center gap-3'>
-      <Icon name="time-outline" type="ionicon" size={20} />
-        <DateTimePicker
-          value={startTime}
-          mode="datetime"
-          display="default"
-          onChange={(event, selectedDate) => {
-            if (selectedDate) setStartTime(selectedDate);
-          }}
-        /></View>
-        <View className='flex flex-row items-center gap-3'>
-        <Icon name="time-outline" type="ionicon" size={20} />
-        <DateTimePicker
-          value={endTime}
-          mode="datetime"
-          display="default"
-          onChange={(event, selectedDate) => {
-            if (selectedDate) setEndTime(selectedDate);
-          }}
-        /></View>
-         </View>
-      </>
-    )}
-  </>
-) : (
-  <View className='flex flex-row items-center'>
-      <Icon name="time-outline" type="ionicon" size={20} />
-  <Text style={styles.detailText}>
-  {isAllDay ? (
-    `${startDate.toDateString()}`
-  ) : startDate.toDateString() === endDate.toDateString() ? (
-    `${startDate.toDateString()} · ${startTime.toLocaleTimeString([], {
-      hour: 'numeric',
-      minute: '2-digit',
-    })} – ${endTime.toLocaleTimeString([], {
-      hour: 'numeric',
-      minute: '2-digit',
-    })}`
-  ) : (
-    `${startTime.toLocaleString()} – ${endTime.toLocaleString()}`
-  )}
-</Text></View>
 
-)}
+            {isEditing ? (
+              <>
+                {isAllDay ? (
+                  <>
+                    <View className='flex flex-row items-center gap-3'>
+                      <Icon name="time-outline" type="ionicon" size={20} />
+                      <DateTimePicker
+                        value={startDate}
+                        mode="date"
+                        display="default"
+                        onChange={(event, selectedDate) => {
+                          if (selectedDate) setStartDate(selectedDate); setEndDate(addDays(selectedDate ?? new Date(), 1))
+                        }}
+                      />
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <View className='flex flex-col gap-2'>
+                      <View className='flex flex-row items-center gap-3'>
+                        <Icon name="time-outline" type="ionicon" size={20} />
+                        <DateTimePicker
+                          value={startTime}
+                          mode="datetime"
+                          display="default"
+                          onChange={(event, selectedDate) => {
+                            if (selectedDate) setStartTime(selectedDate);
+                          }}
+                        /></View>
+                      <View className='flex flex-row items-center gap-3'>
+                        <Icon name="time-outline" type="ionicon" size={20} />
+                        <DateTimePicker
+                          value={endTime}
+                          mode="datetime"
+                          display="default"
+                          onChange={(event, selectedDate) => {
+                            if (selectedDate) setEndTime(selectedDate);
+                          }}
+                        /></View>
+                    </View>
+                  </>
+                )}
+              </>
+            ) : (
+              <View className='flex flex-row items-center'>
+                <Icon name="time-outline" type="ionicon" size={20} />
+                <Text style={styles.detailText}>
+                  {isAllDay ? (
+                    `${startDate.toDateString()}`
+                  ) : startDate.toDateString() === endDate.toDateString() ? (
+                    `${startDate.toDateString()} · ${startTime.toLocaleTimeString([], {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })} – ${endTime.toLocaleTimeString([], {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })}`
+                  ) : (
+                    `${startTime.toLocaleString()} – ${endTime.toLocaleString()}`
+                  )}
+                </Text></View>
+
+            )}
 
 
 
@@ -402,121 +402,121 @@ useEffect(() => {
 
 
 
-{/* Repeat Dropdown (opens downward) - higher on screen */}
+          {/* Repeat Dropdown (opens downward) - higher on screen */}
 
-{isEditing && repeatValue.toLowerCase() !== 'none' && (
-  <View className="flex flex-row items-center mb-1">
-    <Icon name="calendar-outline" type="ionicon" size={20} />
-    <Text style={{ marginLeft: 10, marginRight: 10 }}>Ends On</Text>
-    <DateTimePicker
-      value={endRepeat ?? endDate}
-      mode="date"
-      display="default"
-      onChange={(event, selectedDate) => {
-        if (selectedDate) setEndRepeat(selectedDate);
-      }}
-    />
-  </View>
-)}
+          {isEditing && repeatValue.toLowerCase() !== 'none' && (
+            <View className="flex flex-row items-center mb-1">
+              <Icon name="calendar-outline" type="ionicon" size={20} />
+              <Text style={{ marginLeft: 10, marginRight: 10 }}>Ends On</Text>
+              <DateTimePicker
+                value={endRepeat ?? endDate}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  if (selectedDate) setEndRepeat(selectedDate);
+                }}
+              />
+            </View>
+          )}
 
-<View style={{...styles.detailBox, zIndex: isRepeatOpen ? 4000 : 1000}}>
-   <Icon name="repeat-outline" type="ionicon" size={20} />
-   {isEditing ? (
-      <View style={{ flex: 1, marginLeft: 15}}>
-    
-      <DropDownPicker
-        open={isRepeatOpen}
-        setOpen={setIsRepeatOpen}
-        value={repeatValue}
-        setValue={(val) => setRepeatValue(val())}
-        items={[
-          { label: 'None', value: 'none' },
-          { label: 'Daily', value: 'daily' },
-          { label: 'Weekly', value: 'weekly' },
-          { label: 'Biweekly', value: 'biweekly' },
-          { label: 'Monthly', value: 'monthly' },
-          { label: 'Yearly', value: 'yearly' },
-        ]}
-        zIndex={isRepeatOpen ? 4000 : 1000}
-        zIndexInverse={isRepeatOpen ? 1000 : 4000}
-        style={{ borderColor: '#ccc' }}
-        dropDownContainerStyle={{ borderColor: '#ccc' }}
-      />
-      </View>
-    ) : ( <Text style={styles.detailText}>
-      {{
-        none: 'Does Not Repeat',
-        daily: 'Repeats Every Day',
-        weekly: getFrequencyLabel('weekly', days ?? [], startDate, isAllDay),
-        biweekly: getFrequencyLabel('biweekly', days ?? [], startDate, isAllDay),
-        monthly: getFrequencyLabel('monthly', days ?? [], startDate, isAllDay),
-        yearly: getFrequencyLabel('yearly', days ?? [], startDate, isAllDay),
-      }[repeatValue]}
-    </Text>
-    )}
-</View>
+          <View style={{ ...styles.detailBox, zIndex: isRepeatOpen ? 4000 : 1000 }}>
+            <Icon name="repeat-outline" type="ionicon" size={20} />
+            {isEditing ? (
+              <View style={{ flex: 1, marginLeft: 15 }}>
 
-
-{isEditing && (repeatValue.toLowerCase() === 'weekly' || repeatValue.toLowerCase() ==="biweekly") && (
-  <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginVertical: 10 }}>
-    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => {
-      //const isStartDay = idx === startDate.getDay();
-      const selected = days?.includes(idx);
-
-      return (
-        <TouchableOpacity
-          key={idx}
-          onPress={() => {
-            if (idx === selectedDay) return; // Prevent unselecting the start day
-            setDays((prev) =>
-              selected
-                ? prev?.filter((d) => d !== idx)
-                : [...(prev || []), idx]
-            );
-          }}
-          style={{
-            padding: 7,
-            borderRadius: 10,
-            margin: 4,
-            backgroundColor: selected ? '#add8e6' : '#e3e3e3',
-            opacity: selectedDay === idx ? 0.5 : 1, // optional: dim start day for clarity
-          }}
-        >
-          <Text>{day}</Text>
-        </TouchableOpacity>
-      );
-    })}
-  </View>)}
+                <DropDownPicker
+                  open={isRepeatOpen}
+                  setOpen={setIsRepeatOpen}
+                  value={repeatValue}
+                  setValue={(val) => setRepeatValue(val())}
+                  items={[
+                    { label: 'None', value: 'none' },
+                    { label: 'Daily', value: 'daily' },
+                    { label: 'Weekly', value: 'weekly' },
+                    { label: 'Biweekly', value: 'biweekly' },
+                    { label: 'Monthly', value: 'monthly' },
+                    { label: 'Yearly', value: 'yearly' },
+                  ]}
+                  zIndex={isRepeatOpen ? 4000 : 1000}
+                  zIndexInverse={isRepeatOpen ? 1000 : 4000}
+                  style={{ borderColor: '#ccc' }}
+                  dropDownContainerStyle={{ borderColor: '#ccc' }}
+                />
+              </View>
+            ) : (<Text style={styles.detailText}>
+              {{
+                none: 'Does Not Repeat',
+                daily: 'Repeats Every Day',
+                weekly: getFrequencyLabel('weekly', days ?? [], startDate, isAllDay),
+                biweekly: getFrequencyLabel('biweekly', days ?? [], startDate, isAllDay),
+                monthly: getFrequencyLabel('monthly', days ?? [], startDate, isAllDay),
+                yearly: getFrequencyLabel('yearly', days ?? [], startDate, isAllDay),
+              }[repeatValue]}
+            </Text>
+            )}
+          </View>
 
 
-  {!isEditing && endRepeat && repeatValue.toLowerCase() !== 'none' && (
-  <View style={styles.detailBox}>
-    <Icon name="calendar-outline" type="ionicon" size={20} />
-    <Text style={styles.detailText}>Repeats until {endRepeat.toDateString()}</Text>
-  </View>
-)}
-  
-{/* Location Search (opens upward) - lower on screen */}
-<View style={{ zIndex: !isRepeatOpen ? 4000 : 1000, marginTop: isEditing ? 4 : 8 }} className="flex flex-row items-center">
-  <Icon name="location-outline" type="ionicon" size={20} />
-  {isEditing ? (
-    <LocationSearch
-      setTempLocation={setTempLocation}
-      tempLocation={location}
-    />
-  ) : location ? (
-    <Text style={{...styles.detailText}}>{location}</Text>
-  ) : (
-    <Text style={{ ...styles.detailText, color: '#888' }}>No location set</Text>
-  )}
-</View>
+          {isEditing && (repeatValue.toLowerCase() === 'weekly' || repeatValue.toLowerCase() === "biweekly") && (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginVertical: 10 }}>
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => {
+                //const isStartDay = idx === startDate.getDay();
+                const selected = days?.includes(idx);
+
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    onPress={() => {
+                      if (idx === selectedDay) return; // Prevent unselecting the start day
+                      setDays((prev) =>
+                        selected
+                          ? prev?.filter((d) => d !== idx)
+                          : [...(prev || []), idx]
+                      );
+                    }}
+                    style={{
+                      padding: 7,
+                      borderRadius: 10,
+                      margin: 4,
+                      backgroundColor: selected ? '#add8e6' : '#e3e3e3',
+                      opacity: selectedDay === idx ? 0.5 : 1, // optional: dim start day for clarity
+                    }}
+                  >
+                    <Text>{day}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>)}
+
+
+          {!isEditing && endRepeat && repeatValue.toLowerCase() !== 'none' && (
+            <View style={styles.detailBox}>
+              <Icon name="calendar-outline" type="ionicon" size={20} />
+              <Text style={styles.detailText}>Repeats until {endRepeat.toDateString()}</Text>
+            </View>
+          )}
+
+          {/* Location Search (opens upward) - lower on screen */}
+          <View style={{ zIndex: !isRepeatOpen ? 4000 : 1000, marginTop: isEditing ? 4 : 8 }} className="flex flex-row items-center">
+            <Icon name="location-outline" type="ionicon" size={20} />
+            {isEditing ? (
+              <LocationSearch
+                setTempLocation={setTempLocation}
+                tempLocation={location}
+              />
+            ) : location ? (
+              <Text style={{ ...styles.detailText }}>{location}</Text>
+            ) : (
+              <Text style={{ ...styles.detailText, color: '#888' }}>No location set</Text>
+            )}
+          </View>
 
 
 
-<View style={styles.detailBox}>
+          <View style={styles.detailBox}>
 
 
-  </View>
+          </View>
 
 
           {/* Color Picker */}
@@ -532,54 +532,54 @@ useEffect(() => {
             </View>
           )}
 
-<View style={{...styles.detailBox, marginVertical: isEditing ? 2 : -8}} className='flex flex-row justify-between'>
-  <View style = {styles.detailBox}>
-  <Text style={{ marginRight: 10 }}>All Day</Text>
-  <Switch
-    value={isAllDay}
-    onValueChange={isEditing ? setIsAllDay : () => {}}
-    disabled={!isEditing}
-  />
-  </View>
+          <View style={{ ...styles.detailBox, marginVertical: isEditing ? 2 : -8 }} className='flex flex-row justify-between'>
+            <View style={styles.detailBox}>
+              <Text style={{ marginRight: 10 }}>All Day</Text>
+              <Switch
+                value={isAllDay}
+                onValueChange={isEditing ? setIsAllDay : () => { }}
+                disabled={!isEditing}
+              />
+            </View>
 
-{/**delete box */}
-{isEditing && (
-  <View style={{ alignItems: 'center'}}>
-    <TouchableOpacity
-      onPress={() => {
-        Alert.alert(
-          'Delete Event',
-          'Are you sure you want to delete this event from your calendar?',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Delete',
-              style: 'destructive',
-              onPress: () => {
-                onSave(null); // this should trigger deletion
-                onClose();
-                setIsEditing(false); // reset editing state
-              },
-            },
-          ],
-          { cancelable: true }
-        );
-      }}
-      style={{
-        backgroundColor: '#fff0f0',
-        borderColor: '#ff4d4d',
-        borderWidth: 1,
-        paddingVertical: 6,
-        paddingHorizontal: 14,
-        borderRadius: 8,
-      }}
-    >
-      <Text style={{ color: '#ff4d4d', fontWeight: 'bold' }}>Delete Event</Text>
-    </TouchableOpacity>
-  </View>
-)}
+            {/**delete box */}
+            {isEditing && (
+              <View style={{ alignItems: 'center' }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    Alert.alert(
+                      'Delete Event',
+                      'Are you sure you want to delete this event from your calendar?',
+                      [
+                        { text: 'Cancel', style: 'cancel' },
+                        {
+                          text: 'Delete',
+                          style: 'destructive',
+                          onPress: () => {
+                            onSave(null); // this should trigger deletion
+                            onClose();
+                            setIsEditing(false); // reset editing state
+                          },
+                        },
+                      ],
+                      { cancelable: true }
+                    );
+                  }}
+                  style={{
+                    backgroundColor: '#fff0f0',
+                    borderColor: '#ff4d4d',
+                    borderWidth: 1,
+                    paddingVertical: 6,
+                    paddingHorizontal: 14,
+                    borderRadius: 8,
+                  }}
+                >
+                  <Text style={{ color: '#ff4d4d', fontWeight: 'bold' }}>Delete Event</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
-</View>
+          </View>
 
 
 
@@ -597,24 +597,24 @@ useEffect(() => {
                   </TouchableOpacity>
                 ))}
                 <TouchableOpacity
-                    onPress={() => console.log('add/edit categoriy')}
-                    style={[styles.tag, { borderColor: '#000', borderWidth: 1 }]}>
-                    <Text>Add/Edit Categories</Text>
-                  </TouchableOpacity>
+                  onPress={() => console.log('add/edit categoriy')}
+                  style={[styles.tag, { borderColor: '#000', borderWidth: 1 }]}>
+                  <Text>Add/Edit Categories</Text>
+                </TouchableOpacity>
               </ScrollView>
             </View>
           )}
 
-{!isEditing && categories.length !==0 && (
-  <View style={{ marginTop: 10 }}>
-    <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Categories:</Text>
-    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      <Text style={{ fontSize: 16 }}>
-        {categories.join(', ')}
-      </Text>
-    </ScrollView>
-  </View>
-)}
+          {!isEditing && categories.length !== 0 && (
+            <View style={{ marginTop: 10 }}>
+              <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Categories:</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <Text style={{ fontSize: 16 }}>
+                  {categories.join(', ')}
+                </Text>
+              </ScrollView>
+            </View>
+          )}
 
         </View>
       </View>
@@ -722,50 +722,50 @@ const styles = StyleSheet.create({
   },
   categoryPicker: {
     marginTop: 10,
-  },dateGroup: {
+  }, dateGroup: {
     marginVertical: 6,
   },
-  
+
   dateLabelRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 4,
   },
-  
+
   dateLabel: {
     fontWeight: 'bold',
     marginLeft: 6,
     fontSize: 16,
-  },dateRow: {
+  }, dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 8,
   },
-  
+
   icon: {
     marginRight: 10,
   },
-  
+
   datePicker: {
     flex: 1,
-  },dateContainer: {
+  }, dateContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginVertical: 8,
   },
-  
+
   iconRow: {
     width: 30,
     alignItems: 'center',
     marginTop: 6,
   },
-  
+
   pickerWrapper: {
     flex: 1,
   },
-  
-  
-  
+
+
+
 });
 
 const inviteStyles = StyleSheet.create({
@@ -812,23 +812,23 @@ const inviteStyles = StyleSheet.create({
   },
   closeButton: {
     marginTop: 15,
-    backgroundColor:'#444',
+    backgroundColor: '#444',
     padding: 10,
     borderRadius: 10,
     alignItems: 'center',
-  },inviteButton: {
+  }, inviteButton: {
     paddingVertical: 6,
     paddingHorizontal: 12,
     backgroundColor: '#444',
     borderWidth: 1,
     borderRadius: 8,
   },
-  
+
   inviteButtonText: {
     color: numbers.primaryColor,
     fontWeight: 'bold',
     fontSize: 14,
-  },invitePill: {
+  }, invitePill: {
     backgroundColor: '#eee',
     paddingVertical: 6,
     paddingHorizontal: 12,
@@ -836,13 +836,13 @@ const inviteStyles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginLeft: 4,
   },
-  
+
   inviteText: {
     fontSize: 14,
     color: '#333',
     fontWeight: '500',
   },
-  
-  
+
+
 });
 

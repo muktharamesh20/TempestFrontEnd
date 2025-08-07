@@ -15,7 +15,7 @@ const ProgressHeader = ({ title, frequencey }: HeaderProps) => {
   const navigation = useNavigation();
 
   return (
-    <View style={{ height: 80 + insets.top , backgroundColor: numbers.primaryColor}}>
+    <View style={{ height: 80 + insets.top, backgroundColor: numbers.primaryColor }}>
       <View
         style={{ marginTop: insets.top }}
         className="h-[80px] px-6 bg-primary border-b border-divider flex-row items-center justify-between z-50"
@@ -36,7 +36,7 @@ const ProgressHeader = ({ title, frequencey }: HeaderProps) => {
         {/* <Ionicons name="three-dots" size={24} color={numbers.secondaryColor} /> */}
         <Entypo name="dots-three-horizontal" size={24} color={numbers.primaryColor} />
 
-        
+
       </View>
     </View>
   );

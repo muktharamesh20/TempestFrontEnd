@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Dimensions,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import Autocomplete from 'react-native-autocomplete-input';
 
@@ -57,42 +57,42 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   return (
     <View style={styles.wrapper}>
       <View style={styles.inputWrapper}>
-      <Autocomplete
-  data={isFocused ? results : []} // only show results if focused
-  defaultValue={tempLocation}
-  value={inputText}
-  onChangeText={(text: string) => {
-    setInputText(text);
-    setTempLocation(text);
-  }}
-  onFocus={() => setIsFocused(true)} // track focus
-  onBlur={() => {
-    // Delay to allow item press to register before hiding
-    setTimeout(() => setIsFocused(false), 100);
-  }}
-  inputContainerStyle={styles.inputContainer}
-  containerStyle={{ flex: 1 }}
-  placeholder={tempLocation || 'Set location... '}
-  placeholderTextColor={'#888'}
-  flatListProps={{
-    style: styles.dropdownAbove,
-    keyboardShouldPersistTaps: 'always',
-    keyExtractor: (_, index) => index.toString(),
-    renderItem: ({ item }) => (
-      <TouchableOpacity
-        style={styles.item}
-        onPress={() => {
-          setTempLocation(item.display_name);
-          setInputText(item.display_name);
-          setResults([]);
-          setIsFocused(false); // hide dropdown
-        }}
-      >
-        <Text>{item.display_name}</Text>
-      </TouchableOpacity>
-    ),
-  }}
-/>
+        <Autocomplete
+          data={isFocused ? results : []} // only show results if focused
+          defaultValue={tempLocation}
+          value={inputText}
+          onChangeText={(text: string) => {
+            setInputText(text);
+            setTempLocation(text);
+          }}
+          onFocus={() => setIsFocused(true)} // track focus
+          onBlur={() => {
+            // Delay to allow item press to register before hiding
+            setTimeout(() => setIsFocused(false), 100);
+          }}
+          inputContainerStyle={styles.inputContainer}
+          containerStyle={{ flex: 1 }}
+          placeholder={tempLocation || 'Set location... '}
+          placeholderTextColor={'#888'}
+          flatListProps={{
+            style: styles.dropdownAbove,
+            keyboardShouldPersistTaps: 'always',
+            keyExtractor: (_, index) => index.toString(),
+            renderItem: ({ item }) => (
+              <TouchableOpacity
+                style={styles.item}
+                onPress={() => {
+                  setTempLocation(item.display_name);
+                  setInputText(item.display_name);
+                  setResults([]);
+                  setIsFocused(false); // hide dropdown
+                }}
+              >
+                <Text>{item.display_name}</Text>
+              </TouchableOpacity>
+            ),
+          }}
+        />
 
       </View>
     </View>

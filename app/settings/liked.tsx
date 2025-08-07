@@ -1,13 +1,13 @@
 import { numbers } from '@/constants/numbers'
 import React, { useEffect, useState } from 'react'
 import {
-    ActivityIndicator,
-    Dimensions,
-    FlatList,
-    Image,
-    StyleSheet,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Dimensions,
+  FlatList,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  View
 } from 'react-native'
 import SettingsHeader from './settingsHeader'
 
@@ -71,7 +71,7 @@ const LikedScreen = () => {
   return (
     <View style={styles.container}>
 
-        <SettingsHeader headerName='Liked Posts' />
+      <SettingsHeader headerName='Liked Posts' />
 
       <FlatList
         data={savedPosts}

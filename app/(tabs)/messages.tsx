@@ -115,9 +115,9 @@ export default function MessagesScreen() {
   const renderGroup = ({ item }: { item: Group }) => {
     const isActive = item.status === 'active' || item.status === 'active+event';
     const isInEvent = item.status === 'event' || item.status === 'active+event';
-  
+
     const ringColor = isActive ? '#4CAF50' : '#ddd';
-  
+
     return (
       <Pressable
         onPress={() => item.isUser ? console.log('Edit status') : console.log(`Group ${item.name} pressed`)}
@@ -128,10 +128,10 @@ export default function MessagesScreen() {
             <Text style={styles.bubbleText} numberOfLines={2}>{item.eventText ?? item.bubbleText}</Text>
           )}
         </View>
-  
+
         <View style={[styles.groupIconWrapper, { borderColor: ringColor }]}>
           <Image source={{ uri: item.iconUri }} style={styles.groupIcon} />
-          
+
           {isInEvent && (
             <Ionicons
               name="calendar"
@@ -140,7 +140,7 @@ export default function MessagesScreen() {
               style={styles.statusIcon}
             />
           )}
-  
+
           {item.isUser && (
             <Pressable
               style={styles.addStatusButton}
@@ -150,101 +150,101 @@ export default function MessagesScreen() {
             </Pressable>
           )}
         </View>
-  
+
         <Text style={styles.groupName} numberOfLines={1}>
           {item.name}
         </Text>
       </Pressable>
     );
   };
-  
-    
+
+
 
   const renderMessage = ({ item }: { item: Message }) => (
-      <TouchableOpacity
-        onPress={() => console.log('Chat', { userId: item.id })}
-        style={styles.messageItem}
-        activeOpacity={0.7}
-      >
-        <View style={styles.avatarContainer}>
-          {item.isGroup ? (
-            <>
-              <Image
-                source={{ uri: `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg` }}
-                style={styles.avatarStackTop}
-              />
-              <Image
-                source={{ uri: `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg` }}
-                style={styles.avatarStackBottom}
-              />
-            </>
-          ) : (
+    <TouchableOpacity
+      onPress={() => console.log('Chat', { userId: item.id })}
+      style={styles.messageItem}
+      activeOpacity={0.7}
+    >
+      <View style={styles.avatarContainer}>
+        {item.isGroup ? (
+          <>
             <Image
               source={{ uri: `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg` }}
-              style={styles.singleAvatar}
+              style={styles.avatarStackTop}
             />
-          )}
-        </View>
-  
-        <View style={styles.messageContent}>
-          <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
-          <Text style={styles.lastMessage} numberOfLines={1}>{item.lastMessage}</Text>
-        </View>
-  
-        <Text style={styles.time}>{item.time}</Text>
-      </TouchableOpacity>
-    );
+            <Image
+              source={{ uri: `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg` }}
+              style={styles.avatarStackBottom}
+            />
+          </>
+        ) : (
+          <Image
+            source={{ uri: `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg` }}
+            style={styles.singleAvatar}
+          />
+        )}
+      </View>
+
+      <View style={styles.messageContent}>
+        <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
+        <Text style={styles.lastMessage} numberOfLines={1}>{item.lastMessage}</Text>
+      </View>
+
+      <Text style={styles.time}>{item.time}</Text>
+    </TouchableOpacity>
+  );
 
   return (
-    <View style={{...styles.container}}>
+    <View style={{ ...styles.container }}>
 
-      <SimpleHeader/>
-  
+      <SimpleHeader />
+
 
 
       <FlatList
         data={mockMessages}
         keyExtractor={(item) => item.id}
         renderItem={renderMessage}
-        contentContainerStyle={{  }}
+        contentContainerStyle={{}}
         ListHeaderComponent={
           <>
 
-    <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color='#CACFD2' style={styles.searchIcon} />
-        <TextInput
-      placeholder="Search"
-      placeholderTextColor='#CACFD2'
-      style={styles.searchInput}
-      editable={false}
-      showSoftInputOnFocus={false} // Android only
-      onPress={() => navigation.navigate('/infoScreen/search')}
-    />
-    
-      </View>
+            <View style={styles.searchContainer}>
+              <Ionicons name="search" size={20} color='#CACFD2' style={styles.searchIcon} />
+              <TextInput
+                placeholder="Search"
+                placeholderTextColor='#CACFD2'
+                style={styles.searchInput}
+                editable={false}
+                showSoftInputOnFocus={false} // Android only
+                onPress={() => navigation.navigate('/infoScreen/search')}
+              />
 
-      <Divider />
+            </View>
 
-      <Text className='ml-5 text-[25px] font-extrabold text-secondary mt-1'>Status</Text>
+            <Divider />
 
-        <FlatList
-        data={mockGroups}
-        renderItem={renderGroup}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-        style={styles.groupList}
-        contentContainerStyle={{ marginHorizontal: 12, marginBottom: 8}}
-      />
+            <Text className='ml-5 text-[25px] font-extrabold text-secondary mt-1'>Status</Text>
 
-      <Divider />
+            <FlatList
+              data={mockGroups}
+              renderItem={renderGroup}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.id}
+              style={styles.groupList}
+              contentContainerStyle={{ marginHorizontal: 12, marginBottom: 8 }}
+            />
 
-      <Text className='ml-5 text-[25px] font-extrabold text-secondary my-1'>Messages</Text>
-      
-      </>
+            <Divider />
+
+            <Text className='ml-5 text-[25px] font-extrabold text-secondary my-1'>Messages</Text>
+
+          </>
         }
       />
-      <DraggablePlusButton onPress={async () => {console.log("will eventually be able to create groups"); await sendIndividualMessage(); }}/>
+      <DraggablePlusButton onPress={async () => { console.log("will eventually be able to create groups"); await sendIndividualMessage(); }} />
     </View>
   );
 }
@@ -269,13 +269,13 @@ const styles = StyleSheet.create({
     width: 36,
     position: 'relative',
   },
-  
+
   singleAvatar: {
     width: 24,
     height: 24,
     borderRadius: 12,
   },
-  
+
   avatarStackTop: {
     width: 20,
     height: 20,
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     left: 0,
     zIndex: 2,
   },
-  
+
   avatarStackBottom: {
     width: 20,
     height: 20,
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     left: 12,
     zIndex: 1,
   },
-  
+
   messageItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -332,22 +332,22 @@ const styles = StyleSheet.create({
     paddingVertical: 6
     //height: 100, // Optional: ensures enough height for alignment to show
   },
-  
-  
+
+
   bubbleContainer: {
     justifyContent: 'flex-end',
     alignItems: 'center',
     //minHeight: 20, // optional: reserve some space to prevent jumping
     marginBottom: 4,
   },
-  
+
   bubbleText: {
     fontSize: 10,
     color: '#555',
     textAlign: 'center',
     maxWidth: 60,
   },
-  
+
   groupIconWrapper: {
     width: 54,
     height: 54,
@@ -357,20 +357,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
   },
-  
+
   groupIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
   },
-  
+
   groupName: {
     fontSize: 12,
     color: '#333',
     marginTop: 4,
     textAlign: 'center',
   },
-  
+
   statusIcon: {
     position: 'absolute',
     bottom: -2,
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 8,
   },
-  
+
   addStatusButton: {
     position: 'absolute',
     bottom: -2,
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
-  },  
+  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -407,8 +407,8 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    fontWeight:600,
+    fontWeight: 600,
     color: numbers.primaryColor,
   },
-  
+
 });

@@ -14,7 +14,7 @@ import { generateOccurrences } from './calendarWeekView';
 interface CalendarMonthViewProps {
   events: EventDetailsForNow[];
   onEventPress: (
-    event: EventDetailsForNow 
+    event: EventDetailsForNow
   ) => void;
   year?: number;
   month?: number; // 0-based month, default current month

@@ -83,9 +83,9 @@ const CalendarDrawer = ({
 
       {/* SectionList */}
       <SectionList<
- string | drawerProps | calendarGroupProps | calendarPersonProps,
-  { title: string; data: (string | drawerProps | calendarGroupProps | calendarPersonProps)[] }
->
+        string | drawerProps | calendarGroupProps | calendarPersonProps,
+        { title: string; data: (string | drawerProps | calendarGroupProps | calendarPersonProps)[] }
+      >
 
         sections={sections}
         keyExtractor={(item, index) => {

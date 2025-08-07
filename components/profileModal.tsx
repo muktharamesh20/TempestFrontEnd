@@ -71,13 +71,13 @@ const UserActionsModal = ({
                 </TouchableOpacity>
               )}
 
-              { (
+              {(
                 <TouchableOpacity
                   onPress={() => {
-                    if(user.youblockedthem){
-                        onUnblockCommenting()
+                    if (user.youblockedthem) {
+                      onUnblockCommenting()
                     } else {
-                        onBlockCommenting()
+                      onBlockCommenting()
                     }
                     handleClose();
                   }}

@@ -8,7 +8,7 @@ const MARGIN = 30;
 const DRAG_MARGIN_VERTICAL = 100000; // vertical margin above and below button to activate drag
 const DRAG_MARGIN_HORIZONTAL = 100000; // horizontal margin around button to activate drag
 
-const DraggablePlusButton = ({onPress}: {onPress: () => void}) => {
+const DraggablePlusButton = ({ onPress }: { onPress: () => void }) => {
   // Start button at bottom right
   const pan = useRef(new Animated.ValueXY({ x: SCREEN_WIDTH - BUTTON_SIZE - MARGIN, y: 0 })).current;
 

@@ -24,51 +24,51 @@ import {
 import Modal from 'react-native-modal';
 
 interface EditProfileModalProps {
-    visible: boolean;
-    currentAvatar: string | null;
-    setCurrAvatar: (uri: string | null) => void;
-    currentUsername: string;
-    currentBio: string;
-    currentId: string;
-    categories: Category[];
-    onClose: () => void;
-    onSave: (updated: {
-      username: string;
-      bio: string;
-      selectedCategories: Category[];
-    }) => void;
-  }
-  
-  const CategoryPill = ({
-    label,
-    selected,
-    onPress,
-  }: {
-    label: string;
-    selected: boolean;
-    onPress: () => void;
-  }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[
-        styles.pill,
-        { backgroundColor: selected ? numbers.secondaryColor : '#eee' },
-      ]}
-    >
-      <Text
-  style={{
-    color: selected ? numbers.primaryColor : '#333',
-    fontWeight: '600',
-    fontSize: 13,
-    textAlignVertical: 'center', // optional — Android only
-  }}
->
-  {label}
-</Text>
+  visible: boolean;
+  currentAvatar: string | null;
+  setCurrAvatar: (uri: string | null) => void;
+  currentUsername: string;
+  currentBio: string;
+  currentId: string;
+  categories: Category[];
+  onClose: () => void;
+  onSave: (updated: {
+    username: string;
+    bio: string;
+    selectedCategories: Category[];
+  }) => void;
+}
 
-    </TouchableOpacity>
-  );
-  
+const CategoryPill = ({
+  label,
+  selected,
+  onPress,
+}: {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+}) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={[
+      styles.pill,
+      { backgroundColor: selected ? numbers.secondaryColor : '#eee' },
+    ]}
+  >
+    <Text
+      style={{
+        color: selected ? numbers.primaryColor : '#333',
+        fontWeight: '600',
+        fontSize: 13,
+        textAlignVertical: 'center', // optional — Android only
+      }}
+    >
+      {label}
+    </Text>
+
+  </TouchableOpacity>
+);
+
 
 const EditProfileModal = ({
   visible,
@@ -101,7 +101,7 @@ const EditProfileModal = ({
         ? prev.filter(c => c !== category)
         : [...prev, category]
     );
-  
+
     setFullCategories(
       fullCategories.map(value =>
         value.id === categoryId
@@ -110,27 +110,27 @@ const EditProfileModal = ({
       )
     );
   };
-  
 
 
 
-  
+
+
   const uploadAvatar = async () => {
     try {
       setUploading(true);
-  
+
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         quality: 1,
       });
-  
+
       if (result.canceled || !result.assets || result.assets.length === 0) {
         return;
       }
-  
+
       const image = result.assets[0];
-  
+
       // Resize and compress image to 300x300 and ~100KB
       const manipulated = await ImageManipulator.manipulateAsync(
         image.uri,
@@ -140,31 +140,31 @@ const EditProfileModal = ({
           format: ImageManipulator.SaveFormat.JPEG,
         }
       );
-  
+
       // Ensure file is under 100KB
       const fileInfo = await FileSystem.getInfoAsync(manipulated.uri);
       if (fileInfo.exists && typeof fileInfo.size === 'number' && fileInfo.size > 100 * 1024) {
         Alert.alert('Image too large', 'Please choose a smaller image.');
         return;
       }
-  
+
       // Convert to array buffer
       const response = await fetch(manipulated.uri);
       const arrayBuffer = await response.arrayBuffer();
-  
+
       const fileName = `${currentId}.jpg`;
-  
+
       await supabase.storage.from('profile-images').remove([fileName]);
-  
+
       const { error: uploadError } = await supabase.storage
         .from('profile-images')
         .upload(fileName, arrayBuffer, {
           contentType: 'image/jpeg',
           upsert: true,
         });
-  
+
       if (uploadError) throw uploadError;
-  
+
       // Cache bust
       //setAvImage(`${currentAvatar}?t=${Date.now()}`);
       setAvImage(`${SB_STORAGE_CONFIG.BASE_URL}${currentId}.jpg?t=${Date.now()}`)
@@ -175,12 +175,12 @@ const EditProfileModal = ({
       // Prefetch and store in cache
       try {
         // Check cache
-        
 
-       // Prefetch and store in cache
-       await Image.prefetch(profilePicUrl);
-       setCurrAvatar(profilePicUrl);
-       await AsyncStorage.setItem(cacheKey, profilePicUrl);
+
+        // Prefetch and store in cache
+        await Image.prefetch(profilePicUrl);
+        setCurrAvatar(profilePicUrl);
+        await AsyncStorage.setItem(cacheKey, profilePicUrl);
       } catch {
         setCurrAvatar(defaultPicUrl);
       }
@@ -191,27 +191,27 @@ const EditProfileModal = ({
       setUploading(false);
     }
   };
-  
 
-  
+
+
 
   const handleSave = () => {
     const filter = new Filter();
     const isValidUsername = (username: string): boolean => {
-        return /^[a-z0-9A-Z_.]+$/.test(username);
-      };
+      return /^[a-z0-9A-Z_.]+$/.test(username);
+    };
     if (!username.trim()) {
       Alert.alert('Username is required');
       return;
-    } else if (!isValidUsername(username.trim())){
-        Alert.alert('Username is invalid.  Make sure you only use letters, numbers, underscores, and periods.')
-        return;
-    } else if (filter.isProfane(username)){
-        Alert.alert("This username may violate community guidelines.")
-        return;
-    } 
+    } else if (!isValidUsername(username.trim())) {
+      Alert.alert('Username is invalid.  Make sure you only use letters, numbers, underscores, and periods.')
+      return;
+    } else if (filter.isProfane(username)) {
+      Alert.alert("This username may violate community guidelines.")
+      return;
+    }
 
-    onSave({username, bio, selectedCategories: fullCategories });
+    onSave({ username, bio, selectedCategories: fullCategories });
     onClose();
   };
 
@@ -255,28 +255,28 @@ const EditProfileModal = ({
         />
 
         {allCategories.length !== 0 &&
-        <View className = "flex-row items-center justify-between">
-          <Text style={styles.sectionTitle}>Show on profile:</Text>
-          <Pressable>
-            <Text style={{ color: numbers.secondaryColor, fontSize: 14 }}>Edit Categories</Text>
-          </Pressable>
-        </View>
+          <View className="flex-row items-center justify-between">
+            <Text style={styles.sectionTitle}>Show on profile:</Text>
+            <Pressable>
+              <Text style={{ color: numbers.secondaryColor, fontSize: 14 }}>Edit Categories</Text>
+            </Pressable>
+          </View>
         }
         <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        data={fullCategories}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={fullCategories}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
             <CategoryPill
-            label={item.name}
-            selected={item.visible}
-            onPress={() => toggleCategory(item.name, item.id)}
+              label={item.name}
+              selected={item.visible}
+              onPress={() => toggleCategory(item.name, item.id)}
             />
-        )}
-        contentContainerStyle={{ gap: 8 }}
+          )}
+          contentContainerStyle={{ gap: 8 }}
         />
-      
+
 
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -360,15 +360,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  
-  
+
+
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
     color: numbers.secondaryColor,
     marginBottom: 4,
   },
-  
+
   pill: {
     paddingHorizontal: 10,
     paddingVertical: 4, // keep this small
@@ -379,6 +379,6 @@ const styles = StyleSheet.create({
     alignItems: 'center', // <-- centers text horizontally
     height: 28, // set explicit height to control vertical alignment
   },
-  
-  
+
+
 });

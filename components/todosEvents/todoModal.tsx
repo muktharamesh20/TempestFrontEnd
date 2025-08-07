@@ -82,11 +82,11 @@ export default function TodoModal({ visible, onClose }: eventModalProps) {
             <Icon name="time-outline" type="ionicon" size={20} />
             {isEditing ? (
               <>
-               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-  <TimePickerDropdown time={startTime} setTime={setStartTime} />
-  <Text style={{ marginHorizontal: 5 }}>–</Text>
-  <TimePickerDropdown time={endTime} setTime={setEndTime} />
-</View>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TimePickerDropdown time={startTime} setTime={setStartTime} />
+                  <Text style={{ marginHorizontal: 5 }}>–</Text>
+                  <TimePickerDropdown time={endTime} setTime={setEndTime} />
+                </View>
 
               </>
             ) : (
@@ -99,15 +99,15 @@ export default function TodoModal({ visible, onClose }: eventModalProps) {
             <Icon name="repeat-outline" type="ionicon" size={20} />
             {isEditing ? (
               <Picker
-              selectedValue={repetition}
-              style={{ flex: 1 }}
-              onValueChange={(value) => setRepetition(value)}
-            >
-              {['None', 'Daily', 'Weekly', 'Biweekly', 'Monthly', 'Yearly'].map((option) => (
-                <Picker.Item key={option} label={option} value={option} />
-              ))}
-            </Picker>
-            
+                selectedValue={repetition}
+                style={{ flex: 1 }}
+                onValueChange={(value) => setRepetition(value)}
+              >
+                {['None', 'Daily', 'Weekly', 'Biweekly', 'Monthly', 'Yearly'].map((option) => (
+                  <Picker.Item key={option} label={option} value={option} />
+                ))}
+              </Picker>
+
             ) : (
               <Text style={styles.detailText}>{repetition}</Text>
             )}

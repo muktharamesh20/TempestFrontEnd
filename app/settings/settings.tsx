@@ -22,104 +22,104 @@ type SettingOption = {
 }
 
 const settingsData: SettingOption[] = [
-    // Activity
-    {
-      label: 'Saved',
-      icon: 'bookmark-outline',
-      section: 'Your Activity',
-      pressFunction: (router) => router.push('/settings/saved'),
-    },
-    {
-      label: 'Liked',
-      icon: 'heart-outline',
-      section: 'Your Activity',
-      pressFunction: (router) => router.push('/settings/liked'),
-    },
-    {
-      label: 'Archived',
-      icon: 'archive-outline',
-      section: 'Your Activity',
-      pressFunction: (router) => router.push('/settings/archived'),
-    },
-    {
-      label: 'Recently Viewed',
-      icon: 'time-outline',
-      section: 'Your Activity',
-      pressFunction: (router) => router.push('/settings/recentlyViewed'),
-    },
-  
-    // Categories
-    {
-      label: 'Manage Categories',
-      icon: 'albums-outline',
-      section: 'Categories',
-      pressFunction: () => console.log('Manage Categories pressed'),
-    },
-    {
-      label: 'View Categories',
-      icon: 'eye-outline',
-      section: 'Categories',
-      pressFunction: () => console.log('View Categories pressed'),
-    },
-  
-    // Account & Privacy
-    {
-      label: 'Notification Settings',
-      icon: 'notifications-outline',
-      section: 'Account & Privacy',
-      pressFunction: () => console.log('Notification Settings pressed'),
-    },
-    {
-      label: 'Account Privacy',
-      icon: 'lock-closed-outline',
-      section: 'Account & Privacy',
-      pressFunction: () => console.log('Account Privacy pressed'),
-    },
-    {
-      label: 'Close Friends',
-      icon: 'people-outline',
-      section: 'Account & Privacy',
-      pressFunction: () => console.log('Close Friends pressed'),
-    },
-    {
-      label: 'Blocked Users',
-      icon: 'remove-circle-outline',
-      section: 'Account & Privacy',
-      pressFunction: () => console.log('Blocked Users pressed'),
-    },
-    {
-      label: 'Account Center',
-      icon: 'settings-outline',
-      section: 'Account & Privacy',
-      pressFunction: () => console.log('Account Center pressed'),
-    },
-  
-    // Support
-    {
-      label: 'Help',
-      icon: 'help-circle-outline',
-      section: 'Support',
-      pressFunction: () => console.log('Help pressed'),
-    },
-  
-    // Danger Zone
-    {
-      label: 'Sign Out',
-      icon: 'log-out-outline',
-      section: 'Danger Zone',
-      pressFunction:  (router) => 
-        signOut(supabase)
-    },
-    {
-      label: 'Delete Account',
-      icon: 'trash-outline',
-      section: 'Danger Zone',
-      pressFunction: () => console.log('Delete Account pressed'),
-    },
-  ]
+  // Activity
+  {
+    label: 'Saved',
+    icon: 'bookmark-outline',
+    section: 'Your Activity',
+    pressFunction: (router) => router.push('/settings/saved'),
+  },
+  {
+    label: 'Liked',
+    icon: 'heart-outline',
+    section: 'Your Activity',
+    pressFunction: (router) => router.push('/settings/liked'),
+  },
+  {
+    label: 'Archived',
+    icon: 'archive-outline',
+    section: 'Your Activity',
+    pressFunction: (router) => router.push('/settings/archived'),
+  },
+  {
+    label: 'Recently Viewed',
+    icon: 'time-outline',
+    section: 'Your Activity',
+    pressFunction: (router) => router.push('/settings/recentlyViewed'),
+  },
+
+  // Categories
+  {
+    label: 'Manage Categories',
+    icon: 'albums-outline',
+    section: 'Categories',
+    pressFunction: () => console.log('Manage Categories pressed'),
+  },
+  {
+    label: 'View Categories',
+    icon: 'eye-outline',
+    section: 'Categories',
+    pressFunction: () => console.log('View Categories pressed'),
+  },
+
+  // Account & Privacy
+  {
+    label: 'Notification Settings',
+    icon: 'notifications-outline',
+    section: 'Account & Privacy',
+    pressFunction: () => console.log('Notification Settings pressed'),
+  },
+  {
+    label: 'Account Privacy',
+    icon: 'lock-closed-outline',
+    section: 'Account & Privacy',
+    pressFunction: () => console.log('Account Privacy pressed'),
+  },
+  {
+    label: 'Close Friends',
+    icon: 'people-outline',
+    section: 'Account & Privacy',
+    pressFunction: () => console.log('Close Friends pressed'),
+  },
+  {
+    label: 'Blocked Users',
+    icon: 'remove-circle-outline',
+    section: 'Account & Privacy',
+    pressFunction: () => console.log('Blocked Users pressed'),
+  },
+  {
+    label: 'Account Center',
+    icon: 'settings-outline',
+    section: 'Account & Privacy',
+    pressFunction: () => console.log('Account Center pressed'),
+  },
+
+  // Support
+  {
+    label: 'Help',
+    icon: 'help-circle-outline',
+    section: 'Support',
+    pressFunction: () => console.log('Help pressed'),
+  },
+
+  // Danger Zone
+  {
+    label: 'Sign Out',
+    icon: 'log-out-outline',
+    section: 'Danger Zone',
+    pressFunction: (router) =>
+      signOut(supabase)
+  },
+  {
+    label: 'Delete Account',
+    icon: 'trash-outline',
+    section: 'Danger Zone',
+    pressFunction: () => console.log('Delete Account pressed'),
+  },
+]
 
 
-  
+
 
 const Settings = () => {
   const [search, setSearch] = useState('')
@@ -139,21 +139,21 @@ const Settings = () => {
     <View style={styles.container}>
       {/* Header */}
 
-      <SettingsHeader headerName='Settings'/>
+      <SettingsHeader headerName='Settings' />
       {/* <Text style={styles.header}>Settings</Text> */}
 
       {/* Search Input */}
       {/* Search Input with Divider */}
-<View style={styles.searchWrapper}>
-  <TextInput
-    style={styles.searchInput}
-    placeholder="Search settings..."
-    placeholderTextColor="#999"
-    value={search}
-    onChangeText={setSearch}
-  />
-  <View style={styles.searchDivider} />
-</View>
+      <View style={styles.searchWrapper}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search settings..."
+          placeholderTextColor="#999"
+          value={search}
+          onChangeText={setSearch}
+        />
+        <View style={styles.searchDivider} />
+      </View>
 
 
       {/* Scrollable Settings List */}
@@ -162,10 +162,10 @@ const Settings = () => {
           <View key={section}>
             <Text style={styles.sectionTitle}>{section}</Text>
             {groupedSettings[section].map(({ label, icon, pressFunction }) => (
-            <TouchableOpacity key={label} style={styles.item} onPress={() => pressFunction(router)}>
+              <TouchableOpacity key={label} style={styles.item} onPress={() => pressFunction(router)}>
                 <Ionicons name={icon} size={20} color="#444" style={styles.icon} />
                 <Text style={styles.itemText}>{label}</Text>
-            </TouchableOpacity>
+              </TouchableOpacity>
             ))}
           </View>
         ))}
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   itemText: {
     fontSize: 15,
     color: '#000',
-  },searchWrapper: {
+  }, searchWrapper: {
     //marginHorizontal: 16,
     marginTop: 12,
   },
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e4e4e4', // or numbers.dividerColor if you have it
     marginTop: 4,
   },
-  
+
 })
 
 export default Settings

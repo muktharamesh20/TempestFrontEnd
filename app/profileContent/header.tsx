@@ -12,7 +12,7 @@ interface headerProps {
   setUser: React.Dispatch<React.SetStateAction<ProfileSummary | null>>;
   id: string;
   myId: string;
-  editProfile?:  () => void;
+  editProfile?: () => void;
 }
 
 const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId, editProfile }: headerProps) => {
@@ -22,7 +22,7 @@ const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId, editPro
   const [followers, setFollowers] = useState<ModalPersonType[]>([]);
   const [following, setFollowing] = useState<ModalPersonType[]>([]);
 
-  useEffect( () => {
+  useEffect(() => {
     const fetchFollowers = async () => {
       const people = await getFollowedByThesePeople(id, supabase);
       setFollowers(people);
@@ -34,7 +34,7 @@ const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId, editPro
       console.log('here!')
     }
 
-    if(modalType === "Followers" && followers.length === 0) {
+    if (modalType === "Followers" && followers.length === 0) {
       fetchFollowers()
     } else if (modalType === "Following" && following.length === 0) {
       fetchFollowing()
@@ -44,7 +44,7 @@ const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId, editPro
   return (
     <View>
       {/**Defaults */}
-      <PersonsModal visible={modalVisible} people={modalType === 'Followers' ? followers : following} onClose={() => setModalVisible(false)} message={modalType || 'error'}/>
+      <PersonsModal visible={modalVisible} people={modalType === 'Followers' ? followers : following} onClose={() => setModalVisible(false)} message={modalType || 'error'} />
 
       {/* Profile Section */}
       <View className="bg-primary pb-4">
@@ -62,11 +62,11 @@ const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId, editPro
               <Text className="text-lg font-semibold">{user.numposts}</Text>
               <Text className="text-sm text-secondary">Posts</Text>
             </View>
-            <Pressable className="items-center" onPress={() => {setModalType('Followers'); setModalVisible(true)}}>
+            <Pressable className="items-center" onPress={() => { setModalType('Followers'); setModalVisible(true) }}>
               <Text className="text-lg font-semibold">{user.numfollowers}</Text>
               <Text className="text-sm text-secondary">Followers</Text>
             </Pressable>
-            <Pressable className="items-center" onPress={() => {setModalType('Following'); setModalVisible(true)}}>
+            <Pressable className="items-center" onPress={() => { setModalType('Following'); setModalVisible(true) }}>
               <Text className="text-lg font-semibold">{user.numfollowing}</Text>
               <Text className="text-sm text-secondary">Following</Text>
             </Pressable>

@@ -345,7 +345,7 @@ const DayCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categor
           <MultiDayCalendar
             events={events}
             currFocusedDay={focusedDay}
-            onEventPress={(event) => {console.log('Tapped event', event); onEventPress(event)}}
+            onEventPress={(event) => { console.log('Tapped event', event); onEventPress(event) }}
             changeViewingDate={(date) => { setFocusedDay(date); scrollToDate(date) }}
             hourHeight={hourHeight}
             setHourHeight={setHourHeight}

@@ -133,14 +133,14 @@ export function generateOccurrences(
       const occurrenceStart = isAllDay
         ? toDateOnly(new Date(year, startDate.getMonth(), startDate.getDate()))
         : new Date(
-            year,
-            startDate.getMonth(),
-            startDate.getDate(),
-            startDate.getHours(),
-            startDate.getMinutes(),
-            startDate.getSeconds(),
-            startDate.getMilliseconds()
-          );
+          year,
+          startDate.getMonth(),
+          startDate.getDate(),
+          startDate.getHours(),
+          startDate.getMinutes(),
+          startDate.getSeconds(),
+          startDate.getMilliseconds()
+        );
 
       const occurrenceEnd = new Date(occurrenceStart.getTime() + eventDuration);
 

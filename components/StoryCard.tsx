@@ -38,11 +38,11 @@ const StoryCard = ({ backlog, mytask, taskID, eventID, personID, taskName, group
 	return (
 		<Link href={taskID ? `../infoScreen/todo/${taskID}` : `../infoScreen/event/${eventID}`} asChild>
 			<LinearGradient
-					colors={['#4facfe', '#0A1929']} // diagonal gradient colors
-					start={{ x: 0, y: 0 }}
-					end={{ x: 1, y: 1 }}
-					style={styles.border}
-				>
+				colors={['#4facfe', '#0A1929']} // diagonal gradient colors
+				start={{ x: 0, y: 0 }}
+				end={{ x: 1, y: 1 }}
+				style={styles.border}
+			>
 				<View style={styles.innerBox} className="w-[130px] h-[170px] bg-primary">
 					<View className="mt-[13px] ml-[13px] mr-[13px] mb-[13px] flex flex-col flex-start gap-0">
 						{/** The profile picture and username */}
@@ -91,12 +91,12 @@ const StoryCard = ({ backlog, mytask, taskID, eventID, personID, taskName, group
 					{taskID &&
 						<View className="flex flex-row justify-between items-baseline ml-3 absolute bottom-4 w-[107px]">
 							{mytask &&
-								<Link href = {`/habitProgress/${taskID}`} asChild>
-								<Pressable>
-									<Text className="text-[12.5px] font-medium text-black bg-white border border-black px-3 py-1 rounded-full">
-										Done
-									</Text>
-								</Pressable>
+								<Link href={`/habitProgress/${taskID}`} asChild>
+									<Pressable>
+										<Text className="text-[12.5px] font-medium text-black bg-white border border-black px-3 py-1 rounded-full">
+											Done
+										</Text>
+									</Pressable>
 								</Link>
 
 							}
@@ -121,7 +121,7 @@ const StoryCard = ({ backlog, mytask, taskID, eventID, personID, taskName, group
 						</View>
 					}
 				</View>
-				</LinearGradient>
+			</LinearGradient>
 		</Link>
 	);
 };

@@ -18,12 +18,12 @@ const ProfileHeader = () => {
 
         {/* Bell icon on the right */}
         <View className='flex flex-row gap-5 mr-[2px]'>
-        <Link href={'/settings/settings'} asChild>
-          <Pressable>
-            <Ionicons name='settings-outline' size={24}/>
-          </Pressable>
-        </Link>
-        <Ionicons name="notifications-outline" size={24} color={numbers.secondaryColor} />
+          <Link href={'/settings/settings'} asChild>
+            <Pressable>
+              <Ionicons name='settings-outline' size={24} />
+            </Pressable>
+          </Link>
+          <Ionicons name="notifications-outline" size={24} color={numbers.secondaryColor} />
         </View>
       </View>
     </View>

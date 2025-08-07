@@ -19,7 +19,7 @@ export default function RootLayout() {
   const [mustAddUsername, setMustAddUsername] = useState(false);
   const router = useRouter();
   const segments = useSegments();
-  const HEARTBEAT_INTERVAL =  60 * 1000 / 6; // 10 seconds
+  const HEARTBEAT_INTERVAL = 60 * 1000 / 6; // 10 seconds
 
   // Fetch session on mount and subscribe to auth changes
   useEffect(() => {
@@ -98,14 +98,14 @@ export default function RootLayout() {
       if (session) {
         const userID = await getUserId();
         if (userID[0]) {
-          const {data, error} = await supabase.from("usersettings")
-                .select("allow_push_notifications").eq("id", userID[0]).single();
+          const { data, error } = await supabase.from("usersettings")
+            .select("allow_push_notifications").eq("id", userID[0]).single();
 
           if (data?.allow_push_notifications) {
             registerForPushNotificationsAsync();
           }
         }
-        
+
       } else {
         await unregisterPushNotificationsAsync(false); // Unregister if no session
       }
@@ -115,7 +115,7 @@ export default function RootLayout() {
   })
 
   //heartbeat for active
-  
+
   useEffect(() => {
     if (!session) return;
 
@@ -162,11 +162,11 @@ export default function RootLayout() {
           />
           <Stack.Screen
             name="infoScreen"
-            options={{ headerShown: false, animation: 'none'}}
+            options={{ headerShown: false, animation: 'none' }}
           />
           <Stack.Screen
             name="habitProgress/[id]"
-            options={{ headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="settings"

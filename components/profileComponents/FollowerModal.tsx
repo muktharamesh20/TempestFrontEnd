@@ -63,18 +63,18 @@ const PersonsModal = ({ visible, people, onClose, message }: personsModalProps):
 
   const renderpersonItem = ({ item }: { item: ModalPersonType }) => {
     return (
-      <Link href = {`/profiles/${item.id}`} asChild>
+      <Link href={`/profiles/${item.id}`} asChild>
         <Pressable onPress={onClose}>
-      <View style={styles.personItem}>
-        
-          <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
-        
-        <View style={{ marginLeft: 12 }}>
-          <Text style={styles.username}>{item.username}</Text>
-        </View>
-      </View>
-      </Pressable>
-        </Link>
+          <View style={styles.personItem}>
+
+            <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
+
+            <View style={{ marginLeft: 12 }}>
+              <Text style={styles.username}>{item.username}</Text>
+            </View>
+          </View>
+        </Pressable>
+      </Link>
     );
   };
 
