@@ -178,22 +178,22 @@ export interface ProfileSummary {
  * @param eventDetails
  * @param supabaseClient
  */
-export interface EventDetails {
-    color: string;
-    description: string;
-    end_date: string;
-    end_repeat: string | null;
-    end_time: string;
-    group_id: string | null;
-    id: string;
-    is_all_day: boolean;
-    location: string | null;
-    owner_id: string | null;
-    start_date: string;
-    start_time: string;
-    title: string;
-    working_on_this_todo: string | null;
-}
+// export interface EventDetails {
+//     color: string;
+//     description: string;
+//     end_date: string;
+//     end_repeat: string | null;
+//     end_time: string;
+//     group_id: string | null;
+//     id: string;
+//     is_all_day: boolean;
+//     location: string | null;
+//     owner_id: string | null;
+//     start_date: string;
+//     start_time: string;
+//     title: string;
+//     working_on_this_todo: string | null;
+// }
 
 export const dummyPost: postDetails = { postId: "dummy", taskOrEventName: "Dummy Post", personID: "0", myPost: true, username: 'dummyUser', thoughts: "This is a dummy post for testing purposes.", hashtags: ['test', 'dummy'], timeCreated: new Date("2023-10-01T12:00:00Z"), likes: 0, comments: 0, alreadyLiked: false, alreadySaved: false, archived: false };
 
@@ -232,28 +232,50 @@ export interface SubtodoTimelineProps {
     isEditing: boolean;
 }
 
-type TodoDetails = {
-    actual_time_taken: number | null;
-    assigned_by: string;
-    copy_of: string | null;
-    create_seperate_todos: boolean;
-    datetime_completed: string | null;
-    deadline: string | null;
-    end_repeat: string | null;
-    estimated_time_mins: number | null;
-    group_id: string | null;
-    id: string;
-    media_link: string | null;
-    notes: string;
-    person_id: string | null;
-    priority: number | null;
-    repeat_every: string;
-    soft_deadline_of: string | null;
-    specific_info_on_recorded_time: Json | null;
-    start_date: string | null;
-    title: string;
-    total_recored_time_taken: number | null;
-    weekdays: string[];
+export type TodoDetails = {
+    actual_time_taken?: number | null
+    all_members_must_complete: boolean
+    assigned_by: string
+    backlog: boolean
+    completed_by: string | null
+    created_at: string
+    datetime_completed: string | null
+    deadline: string | null
+    end_repeat: string | null
+    estimated_time_mins: number | null
+    group_id: string | null
+    habit: boolean
+    id: string
+    media_link: string | null
+    notes: string
+    numNudges: number
+    person_id: string | null
+    priority: number | null
+    repeat_every: string
+    soft_deadline_of: string | null
+    specific_info_on_recorded_time: Json | null
+    start_date: string | null
+    title: string
+    todo_color: string | null
+    total_recored_time_taken: number | null
+    weekdays: number[]
+}
+
+export type EventDetails = {
+    created_at: string | null
+    description: string
+    end_date: string
+    end_repeat: string | null
+    event_color: string | null
+    group_id: string | null
+    id: string
+    is_all_day: boolean
+    location: string | null
+    owner_id: string
+    repeat: string
+    start_date: string
+    title: string
+    weekdays: number[]
 }
 
 //created

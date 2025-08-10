@@ -1,6 +1,6 @@
 import { supabase } from '@/constants/supabaseClient';
 import { deleteTodo } from '@/services/myCalendar';
-import { Subtodo } from '@/services/utils';
+import { TodoDetails } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format, isBefore, parseISO } from 'date-fns';
@@ -29,14 +29,14 @@ export default function SubtodoTimeline({
   setCurrSubTodoId: React.Dispatch<React.SetStateAction<string>>;
   masterTodo: Mastertodo;
   setMasterTodo: React.Dispatch<Mastertodo>;
-  subtodos: Subtodo[];
-  setSubtodos: React.Dispatch<React.SetStateAction<Subtodo[]>>;
+  subtodos: TodoDetails[];
+  setSubtodos: React.Dispatch<React.SetStateAction<TodoDetails[]>>;
   isEditing: boolean;
   onClose: () => void;
 }) {
   const toggleSubtodo = (id: string) => {
     setSubtodos(prev =>
-      prev.map(st => (st.id === id ? { ...st, completed: !st.completed } : st))
+      prev.map(st => (st.id === id ? { ...st, datetime_completed: st.datetime_completed ? st.datetime_completed : (new Date()).toISOString() } : st))
     );
   };
 
@@ -47,15 +47,15 @@ const [showDatePicker, setShowDatePicker] = useState(false);
 const [color, setColor] = useState('#66C7C5'); // Default color
 
 
-  const addSubtodo = () => {
-    const newSub = {
-      id: Date.now().toString(),
-      title: '',
-      completed: false,
-      dueDate: '',
-    };
-    setSubtodos(prev => [...prev, newSub]);
-  };
+//   const addSubtodo = () => {
+//     const newSub = {
+//       id: Date.now().toString(),
+//       title: '',
+//       completed: false,
+//       dueDate: '',
+//     };
+//     setSubtodos(prev => [...prev, newSub]);
+//   };
 
   const removeSubtodo = (id: string) => {
     setSubtodos(prev => prev.filter(st => st.id !== id));
@@ -90,16 +90,16 @@ const [color, setColor] = useState('#66C7C5'); // Default color
   };
 
   useEffect(() => {
-    if (!subtodos.every(st => st.completed)) {
+    if (!subtodos.every(st => st.datetime_completed)) {
       setMasterTodo({ ...masterTodo, completed: false });
     }
   }, [subtodos]);
 
   // Sort by dueDate (empty dueDates go to the end)
   const sortedSubtodos = [...subtodos].sort((a, b) => {
-    if (!a.dueDate) return 1;
-    if (!b.dueDate) return -1;
-    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    if (!a.deadline) return 1;
+    if (!b.deadline) return -1;
+    return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
   });
 
   const renderDueDate = (dateStr: string, completed: boolean) => {
@@ -234,7 +234,7 @@ const [color, setColor] = useState('#66C7C5'); // Default color
                 id: Date.now().toString(),
                 title: newSubTitle,
                 completed: false,
-                dueDate: newSubDueDate?.toISOString() || '',
+                soft_deadline_of: newSubDueDate?.toISOString() || '',
               };
               setSubtodos(prev => [...prev, newSub]);
               setNewSubTitle('');

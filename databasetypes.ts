@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "12.2.12 (cd3cf9e)"
   }
   graphql_public: {
     Tables: {
@@ -86,19 +86,16 @@ export type Database = {
           },
         ]
       }
-      all_group_members_todos: {
+      all_group_members_todos_completed: {
         Row: {
-          completed: boolean
           person_id: string
           todo_copied: string
         }
         Insert: {
-          completed?: boolean
           person_id: string
           todo_copied: string
         }
         Update: {
-          completed?: boolean
           person_id?: string
           todo_copied?: string
         }
@@ -178,7 +175,7 @@ export type Database = {
           appear_on_profile?: boolean
           category_name: string
           id?: string
-          person_who_owns_tag: string
+          person_who_owns_tag?: string
           tag_color?: string | null
         }
         Update: {
@@ -204,60 +201,48 @@ export type Database = {
           description: string
           end_date: string
           end_repeat: string | null
-          end_time: string
           event_color: string | null
           group_id: string | null
           id: string
           is_all_day: boolean
           location: string | null
-          owner_id: string | null
+          owner_id: string
           repeat: string
-          special_event: boolean | null
           start_date: string
-          start_time: string
           title: string
-          weekdays: string[]
-          working_on_this_todo: string | null
+          weekdays: number[]
         }
         Insert: {
           created_at?: string | null
           description: string
           end_date: string
           end_repeat?: string | null
-          end_time: string
           event_color?: string | null
           group_id?: string | null
           id?: string
           is_all_day?: boolean
           location?: string | null
-          owner_id?: string | null
+          owner_id?: string
           repeat?: string
-          special_event?: boolean | null
           start_date: string
-          start_time: string
           title: string
-          weekdays: string[]
-          working_on_this_todo?: string | null
+          weekdays: number[]
         }
         Update: {
           created_at?: string | null
           description?: string
           end_date?: string
           end_repeat?: string | null
-          end_time?: string
           event_color?: string | null
           group_id?: string | null
           id?: string
           is_all_day?: boolean
           location?: string | null
-          owner_id?: string | null
+          owner_id?: string
           repeat?: string
-          special_event?: boolean | null
           start_date?: string
-          start_time?: string
           title?: string
-          weekdays?: string[]
-          working_on_this_todo?: string | null
+          weekdays?: number[]
         }
         Relationships: [
           {
@@ -272,13 +257,6 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "usersettings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_working_on_this_todo_fkey"
-            columns: ["working_on_this_todo"]
-            isOneToOne: false
-            referencedRelation: "todo"
             referencedColumns: ["id"]
           },
         ]
@@ -648,7 +626,7 @@ export type Database = {
         }
         Insert: {
           event_id: string
-          user_id: string
+          user_id?: string
         }
         Update: {
           event_id?: string
@@ -664,6 +642,43 @@ export type Database = {
           },
           {
             foreignKeyName: "people_to_delete_added_group_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "usersettings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      people_to_deleted_group_todos: {
+        Row: {
+          todo_id: string
+          user_id: string
+        }
+        Insert: {
+          todo_id: string
+          user_id?: string
+        }
+        Update: {
+          todo_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_to_deleted_group_todos_event_id_fkey"
+            columns: ["todo_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_to_deleted_group_todos_todo_id_fkey"
+            columns: ["todo_id"]
+            isOneToOne: false
+            referencedRelation: "todo"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_to_deleted_group_todos_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "usersettings"
@@ -1208,92 +1223,208 @@ export type Database = {
         }
         Relationships: []
       }
+      subtodo: {
+        Row: {
+          created_by: string
+          deadline: string
+          id: string
+          location: string
+          priority: number
+          subtodo_of: string
+          title: string
+        }
+        Insert: {
+          created_by: string
+          deadline: string
+          id?: string
+          location: string
+          priority: number
+          subtodo_of?: string
+          title: string
+        }
+        Update: {
+          created_by?: string
+          deadline?: string
+          id?: string
+          location?: string
+          priority?: number
+          subtodo_of?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subtodo_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "usersettings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subtodo_subtodo_of_fkey"
+            columns: ["subtodo_of"]
+            isOneToOne: false
+            referencedRelation: "todo"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subtodo_overrides: {
+        Row: {
+          created_by: string | null
+          deadline: string
+          location: string
+          my_id: string
+          overridden_todo: string
+          priority: number
+          title: string
+        }
+        Insert: {
+          created_by?: string | null
+          deadline: string
+          location: string
+          my_id?: string
+          overridden_todo: string
+          priority: number
+          title: string
+        }
+        Update: {
+          created_by?: string | null
+          deadline?: string
+          location?: string
+          my_id?: string
+          overridden_todo?: string
+          priority?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subtodo_overrides_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "usersettings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subtodo_overrides_overridden_todo_fkey"
+            columns: ["overridden_todo"]
+            isOneToOne: false
+            referencedRelation: "todo_overrides"
+            referencedColumns: ["my_id"]
+          },
+        ]
+      }
+      subtodos_completed: {
+        Row: {
+          completed_at: string
+          imagelink: string
+          parent_modified_todo: string
+          parent_subtodo: string
+        }
+        Insert: {
+          completed_at?: string
+          imagelink?: string
+          parent_modified_todo: string
+          parent_subtodo: string
+        }
+        Update: {
+          completed_at?: string
+          imagelink?: string
+          parent_modified_todo?: string
+          parent_subtodo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subtodos_completed_parent_modified_todo_fkey"
+            columns: ["parent_modified_todo"]
+            isOneToOne: false
+            referencedRelation: "todo_overrides"
+            referencedColumns: ["my_id"]
+          },
+          {
+            foreignKeyName: "subtodos_completed_parent_subtodo_fkey"
+            columns: ["parent_subtodo"]
+            isOneToOne: false
+            referencedRelation: "subtodo_overrides"
+            referencedColumns: ["my_id"]
+          },
+          {
+            foreignKeyName: "subtodos_completed_parent_subtodo_fkey1"
+            columns: ["parent_subtodo"]
+            isOneToOne: false
+            referencedRelation: "subtodo"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       todo: {
         Row: {
-          actual_time_taken: number | null
           all_members_must_complete: boolean
           assigned_by: string
-          backlog: boolean
+          completed_by: string | null
           created_at: string
-          datetime_completed: string | null
           deadline: string | null
           end_repeat: string | null
-          estimated_time_mins: number | null
           group_id: string | null
           habit: boolean
           id: string
-          media_link: string | null
           notes: string
-          numNudges: number
           person_id: string | null
           priority: number | null
           repeat_every: string
-          soft_deadline_of: string | null
-          specific_info_on_recorded_time: Json | null
           start_date: string | null
           title: string
           todo_color: string | null
-          total_recored_time_taken: number | null
-          weekdays: string[]
+          weekdays: number[]
         }
         Insert: {
-          actual_time_taken?: number | null
           all_members_must_complete?: boolean
-          assigned_by: string
-          backlog?: boolean
+          assigned_by?: string
+          completed_by?: string | null
           created_at?: string
-          datetime_completed?: string | null
           deadline?: string | null
           end_repeat?: string | null
-          estimated_time_mins?: number | null
           group_id?: string | null
           habit?: boolean
           id?: string
-          media_link?: string | null
           notes?: string
-          numNudges?: number
           person_id?: string | null
           priority?: number | null
           repeat_every?: string
-          soft_deadline_of?: string | null
-          specific_info_on_recorded_time?: Json | null
           start_date?: string | null
           title: string
           todo_color?: string | null
-          total_recored_time_taken?: number | null
-          weekdays: string[]
+          weekdays: number[]
         }
         Update: {
-          actual_time_taken?: number | null
           all_members_must_complete?: boolean
           assigned_by?: string
-          backlog?: boolean
+          completed_by?: string | null
           created_at?: string
-          datetime_completed?: string | null
           deadline?: string | null
           end_repeat?: string | null
-          estimated_time_mins?: number | null
           group_id?: string | null
           habit?: boolean
           id?: string
-          media_link?: string | null
           notes?: string
-          numNudges?: number
           person_id?: string | null
           priority?: number | null
           repeat_every?: string
-          soft_deadline_of?: string | null
-          specific_info_on_recorded_time?: Json | null
           start_date?: string | null
           title?: string
           todo_color?: string | null
-          total_recored_time_taken?: number | null
-          weekdays?: string[]
+          weekdays?: number[]
         }
         Relationships: [
           {
             foreignKeyName: "todo_assigned_by_fkey"
             columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "usersettings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "todo_completed_by_fkey"
+            columns: ["completed_by"]
             isOneToOne: false
             referencedRelation: "usersettings"
             referencedColumns: ["id"]
@@ -1312,9 +1443,61 @@ export type Database = {
             referencedRelation: "usersettings"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      todo_overrides: {
+        Row: {
+          all_group_members_todo_started: boolean | null
+          categories_override: boolean
+          completed_at: string | null
+          deleted_override: boolean
+          due_time_override: string | null
+          imagelink: string
+          location_override: string | null
+          my_id: string
+          parent_id: string
+          priority_color_overridden: number | null
+          privacy_overridden: number | null
+          started_subtodos: boolean
+          subtodos_overriden: boolean
+          utc_start_of_day: string
+        }
+        Insert: {
+          all_group_members_todo_started?: boolean | null
+          categories_override?: boolean
+          completed_at?: string | null
+          deleted_override?: boolean
+          due_time_override?: string | null
+          imagelink?: string
+          location_override?: string | null
+          my_id?: string
+          parent_id?: string
+          priority_color_overridden?: number | null
+          privacy_overridden?: number | null
+          started_subtodos?: boolean
+          subtodos_overriden?: boolean
+          utc_start_of_day: string
+        }
+        Update: {
+          all_group_members_todo_started?: boolean | null
+          categories_override?: boolean
+          completed_at?: string | null
+          deleted_override?: boolean
+          due_time_override?: string | null
+          imagelink?: string
+          location_override?: string | null
+          my_id?: string
+          parent_id?: string
+          priority_color_overridden?: number | null
+          privacy_overridden?: number | null
+          started_subtodos?: boolean
+          subtodos_overriden?: boolean
+          utc_start_of_day?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "todo_soft_deadline_of_fkey"
-            columns: ["soft_deadline_of"]
+            foreignKeyName: "todo_overrides_parent_id_fkey"
+            columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "todo"
             referencedColumns: ["id"]
@@ -1324,14 +1507,17 @@ export type Database = {
       todo_to_category: {
         Row: {
           category_id: string
+          person_id: string
           todo_id: string
         }
         Insert: {
           category_id: string
+          person_id: string
           todo_id: string
         }
         Update: {
           category_id?: string
+          person_id?: string
           todo_id?: string
         }
         Relationships: [
@@ -1347,6 +1533,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "calendar_category_tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "todo_to_category_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "usersettings"
             referencedColumns: ["id"]
           },
           {

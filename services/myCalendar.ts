@@ -18,20 +18,73 @@ export async function getMyCalendar(user: types.User, supabaseClient: SupabaseCl
     return data;
 }
 
-export async function createTodo(todoDetails: { title: string; description: string; dueDate: string; user: types.User }, supabaseClient: SupabaseClient<Database>): Promise<void> {
-    const { error } = await supabaseClient
-        .from('todos')
+export async function createPersonalTodo(todoDetails: { person_id: string, title: string, deadline: string, priority: number, end_repeat: string, repeat_every: types.RepeatPeriod, weekdays: number[], habit: boolean, backlog: boolean, soft_deadline_of?: string, notes?: string}, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
+    const { data, error } = await supabaseClient
+        .from('todo')
         .insert(todoDetails);
 
     if (error) {
         console.error('Error creating todo:', error.message);
         throw error;
     }
+
+    if (!data || !data[0]) {
+        throw new Error('Failed to create subtodo: No data returned.');
+    }
+    return data[0] as types.TodoDetails;
 }
 
-export async function createEvent(eventDetails: { title: string; description: string; date: string; user: types.User }, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function createFriendTodo(todoDetails: { person_id: string, title: string, deadline: string, priority: number, end_repeat: string, repeat_every: types.RepeatPeriod, weekdays: number[], habit: boolean, backlog: boolean, soft_deadline_of?: string, notes?: string}, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
+    const { data, error } = await supabaseClient
+        .from('todo')
+        .insert(todoDetails);
+
+    if (error) {
+        console.error('Error creating friend todo:', error.message);
+        throw error;
+    }
+
+    if (!data || !data[0]) {
+        throw new Error('Failed to create subtodo: No data returned.');
+    }
+    return data[0] as types.TodoDetails;
+}
+
+export async function createGroupTodo(todoDetails: { group_id: string, title: string, all_members_must_complete: boolean, deadline: string, priority: number, end_repeat: string, repeat_every: types.RepeatPeriod, weekdays: number[], habit: boolean, backlog: boolean, soft_deadline_of?: string, notes?: string}, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
+    const { data, error } = await supabaseClient
+        .from('todo')
+        .insert(todoDetails);
+
+    if (error) {
+        console.error('Error creating friend todo:', error.message);
+        throw error;
+    }
+
+    if (!data || !data[0]) {
+        throw new Error('Failed to create subtodo: No data returned.');
+    }
+    return data[0] as types.TodoDetails;
+}
+
+export async function createPersonalOrGroupEvent(eventDetails: {group_id?: string; title: string; start_date: string; end_date: string; end_repeat: string; event_color: string; is_all_day: boolean; location: string | null; repeat: types.RepeatPeriod; weekdays: number[]}, supabaseClient: SupabaseClient<Database>): Promise<types.EventDetails> {
+    const { data, error } = await supabaseClient
+        .from('event')
+        .insert({...eventDetails,  description: ''});
+
+    if (error) {
+        console.error('Error creating event:', error.message);
+        throw error;
+    }
+
+    if (!data || !data[0]) {
+        throw new Error('Failed to create subtodo: No data returned.');
+    }
+    return data[0] as types.EventDetails;
+}
+
+export async function inviteFriendtoPerosonalEvent(eventDetails: { title: string; description: string; date: string; user: types.User }, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
     const { error } = await supabaseClient
-        .from('events')
+        .from('event')
         .insert(eventDetails);
 
     if (error) {
@@ -40,21 +93,7 @@ export async function createEvent(eventDetails: { title: string; description: st
     }
 }
 
-export async function getKanban(user: types.User, supabaseClient: SupabaseClient<Database>): Promise<any[]> {
-    const { data, error } = await supabaseClient
-        .from('kanban')
-        .select('*')
-        .eq('user_id', userId);
-
-    if (error) {
-        console.error('Error fetching kanban:', error.message);
-        throw error;
-    }
-
-    return data;
-}
-
-export async function deleteTodo(todoId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function deleteTodoAll(todoId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
         .from('todo')
         .delete()
@@ -66,7 +105,18 @@ export async function deleteTodo(todoId: string, supabaseClient: SupabaseClient<
     }
 }
 
-export async function deleteEvent(eventId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function deleteTodoMyself(todoId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+    const { error } = await supabaseClient
+        .from('people_to_deleted_group_todos')
+        .insert({todo_id: todoId})
+
+    if (error) {
+        console.error('Error deleting todo myself:', error.message);
+        throw error;
+    }
+}
+
+export async function deleteEventAll(eventId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
         .from('event')
         .delete()
@@ -74,6 +124,17 @@ export async function deleteEvent(eventId: string, supabaseClient: SupabaseClien
 
     if (error) {
         console.error('Error deleting event:', error.message);
+        throw error;
+    }
+}
+
+export async function deleteEventMyself(eventId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+    const { error } = await supabaseClient
+        .from('people_to_deleted_group_events')
+        .insert({event_id: eventId})
+
+    if (error) {
+        console.error('Error deleting todo myself:', error.message);
         throw error;
     }
 }
@@ -91,7 +152,19 @@ export async function getAllViewershipTags(supabaseClient: SupabaseClient<Databa
     return data;
 }
 
+export async function getKanban(user: types.User, supabaseClient: SupabaseClient<Database>): Promise<any[]> {
+    const { data, error } = await supabaseClient
+        .from('kanban')
+        .select('*')
+        .eq('user_id', userId);
 
+    if (error) {
+        console.error('Error fetching kanban:', error.message);
+        throw error;
+    }
+
+    return data;
+}
 
 export async function changeViewershipTagsOfTodo(todo: types.Todo, tags: string[], supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
