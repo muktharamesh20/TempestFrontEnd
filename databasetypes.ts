@@ -1460,6 +1460,7 @@ export type Database = {
           privacy_overridden: number | null
           started_subtodos: boolean
           subtodos_overriden: boolean
+          title_override: string | null
           utc_start_of_day: string
         }
         Insert: {
@@ -1476,6 +1477,7 @@ export type Database = {
           privacy_overridden?: number | null
           started_subtodos?: boolean
           subtodos_overriden?: boolean
+          title_override?: string | null
           utc_start_of_day: string
         }
         Update: {
@@ -1492,6 +1494,7 @@ export type Database = {
           privacy_overridden?: number | null
           started_subtodos?: boolean
           subtodos_overriden?: boolean
+          title_override?: string | null
           utc_start_of_day?: string
         }
         Relationships: [
