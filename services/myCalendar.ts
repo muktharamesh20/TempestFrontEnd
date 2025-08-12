@@ -5,17 +5,7 @@ import * as types from './utils.js';
 
 
 export async function getMyCalendar(user: types.User, supabaseClient: SupabaseClient<Database>, from: Date, to: Date): Promise<any[]> {
-    const { data, error } = await supabaseClient
-        .from('calendar')
-        .select('*')
-        .eq('user_id', userId);
-
-    if (error) {
-        console.error('Error fetching calendar:', error.message);
-        throw error;
-    }
-
-    return data;
+    throw new Error('Not implemented yet');
 }
 
 export async function createPersonalTodo(todoDetails: { person_id: string, title: string, deadline: string, priority: number, end_repeat: string, repeat_every: types.RepeatPeriod, weekdays: number[], habit: boolean, backlog: boolean, soft_deadline_of?: string, notes?: string}, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
@@ -93,7 +83,35 @@ export async function inviteFriendtoPerosonalEvent(eventDetails: { title: string
     }
 }
 
-export async function deleteTodoAll(todoId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function inviteGroupMembersToRSVPForEvent(eventDetails: { title: string; description: string; date: string; user: types.User }, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
+    const { error } = await supabaseClient
+        .from('event')
+        .insert(eventDetails);
+
+    if (error) {
+        console.error('Error creating event:', error.message);
+        throw error;
+    }
+}
+
+export async function findWhichFriendsAreBusy(startdate: string, enddate: string, friends: types.User[], supabaseClient: SupabaseClient<Database>): Promise<{user: types.User; busy: boolean}[]> {
+    throw new Error('Not implemented yet');
+}
+
+export async function acceptInviteToEvent(eventDetails: { title: string; description: string; date: string; user: types.User }, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
+    const { error } = await supabaseClient
+        .from('event')
+        .insert(eventDetails);
+
+    if (error) {
+        console.error('Error creating event:', error.message);
+        throw error;
+    }
+}
+
+///
+
+export async function deletGroupTodoAll(todoId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
         .from('todo')
         .delete()
@@ -105,7 +123,7 @@ export async function deleteTodoAll(todoId: string, supabaseClient: SupabaseClie
     }
 }
 
-export async function deleteTodoMyself(todoId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function deleteGroupTodo(todoId: string, taget: "myself" | "all", supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
         .from('people_to_deleted_group_todos')
         .insert({todo_id: todoId})
@@ -116,19 +134,7 @@ export async function deleteTodoMyself(todoId: string, supabaseClient: SupabaseC
     }
 }
 
-export async function deleteEventAll(eventId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
-    const { error } = await supabaseClient
-        .from('event')
-        .delete()
-        .eq('id', eventId);
-
-    if (error) {
-        console.error('Error deleting event:', error.message);
-        throw error;
-    }
-}
-
-export async function deleteEventMyself(eventId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function deleteGroupEvent(eventId: string, taget: "myself" | "all", supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
         .from('people_to_deleted_group_events')
         .insert({event_id: eventId})
@@ -139,113 +145,159 @@ export async function deleteEventMyself(eventId: string, supabaseClient: Supabas
     }
 }
 
-export async function getAllViewershipTags(supabaseClient: SupabaseClient<Database>): Promise<any[]> {
-    const { data, error } = await supabaseClient
-        .from('viewership_tags')
-        .select('*');
-
-    if (error) {
-        console.error('Error fetching viewership tags:', error.message);
-        throw error;
-    }
-
-    return data;
-}
-
 export async function getKanban(user: types.User, supabaseClient: SupabaseClient<Database>): Promise<any[]> {
-    const { data, error } = await supabaseClient
-        .from('kanban')
-        .select('*')
-        .eq('user_id', userId);
-
-    if (error) {
-        console.error('Error fetching kanban:', error.message);
-        throw error;
-    }
-
-    return data;
+    throw new Error('Not implemented yet');
 }
 
-export async function changeViewershipTagsOfTodo(todo: types.Todo, tags: string[], supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function deletePersonalEvent(eventId:string, target: 'today' | 'future' | 'all', supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
-        .from('todos')
-        .update({ viewership_tags: tags })
-        .eq('id', todoId);
+        .from('event')
+        .delete()
+        .eq('id', eventId)
+        .eq('target', target);
 
     if (error) {
-        console.error('Error changing viewership tags of todo:', error.message);
+        console.error('Error deleting personal event:', error.message);
         throw error;
     }
 }
 
-export async function changeViewershipTagsOfEvent(eventId: string, tags: string[], supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function deletePersonalTodo(todoId: string, target: 'today' | 'future' | 'all', supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
-        .from('events')
-        .update({ viewership_tags: tags })
+        .from('todo')
+        .delete()
+        .eq('id', todoId)
+        .eq('target', target);
+
+    if (error) {
+        console.error('Error deleting personal todo:', error.message);
+        throw error;
+    }
+}
+
+
+import { updatePersonalTodoFile } from './updatePersonalTodo';
+
+
+export async function updatePersonalTodo(
+  todoId: string,
+  utc_start_of_day: string,
+  target: 'today' | 'future' | 'all',
+  previous: types.TodoDetails,
+  updates: Partial<types.ModifiedTodoDetails>,
+  supabaseClient: SupabaseClient<Database>,
+  newCategories: types.CategoryId[]
+): Promise<void> {
+  updatePersonalTodoFile(todoId, utc_start_of_day, target, previous, updates, supabaseClient, newCategories);
+}
+
+/** does not update categories, privacy
+ * 
+ * */
+export async function updatePersonalSubTodo(todoId: string, target: 'today' | 'future' | 'all', updates: {subtodoDeleteId: string, subtodoToAdd: types.SubtodoDetails}[], supabaseClient: SupabaseClient<Database>): Promise<void> {
+    if (target === 'today') {
+        
+    } else if (target === 'future') {
+
+    } else if (target === 'all') {
+
+    } else {
+        throw new Error('Invalid target specified for updating personal subtodo');
+    }
+}
+
+export async function updatePersonalEvent(eventId: string, target: 'today' | 'future' | 'all', updates: Partial<types.EventDetails>, supabaseClient: SupabaseClient<Database>): Promise<void> {
+    const { error } = await supabaseClient
+        .from('event')
+        .update(updates)
         .eq('id', eventId);
 
     if (error) {
-        console.error('Error changing viewership tags of event:', error.message);
+        console.error('Error updating personal event:', error.message);
         throw error;
     }
 }
 
-export async function changeViewershipTagsOfCategories(categoryId: string, tags: string[], supabaseClient: SupabaseClient<Database>): Promise<void> {
-    const { error } = await supabaseClient
-        .from('categories')
-        .update({ viewership_tags: tags })
-        .eq('id', categoryId);
 
-    if (error) {
-        console.error('Error changing viewership tags of categories:', error.message);
-        throw error;
-    }
+
+/////////////////////////Helper Functions for updating todos//////////////////////////////////
+async function updateRepititionPersonalTodo(todoId: string, target: 'today' | 'future' | 'all', previous: types.TodoDetails, updates: Partial<types.TodoDetails>, supabaseClient: SupabaseClient<Database>): Promise<void> {
+    // This function should handle the logic for updating the repetition of a personal todo
+    // It may involve creating new todos based on the repetition settings
+    throw new Error('Not implemented yet');
 }
 
-export async function inviteToEvent(eventId: string, inviteeId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
-    const { error } = await supabaseClient
-        .from('event_invites')
-        .insert({ event_id: eventId, invitee_id: inviteeId });
-
-    if (error) {
-        console.error('Error inviting to event:', error.message);
-        throw error;
-    }
+async function updatePrivacyPersonalTodo(todoId: string, target: 'today' | 'future' | 'all', previous: types.TodoDetails, updates: Partial<types.TodoDetails>, supabaseClient: SupabaseClient<Database>): Promise<void> {
+    // This function should handle the logic for updating the privacy of a personal todo
+    // It may involve changing the visibility settings in the database
+    throw new Error('Not implemented yet');
 }
 
-export async function acceptInviteToEvent(eventId: string, user: types.User, supabaseClient: SupabaseClient<Database>): Promise<void> {
-    const { error } = await supabaseClient
-        .from('event_invites')
-        .update({ accepted: true })
-        .eq('event_id', eventId)
-        .eq('invitee_id', userId);
-
-    if (error) {
-        console.error('Error accepting invite to event:', error.message);
-        throw error;
-    }
+async function updateCategoriesPersonalTodo(todoId: string, target: 'today' | 'future' | 'all', previous: types.TodoDetails, updates: Partial<types.TodoDetails>, supabaseClient: SupabaseClient<Database>): Promise<void> {
+    // This function should handle the logic for updating the categories of a personal todo
+    // It may involve changing the category associations in the database
+    throw new Error('Not implemented yet');
 }
 
-export async function editTodo(todo: types.Todo, updatedDetails: object, supabaseClient: SupabaseClient<Database>): Promise<void> {
+async function updateOtherPersonalTodo(todoId: string, target: 'today' | 'future' | 'all', previous: types.TodoDetails, updates: Partial<types.TodoDetails>, supabaseClient: SupabaseClient<Database>): Promise<void> {
+    // This function should handle any other updates that are not covered by the specific functions above
+    // It may involve updating other fields in the database
+    throw new Error('Not implemented yet');
+}
+
+/////////////////////////////Completing Todos and Events////////////////////////////////////
+export async function completeAllMembersTodo(todoId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
-        .from('todos')
-        .update(updatedDetails)
+        .from('todo')
+        .update({ completed: true })
         .eq('id', todoId);
 
     if (error) {
-        console.error('Error editing todo:', error.message);
+        console.error('Error completing all members todo:', error.message);
         throw error;
     }
 }
 
-export async function editEvent(eventId: string, updatedDetails: object, supabaseClient: SupabaseClient<Database>): Promise<void> {
+export async function completeGroupTodo(todoId: string, personId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
-        .from('events')
-        .update(updatedDetails)
-        .eq('id', eventId);
+        .from('people_completed_group_todos')
+        .insert({ todo_id: todoId, person_id: personId });
 
     if (error) {
-        console.error('Error editing event:', error.message);
+        console.error('Error completing group todo:', error.message);
+        throw error;
+    }
+}
+
+export async function completePersonalTodo(todoId: string, personId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+    const { error } = await supabaseClient
+        .from('people_completed_personal_todos')
+        .insert({ todo_id: todoId, person_id: personId });
+
+    if (error) {
+        console.error('Error completing personal todo:', error.message);
+        throw error;
+    }
+}
+
+export async function completeGroupSubtodo(todoId: string, personId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+    const { error } = await supabaseClient
+        .from('people_completed_group_subtodos')
+        .insert({ todo_id: todoId, person_id: personId });
+
+    if (error) {
+        console.error('Error completing group subtodo:', error.message);
+        throw error;
+    }
+}
+
+export async function completePersonalSubtodo(todoId: string, personId: string, supabaseClient: SupabaseClient<Database>): Promise<void> {
+    const { error } = await supabaseClient
+        .from('people_completed_personal_subtodos')
+        .insert({ todo_id: todoId, person_id: personId });
+
+    if (error) {
+        console.error('Error completing personal subtodo:', error.message);
         throw error;
     }
 }

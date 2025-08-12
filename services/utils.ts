@@ -1,5 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Database, Json } from "../databasetypes";
+import { Database } from "../databasetypes";
 import { getUserId } from "./api";
 
 export type Post = {
@@ -123,6 +123,10 @@ export type RepeatPeriod = 'NONE' | 'Weekly' | 'Monthly' | 'BiWeekly' | 'Daily' 
 export type Day = 'MO' | 'TU' | 'WE' | 'TH' | 'FR' | 'SA' | 'SU';
 export type ViewershipTag = { name: string, id: string, fornow: null };
 
+enum Priority {
+
+}
+
 export async function asyncTimer(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -233,32 +237,65 @@ export interface SubtodoTimelineProps {
 }
 
 export type TodoDetails = {
-    actual_time_taken?: number | null
     all_members_must_complete: boolean
     assigned_by: string
-    backlog: boolean
     completed_by: string | null
     created_at: string
-    datetime_completed: string | null
     deadline: string | null
     end_repeat: string | null
-    estimated_time_mins: number | null
     group_id: string | null
     habit: boolean
     id: string
-    media_link: string | null
     notes: string
-    numNudges: number
     person_id: string | null
     priority: number | null
     repeat_every: string
-    soft_deadline_of: string | null
-    specific_info_on_recorded_time: Json | null
     start_date: string | null
     title: string
     todo_color: string | null
-    total_recored_time_taken: number | null
     weekdays: number[]
+}
+
+export type SubtodoDetails = {
+    created_by: string
+    deadline: string
+    id: string
+    location: string
+    priority: number
+    subtodo_of: string
+    title: string
+    deleted: boolean
+}
+
+export type ModifiedTodoDetails = {
+    all_group_members_todo_started: boolean | null
+    categories_override: boolean
+    completed_at: string | null
+    deleted_override: boolean
+    due_time_override: string | null
+    imagelink: string
+    location_override: string | null
+    my_id: string
+    parent_id: string
+    priority_color_overridden: number | null
+    privacy_overridden: number | null
+    started_subtodos: boolean
+    subtodos_overriden: boolean
+    utc_start_of_day: string
+    title_override: string | null
+    /// if the todo  is "future"
+    repeitition_override: string | null
+    weekdays_override: number[] | null
+}
+
+export type ModifiedSubTodoDetails = {
+    created_by: string | null
+    deadline: string
+    location: string
+    my_id: string
+    overridden_todo: string
+    priority: number
+    title: string
 }
 
 export type EventDetails = {
