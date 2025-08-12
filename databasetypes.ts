@@ -1225,7 +1225,6 @@ export type Database = {
       }
       subtodo: {
         Row: {
-          created_by: string
           deadline: string
           id: string
           location: string
@@ -1234,7 +1233,6 @@ export type Database = {
           title: string
         }
         Insert: {
-          created_by: string
           deadline: string
           id?: string
           location: string
@@ -1243,7 +1241,6 @@ export type Database = {
           title: string
         }
         Update: {
-          created_by?: string
           deadline?: string
           id?: string
           location?: string
@@ -1252,13 +1249,6 @@ export type Database = {
           title?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "subtodo_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "usersettings"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "subtodo_subtodo_of_fkey"
             columns: ["subtodo_of"]
@@ -1270,7 +1260,6 @@ export type Database = {
       }
       subtodo_overrides: {
         Row: {
-          created_by: string | null
           deadline: string
           location: string
           my_id: string
@@ -1279,7 +1268,6 @@ export type Database = {
           title: string
         }
         Insert: {
-          created_by?: string | null
           deadline: string
           location: string
           my_id?: string
@@ -1288,7 +1276,6 @@ export type Database = {
           title: string
         }
         Update: {
-          created_by?: string | null
           deadline?: string
           location?: string
           my_id?: string
@@ -1297,13 +1284,6 @@ export type Database = {
           title?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "subtodo_overrides_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "usersettings"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "subtodo_overrides_overridden_todo_fkey"
             columns: ["overridden_todo"]
@@ -1367,9 +1347,11 @@ export type Database = {
           group_id: string | null
           habit: boolean
           id: string
+          location: string | null
           notes: string
           person_id: string | null
           priority: number | null
+          privacy: number | null
           repeat_every: string
           start_date: string | null
           title: string
@@ -1386,9 +1368,11 @@ export type Database = {
           group_id?: string | null
           habit?: boolean
           id?: string
+          location?: string | null
           notes?: string
           person_id?: string | null
           priority?: number | null
+          privacy?: number | null
           repeat_every?: string
           start_date?: string | null
           title: string
@@ -1405,9 +1389,11 @@ export type Database = {
           group_id?: string | null
           habit?: boolean
           id?: string
+          location?: string | null
           notes?: string
           person_id?: string | null
           priority?: number | null
+          privacy?: number | null
           repeat_every?: string
           start_date?: string | null
           title?: string
@@ -1445,6 +1431,36 @@ export type Database = {
           },
         ]
       }
+      todo_overriddes_to_category: {
+        Row: {
+          category: string
+          todo_id: string
+        }
+        Insert: {
+          category: string
+          todo_id: string
+        }
+        Update: {
+          category?: string
+          todo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "todo_overriddes_to_category_category_fkey"
+            columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "calendar_category_tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "todo_overriddes_to_category_todo_id_fkey"
+            columns: ["todo_id"]
+            isOneToOne: false
+            referencedRelation: "todo_overrides"
+            referencedColumns: ["my_id"]
+          },
+        ]
+      }
       todo_overrides: {
         Row: {
           all_group_members_todo_started: boolean | null
@@ -1452,7 +1468,6 @@ export type Database = {
           completed_at: string | null
           deleted_override: boolean
           due_time_override: string | null
-          imagelink: string
           location_override: string | null
           my_id: string
           parent_id: string
@@ -1469,7 +1484,6 @@ export type Database = {
           completed_at?: string | null
           deleted_override?: boolean
           due_time_override?: string | null
-          imagelink?: string
           location_override?: string | null
           my_id?: string
           parent_id?: string
@@ -1486,7 +1500,6 @@ export type Database = {
           completed_at?: string | null
           deleted_override?: boolean
           due_time_override?: string | null
-          imagelink?: string
           location_override?: string | null
           my_id?: string
           parent_id?: string

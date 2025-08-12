@@ -254,6 +254,8 @@ export type TodoDetails = {
     title: string
     todo_color: string | null
     weekdays: number[]
+    location: string | null
+    privacy: number
 }
 
 export type SubtodoDetails = {
@@ -273,7 +275,6 @@ export type ModifiedTodoDetails = {
     completed_at: string | null
     deleted_override: boolean
     due_time_override: string | null
-    imagelink: string
     location_override: string | null
     my_id: string
     parent_id: string
@@ -288,14 +289,40 @@ export type ModifiedTodoDetails = {
     weekdays_override: number[] | null
 }
 
+export type ModifiedTodoDetailsNoID = {
+  all_group_members_todo_started: boolean | null
+  categories_override: boolean
+  completed_at: string | null
+  deleted_override: boolean
+  due_time_override: string | null
+  location_override: string | null
+  parent_id: string
+  priority_color_overridden: number | null
+  privacy_overridden: number | null
+  started_subtodos: boolean
+  subtodos_overriden: boolean
+  utc_start_of_day: string
+  title_override: string | null
+  /// if the todo  is "future"
+  repeitition_override: string | null
+  weekdays_override: number[] | null
+}
+
 export type ModifiedSubTodoDetails = {
-    created_by: string | null
     deadline: string
     location: string
     my_id: string
     overridden_todo: string
     priority: number
     title: string
+}
+
+export type ModifiedSubTodoDetailsNoID = {
+  deadline: string
+  location: string
+  overridden_todo: string
+  priority: number
+  title: string
 }
 
 export type EventDetails = {
