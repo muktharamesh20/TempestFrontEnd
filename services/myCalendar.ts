@@ -8,7 +8,7 @@ export async function getMyCalendar(user: types.User, supabaseClient: SupabaseCl
     throw new Error('Not implemented yet');
 }
 
-export async function createPersonalTodo(todoDetails: { person_id: string, title: string, deadline: string, priority: number, end_repeat: string, repeat_every: types.RepeatPeriod, weekdays: number[], habit: boolean, backlog: boolean, soft_deadline_of?: string, notes?: string}, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
+export async function createPersonalTodo(todoDetails: { person_id: string, title: string, deadline: string, priority: number, end_repeat: string, repeat_every: types.RepeatPeriod, weekdays: number[], habit: boolean, backlog: boolean,location: string, privacy: number}, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
     const { data, error } = await supabaseClient
         .from('todo')
         .insert(todoDetails);
@@ -24,7 +24,7 @@ export async function createPersonalTodo(todoDetails: { person_id: string, title
     return data[0] as types.TodoDetails;
 }
 
-export async function createFriendTodo(todoDetails: { person_id: string, title: string, deadline: string, priority: number, end_repeat: string, repeat_every: types.RepeatPeriod, weekdays: number[], habit: boolean, backlog: boolean, soft_deadline_of?: string, notes?: string}, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
+export async function createFriendTodo(todoDetails: { person_id: string, title: string, deadline: string, priority: number, end_repeat: string, repeat_every: types.RepeatPeriod, weekdays: number[], habit: boolean, backlog: boolean, location: string, privacy: number}, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
     const { data, error } = await supabaseClient
         .from('todo')
         .insert(todoDetails);
@@ -40,7 +40,7 @@ export async function createFriendTodo(todoDetails: { person_id: string, title: 
     return data[0] as types.TodoDetails;
 }
 
-export async function createGroupTodo(todoDetails: { group_id: string, title: string, all_members_must_complete: boolean, deadline: string, priority: number, end_repeat: string, repeat_every: types.RepeatPeriod, weekdays: number[], habit: boolean, backlog: boolean, soft_deadline_of?: string, notes?: string}, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
+export async function createGroupTodo(todoDetails: { group_id: string, title: string, all_members_must_complete: boolean, deadline: string, priority: number, end_repeat: string, repeat_every: types.RepeatPeriod, weekdays: number[], habit: boolean, backlog: boolean, location: string}, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
     const { data, error } = await supabaseClient
         .from('todo')
         .insert(todoDetails);

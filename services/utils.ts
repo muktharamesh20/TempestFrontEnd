@@ -285,8 +285,8 @@ export type ModifiedTodoDetails = {
     utc_start_of_day: string
     title_override: string | null
     /// if the todo  is "future"
-    repeitition_override: string | null
-    weekdays_override: number[] | null
+    // repeitition_override: string | null
+    // weekdays_override: number[] | null
 }
 
 export type ModifiedTodoDetailsNoID = {

@@ -4,6 +4,7 @@ import { Database } from '@/databasetypes';
 import { SupabaseClient } from '@supabase/supabase-js';
 import assert from 'assert';
 import { parseISO } from 'date-fns';
+import { createPersonalTodo } from './myCalendar.js';
 import * as types from './utils.js';
 
 /** ---------- Helpers ---------- **/
@@ -14,25 +15,22 @@ function toUtcMidnightIso(dateLike: string): string {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())).toISOString();
 }
 
-// Convert an ISO (or date) to a Date object (preserve time)
-function toDate(iso: string | Date): Date {
-  return typeof iso === 'string' ? parseISO(iso) : iso;
-}
-
-// Map override field -> masterTodo field to compare for "revert to master" logic
-function masterTodoFieldEquivalent(field: keyof types.ModifiedTodoDetails, master: types.TodoDetails): unknown {
-  const mapping: Partial<Record<keyof types.ModifiedTodoDetails, keyof types.TodoDetails>> = {
-    title_override: 'title',
-    due_time_override: 'deadline',
-    location_override: 'notes',
-    priority_color_overridden: 'priority',
-    weekdays_override: 'weekdays',
-    repeitition_override: 'repeat_every',
-    // add more mapping entries if you have more override fields that map to master
+/**
+ * Creates a modified subtodo given the subtodo + the modified master todo.
+ * 
+ * @param subtodo Subtodo object to convert
+ * @returns the modified subtodo details without ID
+ */
+function convertSubTodoToModifiedNoID(subtodo: types.SubtodoDetails, modifiedMasterId: string): types.ModifiedSubTodoDetailsNoID {
+  const result: types.ModifiedSubTodoDetailsNoID = {
+    overridden_todo: modifiedMasterId,
+    location: subtodo.location,
+    priority: subtodo.priority,
+    title: subtodo.title,
+    deadline: subtodo.deadline,
   };
 
-  const mapped = mapping[field];
-  return mapped ? (master as any)[mapped] : null;
+  return result;
 }
 
 /**
@@ -41,13 +39,14 @@ function masterTodoFieldEquivalent(field: keyof types.ModifiedTodoDetails, maste
  * @param subtodo Subtodo object to convert
  * @returns the modified subtodo details without ID
  */
-function convertSubTodoToModified(subtodo: types.SubtodoDetails, modifiedMasterId: string): types.ModifiedSubTodoDetailsNoID {
-  const result: types.ModifiedSubTodoDetailsNoID = {
+function convertSubTodoToModified(subtodo: types.SubtodoDetails, modifiedMasterId: string): types.ModifiedSubTodoDetails {
+  const result: types.ModifiedSubTodoDetails = {
     overridden_todo: modifiedMasterId,
     location: subtodo.location,
     priority: subtodo.priority,
     title: subtodo.title,
     deadline: subtodo.deadline,
+    my_id: types.generateUUID(),
   };
 
   return result;
@@ -114,9 +113,9 @@ function changeSingularModifiedTodoDetails(
     due_time_override: newTodo.deadline !== masterTodo.deadline ? newTodo.deadline : null,
     location_override: newTodo.notes !== masterTodo.notes ? newTodo.notes : null,
     priority_color_overridden: newTodo.priority !== masterTodo.priority ? newTodo.priority : null,
-    weekdays_override: newTodo.weekdays.sort().join('') !== masterTodo.weekdays.sort().join('') ? newTodo.weekdays : null,
+    //weekdays_override: newTodo.weekdays.sort().join('') !== masterTodo.weekdays.sort().join('') ? newTodo.weekdays : null,
     privacy_overridden: newTodo.privacy !== masterTodo.privacy ? newTodo.privacy : null,
-    repeitition_override: newTodo.repeat_every !== masterTodo.repeat_every ? newTodo.repeat_every : null,
+    //repeitition_override: newTodo.repeat_every !== masterTodo.repeat_every ? newTodo.repeat_every : null,
 
     // state changes
     completed_at: stateChanges.completed ? new Date(Date.now()).toISOString() : modifiedTodo.completed_at, 
@@ -186,6 +185,124 @@ function removeAnOverriddenFieldForAllModifiedTodods(
   });
 }
 
+/**
+ * Changes the subtodos for subtodos that aren't modified yet.
+ * 
+ * Assumes that there already exists a modified todo for the given master todo and date.
+ */
+async function changeOldSubtodos(
+  oldSubtodos: types.SubtodoDetails[], //can have internal modifications
+  modifiedTodo: types.ModifiedTodoDetails,
+  newSubtodos: types.ModifiedSubTodoDetailsNoID[], //subtodos to add
+  deletedSubtodos: string[], // list of subtodo IDs to delete
+): Promise<types.ModifiedSubTodoDetails[]> {
+  if(modifiedTodo.subtodos_overriden) {
+    throw new Error('this method should only be used when the modified todo does not have subtodos overridden');
+  }
+  assert(newSubtodos.every(value => value.overridden_todo === modifiedTodo.my_id), 'all new subtodos should belong to the modified todo');
+  assert(oldSubtodos.every(value => value.subtodo_of === modifiedTodo.parent_id), 'old subtodos should belong to the master todo');
+
+  //if for some reason there already exist modified subtodos for this modified todo, remove them
+  removeAnOverriddenFieldForAllModifiedTodods([modifiedTodo], ['subtodos_overriden']);
+  modifiedTodo.subtodos_overriden = true; // set the override flag, since above function sets it back to false
+
+  // Remove deleted subtodos
+  const remainingOldSubtodos = oldSubtodos.filter(sub => !deletedSubtodos.includes(sub.id));
+  const { error: deletionError } = await supabase
+    .from('subtodo_overrides')
+    .delete()
+    .in('my_id', deletedSubtodos);
+
+  if (deletionError) {
+    throw new Error(`Failed to delete ${deletedSubtodos.length} subtodos: ${deletionError.message}`);
+  }
+
+  // Convert remaining old subtodos to modified subtodos + get ready to convert completed subtodos to complted modified subtodos
+  const convertedSubtodos: {oldSubtodo: types.SubtodoDetails, modifiedSubtodo: types.ModifiedSubTodoDetails}[] = remainingOldSubtodos.map(x => ({
+    oldSubtodo: x,
+    modifiedSubtodo: convertSubTodoToModified(x, modifiedTodo.my_id),
+  }));
+
+  // Change completed subtodos to have the modified todos id
+  await changeCompletedSubtodosToModified(convertedSubtodos, modifiedTodo.my_id);
+
+  // Create new modified subtodos from the new subtodos
+  const newSubtodosWithId: types.ModifiedSubTodoDetails[] = newSubtodos.map(sub => ({...sub, my_id: types.generateUUID()})); // set the overridden_todo to the modified todo's ID
+  const allSubtodosToAdd = [...convertedSubtodos.map(x => x.modifiedSubtodo), ...newSubtodosWithId];
+
+  // Insert all new modified subtodos
+  const { error } = await supabase
+    .from('subtodo_overrides')
+    .upsert(allSubtodosToAdd);
+
+  if (error) {
+    throw new Error(`Failed to insert ${allSubtodosToAdd.length} modified subtodos: ${error.message}`);
+  }
+
+  return allSubtodosToAdd;
+}
+
+/**
+ * Adds and deletes subtodos for a modified todo that already has subtodos overridden.
+ * 
+ * Assumes that there already exists a modified todo for the given master todo and date.
+ */
+async function changeOldModifiedSubtodos(
+  oldSubtodos: types.ModifiedSubTodoDetails[], //can have internal modifications from before
+  modifiedTodo: types.ModifiedTodoDetails,
+  newSubtodos: types.ModifiedSubTodoDetailsNoID[], //subtodos to add
+  deletedSubtodos: string[], // list of subtodo IDs to delete
+) {
+  assert(oldSubtodos.every(value => value.overridden_todo === modifiedTodo.my_id), 'all old subtodos should belong to the modified todo');
+  assert(newSubtodos.every(value => value.overridden_todo === modifiedTodo.my_id), 'all new subtodos should belong to the modified todo');
+  if (!modifiedTodo.subtodos_overriden) {
+    throw new Error('this method should only be used when the modified todo has subtodos overridden');
+  }
+  // delete deleted subtodos
+  const { error } = await supabase
+    .from('subtodo_overrides')
+    .delete()
+    .in('my_id', deletedSubtodos);
+  
+  if (error) {
+    throw new Error(`Failed to delete ${deletedSubtodos.length} subtodos: ${error.message}`);
+  }
+
+  // Remove keep remaining subtodos
+  const remainingOldSubtodos = oldSubtodos.filter(sub => !deletedSubtodos.includes(sub.my_id));
+  const updatedNewSubtodos = newSubtodos.map(sub => ({...sub, my_id: types.generateUUID()})); // assign new IDs to new subtodos
+
+  const finalTodos = [...remainingOldSubtodos, ...updatedNewSubtodos];
+
+  // Insert all new modified subtodos
+  const { error: error2 } = await supabase
+    .from('subtodo_overrides')
+    .upsert(finalTodos);
+
+  if (error2) {
+    throw new Error(`Failed to insert ${finalTodos.length} modified subtodos: ${error2.message}`);
+  }
+
+  // Combine remaining old subtodos and new subtodos
+  return finalTodos
+}
+
+async function changeCompletedSubtodosToModified(
+  modifications: { oldSubtodo: types.SubtodoDetails; modifiedSubtodo: types.ModifiedSubTodoDetails }[],
+  overriddenTodoID: string
+) {
+  await Promise.all(
+    modifications.map(({ oldSubtodo, modifiedSubtodo }) =>
+      supabase
+        .from('subtodos_completed')
+        .update({ parent_subtodo: modifiedSubtodo.my_id })
+        .eq('parent_modified_todo', overriddenTodoID)
+        .eq('parent_subtodo', oldSubtodo.id)
+    )
+  );
+}
+
+
 const defaultModifiedTodoDetailsWithNoID = {
   // parent_id: todo.id,
   // utc_start_of_day: toUtcMidnightIso(deadline),
@@ -211,23 +328,23 @@ async function deleteSubtodoOverridesForModifiedTodos(
 ): Promise<void> {
   modifiedTodos.forEach(x => x.subtodos_overriden = false); // reset the override flag
 
+  throw new Error('deleteSubtodoOverridesForModifiedTodos is not implemented yet');
+
   // Delete all subtodo overrides for the given parent todo and UTC date
-  const { error } = await supabase
-    .from('subtodo_overrides')
-    .delete()
-    .in('overridden_todo', modifiedTodos.map(todo => todo.my_id))
+  // const { error } = await supabase
+  //   .from('subtodo_overrides')
+  //   .delete()
+  //   .in('overridden_todo', modifiedTodos.map(todo => todo.my_id))
 
   //Delete completed images for these SubTodos from storage
-  //TODO: create a script on the server to delete all completed subtodo images
-  data?.forEach(todo => {
-    if (todo.completed) {
-      deleteSubtodoImageFromMemory(todo);
-    }
-  })
+  //TODO: create a script on the server to delete all completed subtodo images ***************
 
-  if (error) {
-    throw new Error(`Failed to delete subtodo overrides for ${modifiedTodos.length} todos: ${error.message}`);
-  }
+  
+  // data?.forEach(todo => {
+  //   if (todo.completed) {
+  //     deleteSubtodoImageFromMemory(todo);
+  //   }
+  // })
 }
 
 async function deleteCategoryOverridesForDate(
@@ -248,3 +365,65 @@ async function deleteCategoryOverridesForDate(
     throw new Error(`Failed to delete category overrides for todos: ${error.message}`);
   }
 }
+
+
+
+
+
+//////////////////////////////////////////////////////Real Methods??///////////////////////////////////////////////
+
+async function createPersonalMasterTodo(my_user_id: string, title: string, deadline: string, location: string, priority: number, weekdays: number[], repeat_every: types.RepeatPeriod, privacy: number, end_repeat: string, habit: boolean, backlog: boolean): Promise<types.TodoDetails> {
+  return createPersonalTodo({person_id: my_user_id, title: title, deadline: deadline, location: location, priority: priority, weekdays: weekdays, repeat_every: repeat_every, privacy: privacy, end_repeat: end_repeat, habit: habit, backlog: backlog}, supabase)
+}
+
+async function modifySingleDayPersonal(
+  my_user_id: string,
+  todo: types.TodoDetails,
+  oldModifiedTodo: types.ModifiedTodoDetails | null,
+  newTodo: types.TodoDetails,
+  instance_deadline: string,
+
+  otherModifications: {subtodosOverridden: boolean, categoriesOverridden: boolean, },
+  stateChanges: {completed: boolean, allGroupMembersTodoStarted: boolean, startedSubtodos: boolean, deletedTodo: boolean},
+
+  masterSubtodos: types.SubtodoDetails[],
+  oldModifiedSubtodos: types.ModifiedSubTodoDetails[], 
+  newSubtodos: types.ModifiedSubTodoDetailsNoID[], 
+  deletedSubtodos: string[], 
+  ) {
+    assert(todo.person_id === my_user_id, 'todo must belong to the user');
+
+  // Create the modified todo if it doesn't exist
+  if (!oldModifiedTodo) {
+    const modifiedTodoDetailsNoID = createInitialModifiedTodoDetailsNoID(
+      todo,
+      newTodo,
+      instance_deadline,
+      otherModifications,
+      stateChanges
+    );
+
+    // Insert the modified todo
+    const { data: modifiedTodo, error } = await supabase
+      .from('todo_overrides')
+      .insert({
+        ...modifiedTodoDetailsNoID,
+        my_id: types.generateUUID(),
+        parent_id: todo.id,
+        utc_start_of_day: toUtcMidnightIso(instance_deadline),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to create modified todo: ${error.message}`);
+    }
+
+    // Create subtodos if they exist
+    if (masterSubtodos && masterSubtodos.length > 0) {
+      return changeOldSubtodos(masterSubtodos, modifiedTodo, newSubtodos, deletedSubtodos);
+    } else {
+      return [];
+    }
+  }
+  }
