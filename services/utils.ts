@@ -259,14 +259,25 @@ export type TodoDetails = {
 }
 
 export type SubtodoDetails = {
-    created_by: string
+    // created_by: string
     deadline: string
     id: string
     location: string
     priority: number
     subtodo_of: string
     title: string
-    deleted: boolean
+    // deleted: boolean
+}
+
+export type SubtodoDetailsNoId = {
+    // created_by: string
+    deadline: string
+    id: string
+    location: string
+    priority: number
+    subtodo_of: string
+    title: string
+    // deleted: boolean
 }
 
 export type ModifiedTodoDetails = {

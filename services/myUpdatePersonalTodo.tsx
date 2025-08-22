@@ -62,8 +62,9 @@ function createInitialModifiedTodoDetailsNoID(
   newTodo: types.TodoDetails,
   instance_deadline: string,
 
-  otherModifications: {subtodosOverridden: boolean, categoriesOverridden: boolean, },
-  stateChanges: {completed: boolean, allGroupMembersTodoStarted: boolean, startedSubtodos: boolean, deletedTodo: boolean},
+  // otherModifications: { subtodosOverridden: boolean, categoriesOverridden: boolean, },
+  subtodosOverriden: boolean,
+  stateChanges: { completed: boolean, allGroupMembersTodoStarted: boolean, startedSubtodos: boolean, deletedTodo: boolean },
 ): types.ModifiedTodoDetailsNoID {
   return {
     parent_id: todo.id,
@@ -77,14 +78,14 @@ function createInitialModifiedTodoDetailsNoID(
     repeitition_override: todo.repeat_every !== newTodo.repeat_every ? newTodo.repeat_every : null,
 
     // state changes
-    completed_at: stateChanges.completed ? new Date(Date.now()).toISOString() : null, 
-    all_group_members_todo_started: stateChanges.allGroupMembersTodoStarted, 
+    completed_at: stateChanges.completed ? new Date(Date.now()).toISOString() : null,
+    all_group_members_todo_started: stateChanges.allGroupMembersTodoStarted,
     started_subtodos: stateChanges.startedSubtodos,
-    deleted_override: stateChanges.deletedTodo, 
+    deleted_override: stateChanges.deletedTodo,
 
     // subtodo/category mdofications
-    subtodos_overriden: otherModifications.subtodosOverridden, 
-    categories_override: otherModifications.categoriesOverridden,
+    subtodos_overriden: subtodosOverriden,
+    categories_override: false //otherModifications.categoriesOverridden,
   };
 }
 
@@ -94,15 +95,16 @@ function changeSingularModifiedTodoDetails(
   newTodo: types.TodoDetails,
   // instance_deadline: string, this is misleading now cuz it could have been different before changing the deadline
 
-  otherModifications: {subtodosOverridden: boolean, categoriesOverridden: boolean, },
-  stateChanges: {completed: boolean, allGroupMembersTodoStarted: boolean, startedSubtodos: boolean, deletedTodo: boolean},
+  // otherModifications: { subtodosOverridden: boolean, categoriesOverridden: boolean, },
+  subtodosOverridden: boolean,
+  stateChanges: { completed: boolean, allGroupMembersTodoStarted: boolean, startedSubtodos: boolean, deletedTodo: boolean },
 ): types.ModifiedTodoDetails {
 
   if (stateChanges.deletedTodo && !modifiedTodo.deleted_override) {
     // if the todo is deleted, we should not have any overrides (we gain back space in our database basically)
-    deleteSubtodoOverridesForModifiedTodos([modifiedTodo], supabase); 
+    deleteSubtodoOverridesForModifiedTodos([modifiedTodo], supabase);
     deleteTodoImageFromMemory(modifiedTodo);
-    deleteCategoryOverridesForDate([modifiedTodo], supabase); 
+    deleteCategoryOverridesForDate([modifiedTodo], supabase);
   }
 
   return {
@@ -118,14 +120,14 @@ function changeSingularModifiedTodoDetails(
     //repeitition_override: newTodo.repeat_every !== masterTodo.repeat_every ? newTodo.repeat_every : null,
 
     // state changes
-    completed_at: stateChanges.completed ? new Date(Date.now()).toISOString() : modifiedTodo.completed_at, 
+    completed_at: stateChanges.completed ? new Date(Date.now()).toISOString() : modifiedTodo.completed_at,
     all_group_members_todo_started: stateChanges.allGroupMembersTodoStarted ? true : modifiedTodo.all_group_members_todo_started, // cannot revert all_group_members_todo_started to false
     started_subtodos: stateChanges.startedSubtodos ? true : modifiedTodo.started_subtodos, // cannot revert started_subtodos to false
     deleted_override: stateChanges.deletedTodo ? true : modifiedTodo.deleted_override, // cannot revert deleted_override to false
 
     // subtodo/category mdofications
-    subtodos_overriden: otherModifications.subtodosOverridden, 
-    categories_override: otherModifications.categoriesOverridden,
+    subtodos_overriden: subtodosOverridden,
+    categories_override: false //otherModifications.categoriesOverridden,
   };
 }
 
@@ -151,10 +153,10 @@ function deleteSubtodoImageFromMemory(modifiedSubTodo: types.ModifiedSubTodoDeta
  * @param field the fields to revert
  * @returns a new array of modified todos with the specified fields set to null (reverted to master)
  */
-function removeAnOverriddenFieldForAllModifiedTodods(
+async function removeAnOverriddenFieldForAllModifiedTodods(
   modifiedTodos: types.ModifiedTodoDetails[],
   field: (keyof types.ModifiedTodoDetails)[]
-): types.ModifiedTodoDetails[] {
+): Promise<types.ModifiedTodoDetails[]> {
   if (field.length === 0) return modifiedTodos;
 
   //removes "completed_at", "started_subtodos", "deleted_override" and "all_group_members_todo_started" from the modified todos
@@ -168,13 +170,13 @@ function removeAnOverriddenFieldForAllModifiedTodods(
       field = field.filter(f => f !== 'subtodos_overriden');
       deleteSubtodoOverridesForModifiedTodos(modifiedTodos, supabase); // delete all subtodo overrides for these modified todos
     }
-    if('categories_override' in field) {
+    if ('categories_override' in field) {
       field = field.filter(f => f !== 'categories_override');
       deleteCategoryOverridesForDate(modifiedTodos, supabase); // delete all category overrides for these modified todos
     }
   }
 
-  return modifiedTodos.map(modified => {
+  const newTodos =  modifiedTodos.map(modified => {
     const newModified: types.ModifiedTodoDetails = { ...modified };
     for (const f of field) {
       if (newModified[f] !== null) {
@@ -183,6 +185,18 @@ function removeAnOverriddenFieldForAllModifiedTodods(
     }
     return newModified;
   });
+
+  const { data, error } = await supabase
+  .from('todo_overrides')
+  .upsert(newTodos)
+
+if (error) {
+  throw new Error(`Failed to revert modified todos: ${error.message}`)
+}
+
+return (data ?? []) as types.ModifiedTodoDetails[]
+
+  //return newTodos
 }
 
 /**
@@ -196,7 +210,7 @@ async function changeOldSubtodos(
   newSubtodos: types.ModifiedSubTodoDetailsNoID[], //subtodos to add
   deletedSubtodos: string[], // list of subtodo IDs to delete
 ): Promise<types.ModifiedSubTodoDetails[]> {
-  if(modifiedTodo.subtodos_overriden) {
+  if (modifiedTodo.subtodos_overriden) {
     throw new Error('this method should only be used when the modified todo does not have subtodos overridden');
   }
   assert(newSubtodos.every(value => value.overridden_todo === modifiedTodo.my_id), 'all new subtodos should belong to the modified todo');
@@ -218,7 +232,7 @@ async function changeOldSubtodos(
   }
 
   // Convert remaining old subtodos to modified subtodos + get ready to convert completed subtodos to complted modified subtodos
-  const convertedSubtodos: {oldSubtodo: types.SubtodoDetails, modifiedSubtodo: types.ModifiedSubTodoDetails}[] = remainingOldSubtodos.map(x => ({
+  const convertedSubtodos: { oldSubtodo: types.SubtodoDetails, modifiedSubtodo: types.ModifiedSubTodoDetails }[] = remainingOldSubtodos.map(x => ({
     oldSubtodo: x,
     modifiedSubtodo: convertSubTodoToModified(x, modifiedTodo.my_id),
   }));
@@ -227,7 +241,7 @@ async function changeOldSubtodos(
   await changeCompletedSubtodosToModified(convertedSubtodos, modifiedTodo.my_id);
 
   // Create new modified subtodos from the new subtodos
-  const newSubtodosWithId: types.ModifiedSubTodoDetails[] = newSubtodos.map(sub => ({...sub, my_id: types.generateUUID()})); // set the overridden_todo to the modified todo's ID
+  const newSubtodosWithId: types.ModifiedSubTodoDetails[] = newSubtodos.map(sub => ({ ...sub, my_id: types.generateUUID() })); // set the overridden_todo to the modified todo's ID
   const allSubtodosToAdd = [...convertedSubtodos.map(x => x.modifiedSubtodo), ...newSubtodosWithId];
 
   // Insert all new modified subtodos
@@ -263,14 +277,14 @@ async function changeOldModifiedSubtodos(
     .from('subtodo_overrides')
     .delete()
     .in('my_id', deletedSubtodos);
-  
+
   if (error) {
     throw new Error(`Failed to delete ${deletedSubtodos.length} subtodos: ${error.message}`);
   }
 
   // Remove keep remaining subtodos
   const remainingOldSubtodos = oldSubtodos.filter(sub => !deletedSubtodos.includes(sub.my_id));
-  const updatedNewSubtodos = newSubtodos.map(sub => ({...sub, my_id: types.generateUUID()})); // assign new IDs to new subtodos
+  const updatedNewSubtodos = newSubtodos.map(sub => ({ ...sub, my_id: types.generateUUID() })); // assign new IDs to new subtodos
 
   const finalTodos = [...remainingOldSubtodos, ...updatedNewSubtodos];
 
@@ -339,7 +353,7 @@ async function deleteSubtodoOverridesForModifiedTodos(
   //Delete completed images for these SubTodos from storage
   //TODO: create a script on the server to delete all completed subtodo images ***************
 
-  
+
   // data?.forEach(todo => {
   //   if (todo.completed) {
   //     deleteSubtodoImageFromMemory(todo);
@@ -367,13 +381,44 @@ async function deleteCategoryOverridesForDate(
 }
 
 
+async function createInitialSubTodos(
+  subtodos: types.SubtodoDetailsNoId[],
+  masterTodo: types.TodoDetails,
+): Promise<types.SubtodoDetails[]> {
+  // Add an id
+  assert(subtodos.every(subtodo => subtodo.subtodo_of === masterTodo.id), 'all subtodos should belong to the master todo');
+  const finalSubtodos: types.SubtodoDetails[] = subtodos.map(subtodo => ({ ...subtodo, my_id: types.generateUUID(), subtodo_of: masterTodo.id }));
+
+  // Insert the new subtodos into the database
+  const { data, error } = await supabase
+    .from('subtodo')
+    .insert(finalSubtodos)
+    .select();
+
+  if (error) {
+    throw new Error(`Failed to insert ${finalSubtodos.length} new subtodos: ${error.message}`);
+  }
+
+  return data;
+}
+
+async function changeMasterSubtodos(
+  oldSubtodos: types.SubtodoDetails[],
+  modifiedSubtodos: types.ModifiedSubTodoDetails[],){
+
+  }
+
 
 
 
 //////////////////////////////////////////////////////Real Methods??///////////////////////////////////////////////
 
-async function createPersonalMasterTodo(my_user_id: string, title: string, deadline: string, location: string, priority: number, weekdays: number[], repeat_every: types.RepeatPeriod, privacy: number, end_repeat: string, habit: boolean, backlog: boolean): Promise<types.TodoDetails> {
-  return createPersonalTodo({person_id: my_user_id, title: title, deadline: deadline, location: location, priority: priority, weekdays: weekdays, repeat_every: repeat_every, privacy: privacy, end_repeat: end_repeat, habit: habit, backlog: backlog}, supabase)
+async function createPersonalMasterTodo(my_user_id: string, title: string, deadline: string, location: string, priority: number, weekdays: number[], repeat_every: types.RepeatPeriod, privacy: number, end_repeat: string, habit: boolean, backlog: boolean, subtodos: types.SubtodoDetailsNoId[]): Promise<[types.TodoDetails, types.SubtodoDetails[]]> {
+  const personalTodo = await createPersonalTodo({ person_id: my_user_id, title: title, deadline: deadline, location: location, priority: priority, weekdays: weekdays, repeat_every: repeat_every, privacy: privacy, end_repeat: end_repeat, habit: habit, backlog: backlog }, supabase)
+  const newSubtodos = createInitialSubTodos(subtodos, personalTodo);
+
+  return [personalTodo, await newSubtodos];
+
 }
 
 async function modifySingleDayPersonal(
@@ -383,15 +428,16 @@ async function modifySingleDayPersonal(
   newTodo: types.TodoDetails,
   instance_deadline: string,
 
-  otherModifications: {subtodosOverridden: boolean, categoriesOverridden: boolean, },
-  stateChanges: {completed: boolean, allGroupMembersTodoStarted: boolean, startedSubtodos: boolean, deletedTodo: boolean},
+  // otherModifications: { subtodosOverridden: boolean, categoriesOverridden: boolean, },
+  subtodosOverriden: boolean,
+  stateChanges: { completed: boolean, allGroupMembersTodoStarted: boolean, startedSubtodos: boolean, deletedTodo: boolean },
 
   masterSubtodos: types.SubtodoDetails[],
-  oldModifiedSubtodos: types.ModifiedSubTodoDetails[], 
-  newSubtodos: types.ModifiedSubTodoDetailsNoID[], 
-  deletedSubtodos: string[], 
-  ) {
-    assert(todo.person_id === my_user_id, 'todo must belong to the user');
+  oldModifiedSubtodos: types.ModifiedSubTodoDetails[],
+  newSubtodos: types.ModifiedSubTodoDetailsNoID[],
+  deletedSubtodos: string[],
+) {
+  assert(todo.person_id === my_user_id, 'todo must belong to the user');
 
   // Create the modified todo if it doesn't exist
   if (!oldModifiedTodo) {
@@ -399,7 +445,7 @@ async function modifySingleDayPersonal(
       todo,
       newTodo,
       instance_deadline,
-      otherModifications,
+      subtodosOverriden,
       stateChanges
     );
 
@@ -420,10 +466,213 @@ async function modifySingleDayPersonal(
     }
 
     // Create subtodos if they exist
-    if (masterSubtodos && masterSubtodos.length > 0) {
+    if (masterSubtodos && masterSubtodos.length > 0 && (newSubtodos.length > 0 || deletedSubtodos.length > 0)) { //only modify if needed
       return changeOldSubtodos(masterSubtodos, modifiedTodo, newSubtodos, deletedSubtodos);
+    } else if (oldModifiedSubtodos && oldModifiedSubtodos.length > 0) {
+      assert.fail('bro why are there old modified subtodos')
     } else {
       return [];
     }
+  } else {
+    // If the modified todo already exists, update it
+    const modifiedTodo = changeSingularModifiedTodoDetails(
+      todo,
+      oldModifiedTodo,
+      newTodo,
+      subtodosOverriden,
+      stateChanges
+    );
+
+    // Update the modified todo
+    const { data: updatedModifiedTodo, error } = await supabase
+      .from('todo_overrides')
+      .update(modifiedTodo)
+      .eq('my_id', oldModifiedTodo.my_id)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to update modified todo: ${error.message}`);
+    }
+
+
+    if (!oldModifiedTodo.subtodos_overriden && (newSubtodos.length > 0 || deletedSubtodos.length > 0)) { //if we haven't already overriden the subtodos, we need to copy them over
+      return changeOldSubtodos(masterSubtodos, updatedModifiedTodo, newSubtodos, deletedSubtodos);
+    } else if (newSubtodos.length > 0 || deletedSubtodos.length > 0) { // if we have already overriden them, then we need to change them
+      return changeOldModifiedSubtodos(oldModifiedSubtodos, updatedModifiedTodo, newSubtodos, deletedSubtodos);
+    }
   }
+}
+
+
+async function modifyAllDaysTodoLevel(
+  my_user_id: string,
+  todo: types.TodoDetails,
+  currOldModifiedTodos: types.ModifiedTodoDetails | null, //if the user is modifying an already modified todo
+  oldModifiedTodos: types.ModifiedTodoDetails[],
+  newTodo: types.TodoDetails,
+
+  // otherModifications: { categoriesOverridden: boolean, },
+  // stateChanges: { completed: boolean, allGroupMembersTodoStarted: boolean, startedSubtodos: boolean, deletedTodo: boolean },
+
+  // masterSubtodos: types.SubtodoDetails[],
+  // oldModifiedSubtodos: types.ModifiedSubTodoDetails[],
+  newSubtodos: types.ModifiedSubTodoDetailsNoID[],
+  deletedSubtodos: string[],
+): Promise<types.TodoDetails> {
+  if (currOldModifiedTodos) {  //if the user is modifying an already modified todo, it will become a normal todo... actually nah, we'll just upsert it and change stuff
+    assert(currOldModifiedTodos.parent_id === todo.id, 'current modified todos must belong to the master todo');
+
+    // await supabase
+    // .from("todo_overrides")
+    // .delete()
+    // .eq("my_id", currOldModifiedTodos.my_id)
+    // .neq("deleted_override", true) // not deleted
+    // .is("completed_at", null)      // not completed
+    // .or("all_group_members_todo_started.is.null,all_group_members_todo_started.eq.false");
+
+
+    //we are updating the relevant fields in the modified todo
+    const updatedModifiedTodo = changeSingularModifiedTodoDetails(
+      todo,
+      currOldModifiedTodos,
+      newTodo,
+      currOldModifiedTodos.subtodos_overriden,
+      { completed: currOldModifiedTodos.completed_at !== null, allGroupMembersTodoStarted: currOldModifiedTodos.all_group_members_todo_started || false, startedSubtodos: currOldModifiedTodos.started_subtodos, deletedTodo: currOldModifiedTodos.deleted_override }
+    );
+  
+    const { data, error } = await supabase.from('todo_overrides').upsert(updatedModifiedTodo).eq('my_id', currOldModifiedTodos.my_id);
   }
+
+  assert(todo.person_id === my_user_id, 'todo must belong to the user');
+
+  // we're modifying all days for the specific aspects that the user picks (ie if they only change the priority, the modified
+  // todos can stay, but all the priorities will be changed)
+  assert(newTodo.id === todo.id, 'updated todo should have the same ID as the original todo');
+
+  // remove overriden field for all differing things in newTodo from todo
+  const overriddenFields = (Object.keys(newTodo) as (keyof types.ModifiedTodoDetails)[]).filter(
+    key => key in todo && newTodo[key as keyof types.TodoDetails] !== todo[key as keyof types.TodoDetails]
+  );
+  const newTodos = removeAnOverriddenFieldForAllModifiedTodods(oldModifiedTodos, overriddenFields);
+
+  //replace the old todo with the new todo
+  const {data, error} = await supabase.from('todo').upsert(newTodo).eq('id', todo.id);
+
+  if (error) {
+    throw new Error(`Failed to update todo: ${error.message}`);
+  }
+  const updatedTodo = data![0] as types.TodoDetails;
+  assert(updatedTodo.id === todo.id, 'updated todo should have the same ID as the original todo');
+
+
+
+  //modifying the subtdos woohoo
+
+  //step 1: remove all subtodos overrides for all modified todos (if there doesn't exist ANY that are completed already from that day)
+  //step 1 alternate:  literally touch no overrides at all for any modified todos (except the current one?)
+  //step 2: change the master subtodos
+
+  if (newSubtodos) {
+    assert(newSubtodos.every(subtodo => subtodo.overridden_todo === updatedTodo.id), 'all new subtodos should belong to the updated todo');
+  }
+  const {data: data2, error: error2} = await supabase.from('subtodo').upsert(newSubtodos)
+  if (error2) {
+    throw new Error(`Failed to update subtodos: ${error2.message}`);
+  }
+
+  const{ data: data3, error: error3 } = await supabase.from('subtodo').delete().in('id', deletedSubtodos);
+  if (error3) {
+    throw new Error(`Failed to delete subtodos: ${error3.message}`);
+  }
+
+  ///////////////////////////////
+
+
+
+  return data![0] as types.TodoDetails; // return the updated todo
+}
+
+/**
+ * we're modifying all days for the specific aspects that the user picks (ie if they only change the priority, the modified
+ * todos can stay, but all the priorities will be changed)
+ * 
+ * cannot make update if its a modified subtodo!!!  Must individually change that then
+ */
+async function modifyAllDaysSubTodoLevel(
+  my_user_id: string,
+  todo: types.TodoDetails,
+  // oldModifiedTodo: types.ModifiedTodoDetails | null,
+  // newTodo: types.TodoDetails,
+  // instance_deadline: string,
+
+
+  // otherModifications: { subtodosOverridden: boolean, categoriesOverridden: boolean, },
+  // stateChanges: { completed: boolean, allGroupMembersTodoStarted: boolean, startedSubtodos: boolean, deletedTodo: boolean },
+
+  masterSubtodos: types.SubtodoDetails[],
+  // oldModifiedSubtodos: types.ModifiedSubTodoDetails[],
+  newModification: types.SubtodoDetails,
+  // newSubtodos: types.ModifiedSubTodoDetailsNoID[],
+  // deletedSubtodos: string[],
+): Promise<types.SubtodoDetails[]> {
+  assert(todo.person_id === my_user_id, 'todo must belong to the user');
+
+  // we're modifying all days for the specific aspects that the user picks (ie if they only change the priority, the modified
+  // todos can stay, but all the priorities will be changed)
+
+  assert(masterSubtodos.every(subtodo => subtodo.subtodo_of === todo.id), 'all subtodos should belong to the master todo');
+  assert(newModification.subtodo_of === todo.id, 'new subtodo should belong to the master todo');
+
+  assert(newModification.id in masterSubtodos.map(subtodo => subtodo.id), 'new subtodo should be one of the master subtodos');
+
+  // Update the subtodo in the database
+  const { data, error } = await supabase
+    .from('subtodo')
+    .upsert(newModification)
+
+  if (error) {
+    throw new Error(`Failed to update subtodo: ${error.message}`);
+  }
+
+  masterSubtodos.map(subtodo => {subtodo.id === newModification.id ? newModification : subtodo});
+
+  return masterSubtodos
+
+}
+
+//TODO: make sure the state changes are accounted for?
+
+async function modifyAllFutreEvents(){
+
+}
+
+
+/**
+ * Idea:
+ * 
+ * Generally, we have a bunch of normal todos
+ *    -If we want to override a single date, we create a modified todo for that date
+ *    -If we want to override all future dates, we create a new todo
+ * *  -If we want to complete a todo, we create a modified todo
+ * 
+ * If we have a bunch of normal subtodos:
+ *    -If we want to override a single date, we create all modified subtodos for that date
+ *    -If we want to override all future dates, we create a new todo with the subtodos
+ *    -If we want to complete a subtodo, we add it to the completed subtodos table
+ * 
+ * 
+ * No matter what, we don't touch completed todos/subtodos (UNLESS we're deleting all of the event/todo)
+ * Maybe, we use the completed at to determine if friends can see the image or not??
+ */
+
+
+/**
+ * what can be overridden for a singular todo rn:
+ * 
+ * In a todo: title, deadline, location, priority, subtodos, completed
+ * In a subtodo: title, deadline, location, priority, completed
+ * 
+ * Why not privacy? Cuz then it gets even harder to track who can see what for the user
+ *    - Same for categories
+ */
