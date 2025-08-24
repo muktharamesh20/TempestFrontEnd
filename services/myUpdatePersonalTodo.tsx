@@ -3,7 +3,7 @@ import { supabase } from '@/constants/supabaseClient.js';
 import { Database } from '@/databasetypes';
 import { SupabaseClient } from '@supabase/supabase-js';
 import assert from 'assert';
-import { parseISO } from 'date-fns';
+import { addSeconds, parseISO } from 'date-fns';
 import { createPersonalTodo } from './myCalendar.js';
 import * as types from './utils.js';
 
@@ -643,8 +643,92 @@ async function modifyAllDaysSubTodoLevel(
 
 //TODO: make sure the state changes are accounted for?
 
-async function modifyAllFutreEvents(){
+function convertDeadlineToCorrectDate(utc_midnight_iso: string, oldDeadline: string): string {
+  const utcDate = parseISO(utc_midnight_iso);
+  const oldDeadlineDate = parseISO(oldDeadline);
+  
+  // Set the time of the old deadline to the UTC midnight date
+  return new Date(Date.UTC(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate(), oldDeadlineDate.getUTCHours(), oldDeadlineDate.getUTCMinutes(), oldDeadlineDate.getUTCSeconds())).toISOString();
+}
 
+async function modifyAllFutureEvents(
+  my_user_id: string,
+  todo: types.TodoDetails,
+  currOldModifiedTodos: types.ModifiedTodoDetails | null, //if the user is modifying an already modified todo
+  newTodo: types.TodoDetails, //includes the start date, actually maybe not needed
+  start_date: string, // the date to start modifying from (inclusive)
+
+  // otherModifications: { categoriesOverridden: boolean, },
+  // stateChanges: { completed: boolean, allGroupMembersTodoStarted: boolean, startedSubtodos: boolean, deletedTodo: boolean },
+
+  masterSubtodos: types.SubtodoDetails[],
+  // oldModifiedSubtodos: types.ModifiedSubTodoDetails[],
+  newSubtodos: types.ModifiedSubTodoDetailsNoID[],
+  deletedSubtodos: string[],
+){
+  assert(todo.person_id === my_user_id, 'todo must belong to the user');
+
+  // we're modifying all future events for everything chosen
+  /**
+   * Steps:
+   * 1. Stop todo from repeating
+   * 2. Get rid of all modified todos for the future dates unless the todo itself is already completed (if subtodos are, it doesn't matter)
+   * 
+   * 3. Create a new modified todo for the current date with the new details
+   * 4. Create new subtodos for the new modified todo if needed
+   */
+
+  // Step 1: Stop todo from repeating past the current date... end repeat looks like its inclusive of end date btw
+  
+  /*const newDueDate = newTodo.deadline*/
+  const end_repeat = todo.end_repeat; // the end repeat date is the same as the original todo's end repeat date
+  todo.end_repeat = addSeconds(new Date(start_date), -1).toISOString(); // set the end repeat date to the day before the start date (inclusive)
+  const { data: updatedTodo, error: updateError } = await supabase
+    .from('todo')
+    .upsert(todo)
+    .eq('id', todo.id)
+    .select()
+    .single();
+  
+
+  // Step 2: Get rid of all modified todos for the future dates unless the todo itself is already completed
+  const {data: modifiedTodos, error: modifiedTodosError} = await supabase
+    .from('todo_overrides')
+    .select()
+    .eq('parent_id', todo.id)
+    .gte('utc_start_of_day', toUtcMidnightIso(start_date)) // get all modified todos from the start date onwards
+    //.neq('deleted_override', true) // not deleted
+    .is('completed_at', null); // not completed
+
+
+  // Step 3: Create a new modified todo for the current date with the new details
+  newTodo.start_date = start_date; // set the start date to the current date
+  newTodo.id = types.generateUUID(); // generate a new ID for the new todo
+  newTodo.person_id = my_user_id; // set the person ID to the user's ID
+  newTodo.end_repeat = end_repeat; // set the end repeat date to the original todo's end repeat date
+
+  const { data: newModifiedTodo, error: newModifiedTodoError } = await supabase
+   .from('todo')
+   .insert(newTodo)
+
+  if (newModifiedTodoError) {
+    throw new Error(`Failed to create new modified todo: ${newModifiedTodoError.message}`);
+  }
+
+  // Step 4: Create new subtodos for the new modified todo if needed
+  const newSubtodoDetails: types.SubtodoDetails[] = masterSubtodos.filter(subtodo => !(subtodo.id in deletedSubtodos)).map(subtodo => ({...subtodo, id: types.generateUUID(), subtodo_of: newTodo.id})); // create new subtodos with the new modified todo's ID
+  
+  const newActualSubtodos: types.SubtodoDetails[] = newSubtodos.map(subtodo => ({...subtodo, id: types.generateUUID(), subtodo_of: newTodo.id})) // create new subtodos with the new modified todo's ID
+
+  const allNewSubtodos = [...newSubtodoDetails, ...newActualSubtodos];
+  const { data: insertedSubtodos, error: subtodosError } = await supabase
+    .from('subtodo')
+    .insert(allNewSubtodos)
+    .select();
+
+  if (subtodosError) {
+    throw new Error(`Failed to create new subtodos: ${subtodosError.message}`);
+  }
 }
 
 
