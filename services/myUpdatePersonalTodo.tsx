@@ -176,7 +176,7 @@ async function removeAnOverriddenFieldForAllModifiedTodods(
     }
   }
 
-  const newTodos =  modifiedTodos.map(modified => {
+  const newTodos = modifiedTodos.map(modified => {
     const newModified: types.ModifiedTodoDetails = { ...modified };
     for (const f of field) {
       if (newModified[f] !== null) {
@@ -187,14 +187,14 @@ async function removeAnOverriddenFieldForAllModifiedTodods(
   });
 
   const { data, error } = await supabase
-  .from('todo_overrides')
-  .upsert(newTodos)
+    .from('todo_overrides')
+    .upsert(newTodos)
 
-if (error) {
-  throw new Error(`Failed to revert modified todos: ${error.message}`)
-}
+  if (error) {
+    throw new Error(`Failed to revert modified todos: ${error.message}`)
+  }
 
-return (data ?? []) as types.ModifiedTodoDetails[]
+  return (data ?? []) as types.ModifiedTodoDetails[]
 
   //return newTodos
 }
@@ -404,9 +404,9 @@ async function createInitialSubTodos(
 
 async function changeMasterSubtodos(
   oldSubtodos: types.SubtodoDetails[],
-  modifiedSubtodos: types.ModifiedSubTodoDetails[],){
+  modifiedSubtodos: types.ModifiedSubTodoDetails[],) {
 
-  }
+}
 
 
 
@@ -540,7 +540,7 @@ async function modifyAllDaysTodoLevel(
       currOldModifiedTodos.subtodos_overriden,
       { completed: currOldModifiedTodos.completed_at !== null, allGroupMembersTodoStarted: currOldModifiedTodos.all_group_members_todo_started || false, startedSubtodos: currOldModifiedTodos.started_subtodos, deletedTodo: currOldModifiedTodos.deleted_override }
     );
-  
+
     const { data, error } = await supabase.from('todo_overrides').upsert(updatedModifiedTodo).eq('my_id', currOldModifiedTodos.my_id);
   }
 
@@ -557,7 +557,7 @@ async function modifyAllDaysTodoLevel(
   const newTodos = removeAnOverriddenFieldForAllModifiedTodods(oldModifiedTodos, overriddenFields);
 
   //replace the old todo with the new todo
-  const {data, error} = await supabase.from('todo').upsert(newTodo).eq('id', todo.id);
+  const { data, error } = await supabase.from('todo').upsert(newTodo).eq('id', todo.id);
 
   if (error) {
     throw new Error(`Failed to update todo: ${error.message}`);
@@ -576,12 +576,12 @@ async function modifyAllDaysTodoLevel(
   if (newSubtodos) {
     assert(newSubtodos.every(subtodo => subtodo.overridden_todo === updatedTodo.id), 'all new subtodos should belong to the updated todo');
   }
-  const {data: data2, error: error2} = await supabase.from('subtodo').upsert(newSubtodos)
+  const { data: data2, error: error2 } = await supabase.from('subtodo').upsert(newSubtodos)
   if (error2) {
     throw new Error(`Failed to update subtodos: ${error2.message}`);
   }
 
-  const{ data: data3, error: error3 } = await supabase.from('subtodo').delete().in('id', deletedSubtodos);
+  const { data: data3, error: error3 } = await supabase.from('subtodo').delete().in('id', deletedSubtodos);
   if (error3) {
     throw new Error(`Failed to delete subtodos: ${error3.message}`);
   }
@@ -635,7 +635,7 @@ async function modifyAllDaysSubTodoLevel(
     throw new Error(`Failed to update subtodo: ${error.message}`);
   }
 
-  masterSubtodos.map(subtodo => {subtodo.id === newModification.id ? newModification : subtodo});
+  masterSubtodos.map(subtodo => { subtodo.id === newModification.id ? newModification : subtodo });
 
   return masterSubtodos
 
@@ -646,7 +646,7 @@ async function modifyAllDaysSubTodoLevel(
 function convertDeadlineToCorrectDate(utc_midnight_iso: string, oldDeadline: string): string {
   const utcDate = parseISO(utc_midnight_iso);
   const oldDeadlineDate = parseISO(oldDeadline);
-  
+
   // Set the time of the old deadline to the UTC midnight date
   return new Date(Date.UTC(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate(), oldDeadlineDate.getUTCHours(), oldDeadlineDate.getUTCMinutes(), oldDeadlineDate.getUTCSeconds())).toISOString();
 }
@@ -660,12 +660,13 @@ async function modifyAllFutureEvents(
 
   // otherModifications: { categoriesOverridden: boolean, },
   // stateChanges: { completed: boolean, allGroupMembersTodoStarted: boolean, startedSubtodos: boolean, deletedTodo: boolean },
+  deletedTodo: boolean,
 
   masterSubtodos: types.SubtodoDetails[],
   // oldModifiedSubtodos: types.ModifiedSubTodoDetails[],
   newSubtodos: types.ModifiedSubTodoDetailsNoID[],
   deletedSubtodos: string[],
-){
+) {
   assert(todo.person_id === my_user_id, 'todo must belong to the user');
 
   // we're modifying all future events for everything chosen
@@ -679,7 +680,7 @@ async function modifyAllFutureEvents(
    */
 
   // Step 1: Stop todo from repeating past the current date... end repeat looks like its inclusive of end date btw
-  
+
   /*const newDueDate = newTodo.deadline*/
   const end_repeat = todo.end_repeat; // the end repeat date is the same as the original todo's end repeat date
   todo.end_repeat = addSeconds(new Date(start_date), -1).toISOString(); // set the end repeat date to the day before the start date (inclusive)
@@ -689,10 +690,10 @@ async function modifyAllFutureEvents(
     .eq('id', todo.id)
     .select()
     .single();
-  
+
 
   // Step 2: Get rid of all modified todos for the future dates unless the todo itself is already completed
-  const {data: modifiedTodos, error: modifiedTodosError} = await supabase
+  const { data: modifiedTodos, error: modifiedTodosError } = await supabase
     .from('todo_overrides')
     .select()
     .eq('parent_id', todo.id)
@@ -701,33 +702,35 @@ async function modifyAllFutureEvents(
     .is('completed_at', null); // not completed
 
 
-  // Step 3: Create a new modified todo for the current date with the new details
-  newTodo.start_date = start_date; // set the start date to the current date
-  newTodo.id = types.generateUUID(); // generate a new ID for the new todo
-  newTodo.person_id = my_user_id; // set the person ID to the user's ID
-  newTodo.end_repeat = end_repeat; // set the end repeat date to the original todo's end repeat date
+  if (!deletedTodo){
+    // Step 3: Create a new modified todo for the current date with the new details
+    newTodo.start_date = start_date; // set the start date to the current date
+    newTodo.id = types.generateUUID(); // generate a new ID for the new todo
+    newTodo.person_id = my_user_id; // set the person ID to the user's ID
+    newTodo.end_repeat = end_repeat; // set the end repeat date to the original todo's end repeat date
 
-  const { data: newModifiedTodo, error: newModifiedTodoError } = await supabase
-   .from('todo')
-   .insert(newTodo)
+    const { data: newModifiedTodo, error: newModifiedTodoError } = await supabase
+      .from('todo')
+      .insert(newTodo)
 
-  if (newModifiedTodoError) {
-    throw new Error(`Failed to create new modified todo: ${newModifiedTodoError.message}`);
-  }
+    if (newModifiedTodoError) {
+      throw new Error(`Failed to create new modified todo: ${newModifiedTodoError.message}`);
+    }
 
-  // Step 4: Create new subtodos for the new modified todo if needed
-  const newSubtodoDetails: types.SubtodoDetails[] = masterSubtodos.filter(subtodo => !(subtodo.id in deletedSubtodos)).map(subtodo => ({...subtodo, id: types.generateUUID(), subtodo_of: newTodo.id})); // create new subtodos with the new modified todo's ID
-  
-  const newActualSubtodos: types.SubtodoDetails[] = newSubtodos.map(subtodo => ({...subtodo, id: types.generateUUID(), subtodo_of: newTodo.id})) // create new subtodos with the new modified todo's ID
+    // Step 4: Create new subtodos for the new modified todo if needed
+    const newSubtodoDetails: types.SubtodoDetails[] = masterSubtodos.filter(subtodo => !(subtodo.id in deletedSubtodos)).map(subtodo => ({ ...subtodo, id: types.generateUUID(), subtodo_of: newTodo.id })); // create new subtodos with the new modified todo's ID
 
-  const allNewSubtodos = [...newSubtodoDetails, ...newActualSubtodos];
-  const { data: insertedSubtodos, error: subtodosError } = await supabase
-    .from('subtodo')
-    .insert(allNewSubtodos)
-    .select();
+    const newActualSubtodos: types.SubtodoDetails[] = newSubtodos.map(subtodo => ({ ...subtodo, id: types.generateUUID(), subtodo_of: newTodo.id })) // create new subtodos with the new modified todo's ID
 
-  if (subtodosError) {
-    throw new Error(`Failed to create new subtodos: ${subtodosError.message}`);
+    const allNewSubtodos = [...newSubtodoDetails, ...newActualSubtodos];
+    const { data: insertedSubtodos, error: subtodosError } = await supabase
+      .from('subtodo')
+      .insert(allNewSubtodos)
+      .select();
+
+    if (subtodosError) {
+      throw new Error(`Failed to create new subtodos: ${subtodosError.message}`);
+    }
   }
 }
 
@@ -759,4 +762,8 @@ async function modifyAllFutureEvents(
  * 
  * Why not privacy? Cuz then it gets even harder to track who can see what for the user
  *    - Same for categories
+ */
+
+/**
+ * One last random thought: People can only see images of your completed todos for 24 hours, after which it fades away only to your archive
  */
