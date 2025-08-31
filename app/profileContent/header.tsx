@@ -1,4 +1,5 @@
 import PersonsModal from '@/components/profileComponents/FollowerModal';
+import { images } from '@/constants/images';
 import { supabase } from '@/constants/supabaseClient';
 import { SB_STORAGE_CONFIG } from '@/services/api';
 import { createFollowerRequest, getFollowedByThesePeople, getFollowsThesePeople, rejectOrRevokeFollowerRequest, toggleCloseFrined } from '@/services/users';
@@ -50,6 +51,7 @@ const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId, editPro
       <View className="bg-primary pb-4">
         {/* Profile Info */}
         <View className="flex-row px-4 items-center pt-4">
+          {profilePicture ?
           <Image
             source={{
               uri: profilePicture ?? `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`,
@@ -57,6 +59,11 @@ const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId, editPro
             className="w-[80px] h-[80px] rounded-full border"
             resizeMode="cover"
           />
+          : <Image
+          source={images.blankProfileName}
+          className="w-[80px] h-[80px] rounded-full border"
+          resizeMode="cover"
+        />}
           <View className="flex-1 flex-row justify-around">
             <View className="items-center">
               <Text className="text-lg font-semibold">{user.numposts}</Text>

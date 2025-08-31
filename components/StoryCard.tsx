@@ -1,3 +1,4 @@
+import { images } from '@/constants/images';
 import { numbers } from '@/constants/numbers';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
@@ -23,17 +24,17 @@ export interface StoryCardDetails {
 }
 
 const StoryCard = ({ backlog, mytask, taskID, eventID, personID, taskName, groupName, dueDay, numNudges, nudged, finished, username, accomplished }: StoryCardDetails) => {
-	const [imageUrl, setImageUrl] = useState('');
+	const [imageUrl, setImageUrl] = useState<string | null>('');
 	const router = useRouter();
 
 	useEffect(() => {
 		const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${personID}.jpg`;
-		const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+		//const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
 
 		// Check if the profile picture exists
 		Image.prefetch(profilePicUrl)
 			.then(() => setImageUrl(profilePicUrl)) // If it exists, use it
-			.catch(() => setImageUrl(defaultPicUrl)); // Otherwise, use the default
+			.catch(() => setImageUrl(null)); // Otherwise, use the default
 	}, [personID]);
 	return (
 		<Link href={taskID ? `../infoScreen/todo/${taskID}` : `../infoScreen/event/${eventID}`} asChild>
@@ -47,8 +48,11 @@ const StoryCard = ({ backlog, mytask, taskID, eventID, personID, taskName, group
 					<View className="mt-[13px] ml-[13px] mr-[13px] mb-[13px] flex flex-col flex-start gap-0">
 						{/** The profile picture and username */}
 						<View className="flex flex-row flex-start gap-2 items-center mt-[-1px] ml-[-2px]">
+							{imageUrl ? 
 							<Image source={{ uri: imageUrl }} className='flex flex-row flex-start w-[20px] h-[20px] border'
 								resizeMode='cover' borderRadius={10} />
+							: <Image source={images.blankProfileName} className='flex flex-row flex-start w-[20px] h-[20px] border'
+							resizeMode='cover' borderRadius={10} />}
 							<Text className="text-xs font-semibold mr-7" numberOfLines={1}>
 								{username || 'Unknown User'}
 							</Text>

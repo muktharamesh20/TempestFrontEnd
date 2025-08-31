@@ -18,6 +18,7 @@ import {
 import Modal from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { images } from '@/constants/images';
 import { Comment } from '@/services/utils';
 import { Link } from 'expo-router';
 
@@ -76,14 +77,14 @@ const CommentItem = ({
   isExpanded: boolean;
   onHideReplies: () => void;
 }) => {
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState<string | null>('');
 
   useEffect(() => {
     const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${comment.authorId}.jpg`;
-    const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+    //const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
     Image.prefetch(profilePicUrl)
       .then(() => setImageUrl(profilePicUrl))
-      .catch(() => setImageUrl(defaultPicUrl));
+      .catch(() => setImageUrl(null));
   }, [comment.authorId]);
 
   const handleLongPress = () => {
@@ -119,7 +120,9 @@ const CommentItem = ({
         <View style={{ flexDirection: 'row' }}>
           <Link href={`/profiles/${comment.authorId}`} asChild>
             <Pressable onPress={onClose}>
+              {imageUrl ?
               <Image source={{ uri: imageUrl }} style={styles.avatar} />
+              : <Image source={images.blankProfileName} style={styles.avatar} />}
             </Pressable>
           </Link>
           <View style={styles.commentContent}>
@@ -184,14 +187,14 @@ const ReplyItem = ({
   postOwnerId: string;
   onDelete: (id: string) => void;
 }) => {
-  const [replyImageUrl, setReplyImageUrl] = useState('');
+  const [replyImageUrl, setReplyImageUrl] = useState<string | null>('');
 
   useEffect(() => {
     const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${reply.authorId}.jpg`;
-    const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+    //const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
     Image.prefetch(profilePicUrl)
       .then(() => setReplyImageUrl(profilePicUrl))
-      .catch(() => setReplyImageUrl(defaultPicUrl));
+      .catch(() => setReplyImageUrl(null));
   }, [reply.authorId]);
 
   const handleLongPress = () => {
@@ -208,7 +211,9 @@ const ReplyItem = ({
       <View style={styles.replyContainer}>
         <Link href={`/profiles/${reply.authorId}`} asChild>
           <Pressable onPress={onClose}>
+            {replyImageUrl ?
             <Image source={{ uri: replyImageUrl }} style={styles.avatarSmall} />
+            : <Image source={images.blankProfileName} style={styles.avatarSmall} />}
           </Pressable>
         </Link>
         <View style={styles.replyContent}>
@@ -241,7 +246,7 @@ export default function CommentsModal({
   const insets = useSafeAreaInsets();
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState<Comment | null>(null);
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState<string | null>('');
   const [currentUserId, setCurrentUserId] = useState('');
   const [commentsToShow, setCommentsToShow] = useState(COMMENTS_PAGE_SIZE);
   const [replyPages, setReplyPages] = useState<ReplyState>(() => {
@@ -279,8 +284,8 @@ export default function CommentsModal({
         await Image.prefetch(profilePicUrl);
         setImageUrl(profilePicUrl);
       } catch {
-        const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
-        setImageUrl(defaultPicUrl);
+        //const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+        setImageUrl(null);
       }
     };
     fetchProfilePic();
@@ -381,7 +386,9 @@ export default function CommentsModal({
         )}
 
         <View style={[styles.inputContainer, { paddingBottom: insets.bottom }]}>
-          <Image source={{ uri: imageUrl }} style={styles.avatar} />
+          {imageUrl ?
+          <Image source={{ uri: imageUrl }} style={styles.avatar} /> :
+          <Image source={images.blankProfileName} style={styles.avatar} />}
           <TextInput
             value={text}
             onChangeText={setText}

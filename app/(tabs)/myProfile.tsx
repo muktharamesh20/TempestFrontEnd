@@ -95,7 +95,7 @@ export default function MyProfile() {
       if (!user) return;
 
       const cacheKey = `profilePicture:${myId}`;
-      const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+      //const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
       const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${myId}.jpg`;
 
       try {
@@ -115,7 +115,7 @@ export default function MyProfile() {
         setTaggedPosts(taggedPosts);
         console.log('tagged posts', taggedPosts)
       } catch {
-        setImageUrl(defaultPicUrl);
+        setImageUrl(null);
       }
     };
 

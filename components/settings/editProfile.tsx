@@ -164,7 +164,7 @@ const EditProfileModal = ({
       //setAvImage(`${currentAvatar}?t=${Date.now()}`);
       setAvImage(`${SB_STORAGE_CONFIG.BASE_URL}${currentId}.jpg?t=${Date.now()}`)
       const cacheKey = `profilePicture:${currentId}`;
-      const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+      //const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
       const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${currentId}.jpg?t=${Date.now()}`;
 
       // Prefetch and store in cache
@@ -174,7 +174,7 @@ const EditProfileModal = ({
         setCurrAvatar(profilePicUrl);
         await AsyncStorage.setItem(cacheKey, profilePicUrl);
       } catch {
-        setCurrAvatar(defaultPicUrl);
+        setCurrAvatar(null);
       }
 
     } catch (error: any) {

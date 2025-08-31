@@ -113,7 +113,7 @@ const otherProfile = () => {
       if (!user) return;
 
       const cacheKey = `profilePicture:${id}`;
-      const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+      //const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
       const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${id}.jpg`;
 
       try {
@@ -133,7 +133,7 @@ const otherProfile = () => {
         setTaggedPosts(taggedPosts);
         console.log('tagged posts', taggedPosts)
       } catch {
-        setImageUrl(defaultPicUrl);
+        setImageUrl(null);
       }
     };
 

@@ -22,7 +22,7 @@ interface KanbanProps {
   taskCards: TaskCardDetails[];
 }
 
-const TABS = ['Backlog', 'To Do', 'Done', 'Events'] as const;
+const TABS = ['Habits', 'To Do', 'Done', 'Events'] as const;
 type Tab = typeof TABS[number];
 
 const addOptionIcons = [
@@ -66,7 +66,7 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
   };
 
   const filteredTasks: Record<Tab, TaskCardDetails[]> = {
-    Backlog: taskCards.filter(task => task.backlog),
+    Habits: taskCards.filter(task => task.backlog),
     'To Do': taskCards.filter(task => !task.backlog && !task.accomplished && !task.eventID),
     Done: taskCards.filter(task => task.accomplished && !task.eventID),
     Events: taskCards.filter(task => task.eventID),

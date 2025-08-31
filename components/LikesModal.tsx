@@ -1,3 +1,4 @@
+import { images } from '@/constants/images';
 import { numbers } from '@/constants/numbers';
 import { SB_STORAGE_CONFIG } from '@/services/api';
 import { Like } from '@/services/utils';
@@ -28,22 +29,22 @@ const LIKES_PAGE_SIZE = 20;
 const LikesModal = ({ visible, likes, onClose }: LikesModalProps): React.JSX.Element => {
   const [search, setSearch] = useState('');
   const [likesToShow, setLikesToShow] = useState(LIKES_PAGE_SIZE);
-  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+  const [imageUrls, setImageUrls] = useState<Record<string, string | null>>({});
 
   useEffect(() => {
     const fetchImageUrls = async () => {
-      const urls: Record<string, string> = {};
+      const urls: Record<string, string | null> = {};
 
       await Promise.all(
         likes.map(async (like) => {
           const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${like.id}.jpg`;
-          const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+          //const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
 
           try {
             await Image.prefetch(profilePicUrl);
             urls[like.id] = profilePicUrl;
           } catch {
-            urls[like.id] = defaultPicUrl;
+            urls[like.id] = null;
           }
         })
       );
@@ -74,7 +75,9 @@ const LikesModal = ({ visible, likes, onClose }: LikesModalProps): React.JSX.Ele
       <Link href={`/profiles/${item.id}`} asChild>
         <Pressable onPress={onClose}>
           <View style={styles.likeItem}>
+            {imageUrls[item.id] ? 
             <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
+            : <Image source={images.blankProfileName} style={styles.avatar} />}
             <View style={{ marginLeft: 12 }}>
               <Text style={styles.username}>{item.username}</Text>
             </View>

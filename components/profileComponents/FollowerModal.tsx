@@ -1,3 +1,4 @@
+import { images } from '@/constants/images';
 import { numbers } from '@/constants/numbers';
 import { SB_STORAGE_CONFIG } from '@/services/api';
 import { ModalPersonType } from '@/services/utils';
@@ -26,22 +27,22 @@ interface personsModalProps {
 
 const PersonsModal = ({ visible, people, onClose, message }: personsModalProps): React.JSX.Element => {
   const [search, setSearch] = useState('');
-  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+  const [imageUrls, setImageUrls] = useState<Record<string, string | null>>({});
 
   useEffect(() => {
     const fetchImageUrls = async () => {
-      const urls: Record<string, string> = {};
+      const urls: Record<string, string | null> = {};
 
       await Promise.all(
         people.map(async (person) => {
           const profilePicUrl = `${SB_STORAGE_CONFIG.BASE_URL}${person.id}.jpg`;
-          const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
+          //const defaultPicUrl = `${SB_STORAGE_CONFIG.BASE_URL}blank-profile-pic.jpg`;
 
           try {
             await Image.prefetch(profilePicUrl);
             urls[person.id] = profilePicUrl;
           } catch {
-            urls[person.id] = defaultPicUrl;
+            urls[person.id] = null;
           }
         })
       );
@@ -64,7 +65,9 @@ const PersonsModal = ({ visible, people, onClose, message }: personsModalProps):
         <Pressable onPress={onClose}>
           <View style={styles.personItem}>
 
-            <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
+            {imageUrls[item.id] ? 
+              <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
+              : <Image source={images.blankProfileName} style={styles.avatar} />}
 
             <View style={{ marginLeft: 12 }}>
               <Text style={styles.username}>{item.username}</Text>
