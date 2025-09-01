@@ -72,6 +72,14 @@ export async function createPersonalOrGroupEvent(eventDetails: {group_id?: strin
     return data[0] as types.EventDetails;
 }
 
+/**
+ * It appears in friend's calendar, and they can choose to accept or decline... they do not have permission to edit the event
+ * If they delete, it only deletes from their calendar
+ * If they accept, it shows up in their calendar and they show as attending in the event details
+ * 
+ * @param eventDetails 
+ * @param supabaseClient 
+ */
 export async function inviteFriendtoPerosonalEvent(eventDetails: { title: string; description: string; date: string; user: types.User }, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
     const { error } = await supabaseClient
         .from('event')
@@ -83,6 +91,16 @@ export async function inviteFriendtoPerosonalEvent(eventDetails: { title: string
     }
 }
 
+/**
+ * It appears in group's calendar, and specific memberers are invited to RSVP
+ * If they accept or decline, it doesn't affect their calendar... it just shows up as accepted or declined in the event details
+ * 
+ * Potentially, they all appear in the group calendar, but only those who accepted appear in their personal calendar
+ * OR, it appears in the group calendar, and whovever created the event can automatically add it to a certain group of people's private calendar without their consent, unless they click not going
+ * 
+ * @param eventDetails 
+ * @param supabaseClient 
+ */
 export async function inviteGroupMembersToRSVPForEvent(eventDetails: { title: string; description: string; date: string; user: types.User }, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
     const { error } = await supabaseClient
         .from('event')
@@ -94,10 +112,24 @@ export async function inviteGroupMembersToRSVPForEvent(eventDetails: { title: st
     }
 }
 
+/**
+ * Only based on what you can currently view in their calendar (i.e. if they have private events, you can't see if they are busy during that time)
+ * 
+ * @param startdate 
+ * @param enddate 
+ * @param friends 
+ * @param supabaseClient 
+ */
 export async function findWhichFriendsAreBusy(startdate: string, enddate: string, friends: types.User[], supabaseClient: SupabaseClient<Database>): Promise<{user: types.User; busy: boolean}[]> {
     throw new Error('Not implemented yet');
 }
 
+/**
+ * See inviteGroupMembersToRSVPForEvent and inviteFriendtoPerosonalEvent
+ * 
+ * @param eventDetails 
+ * @param supabaseClient 
+ */
 export async function acceptInviteToEvent(eventDetails: { title: string; description: string; date: string; user: types.User }, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
     const { error } = await supabaseClient
         .from('event')

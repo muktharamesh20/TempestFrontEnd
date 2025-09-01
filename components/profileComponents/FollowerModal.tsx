@@ -3,7 +3,7 @@ import { numbers } from '@/constants/numbers';
 import { SB_STORAGE_CONFIG } from '@/services/api';
 import { ModalPersonType } from '@/services/utils';
 import { Ionicons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   FlatList,
@@ -28,6 +28,7 @@ interface personsModalProps {
 const PersonsModal = ({ visible, people, onClose, message }: personsModalProps): React.JSX.Element => {
   const [search, setSearch] = useState('');
   const [imageUrls, setImageUrls] = useState<Record<string, string | null>>({});
+  const router = useRouter();
 
   useEffect(() => {
     const fetchImageUrls = async () => {
@@ -61,20 +62,23 @@ const PersonsModal = ({ visible, people, onClose, message }: personsModalProps):
 
   const renderpersonItem = ({ item }: { item: ModalPersonType }) => {
     return (
-      <Link href={`/profiles/${item.id}`} asChild>
-        <Pressable onPress={onClose}>
-          <View style={styles.personItem}>
-
-            {imageUrls[item.id] ? 
-              <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
-              : <Image source={images.blankProfileName} style={styles.avatar} />}
-
-            <View style={{ marginLeft: 12 }}>
-              <Text style={styles.username}>{item.username}</Text>
-            </View>
-          </View>
-        </Pressable>
-      </Link>
+      <Pressable
+      onPress={() => {
+        onClose?.(); // close modal if needed
+        router.push(`/profiles/${item.id}`);
+      }}
+    >
+      <View style={styles.personItem}>
+        {imageUrls[item.id] ? (
+          <Image source={{ uri: imageUrls[item.id] }} style={styles.avatar} />
+        ) : (
+          <Image source={images.blankProfileName} style={styles.avatar} />
+        )}
+        <View style={{ marginLeft: 12 }}>
+          <Text style={styles.username}>{item.username}</Text>
+        </View>
+      </View>
+    </Pressable>
     );
   };
 
