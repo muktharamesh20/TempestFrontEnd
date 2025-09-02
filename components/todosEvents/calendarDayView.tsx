@@ -107,10 +107,10 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
       dayEnd: Date,
     ): EventDetailsForNow[] {
       const DAY_MS = 24 * 60 * 60 * 1000;
-      const tplStart = new Date(tpl.start);
-      const tplEnd = new Date(tpl.end);
+      const tplStart = new Date(tpl.start_date);
+      const tplEnd = new Date(tpl.end_date);
       const duration = tplEnd.getTime() - tplStart.getTime();
-      const repeatEnd = tpl.repeat_schedule === 'none'
+      const repeatEnd = tpl.repeat === 'none'
         ? tplEnd
         : new Date(tpl.end_repeat);
 
@@ -130,8 +130,8 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
 
 
     const allDayEvents = todaysEvents.filter((ev) => {
-      const s = new Date(ev.start);
-      const e = new Date(ev.end);
+      const s = new Date(ev.start_date);
+      const e = new Date(ev.end_date);
       return s <= dayStart && e >= dayEnd;          // spans 00–24 entirely
     });
 
@@ -164,7 +164,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
           ]}
           onPress={() => onEventPress(event)}
         >
-          <View style={[styles.colorStrip, { backgroundColor: event.color || '#999' }]} />
+          <View style={[styles.colorStrip, { backgroundColor: event.event_color || '#999' }]} />
           <View style={styles.eventContent}>
             <Text style={[styles.eventTitle, { fontSize }]} numberOfLines={1}>
               {event.title}
@@ -176,7 +176,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
 
     // Sort timed events by start time
     const sortedTimedEvents = [...timedEvents].sort(
-      (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
+      (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
     );
 
     // Build graph: for each event, track which other events it overlaps with
@@ -185,13 +185,13 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
 
     for (let i = 0; i < sortedTimedEvents.length; i++) {
       const eventA = sortedTimedEvents[i];
-      const startA = new Date(eventA.start).getTime();
-      const endA = new Date(eventA.end).getTime();
+      const startA = new Date(eventA.start_date).getTime();
+      const endA = new Date(eventA.end_date).getTime();
 
       for (let j = i + 1; j < sortedTimedEvents.length; j++) {
         const eventB = sortedTimedEvents[j];
-        const startB = new Date(eventB.start).getTime();
-        const endB = new Date(eventB.end).getTime();
+        const startB = new Date(eventB.start_date).getTime();
+        const endB = new Date(eventB.end_date).getTime();
 
         // If events overlap
         if (!(endA <= startB || startA >= endB)) {
@@ -261,8 +261,8 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
 
     // Render timed events with better column and width calculation
     const timedEventComponents = sortedTimedEvents.map((event, index) => {
-      const start = new Date(event.start);
-      const end = new Date(event.end);
+      const start = new Date(event.start_date);
+      const end = new Date(event.end_date);
 
       // Clamp event start/end to current day
       const visibleStart = new Date(Math.max(start.getTime(), dayStart.getTime()));
@@ -299,7 +299,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
           ]}
           onPress={() => onEventPress(event)}
         >
-          <View style={[styles.colorStrip, { backgroundColor: event.color || '#999' }]} />
+          <View style={[styles.colorStrip, { backgroundColor: event.event_color || '#999' }]} />
           <View style={styles.eventContent}>
             <Text style={[styles.eventTitle, { fontSize: fontSizeTitle }]}>
               {event.title}
@@ -350,8 +350,8 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
 
   // Calculate all-day events total height for offsetting hours container and events
   const allDayEventsCount = events.filter((event) => {
-    const start = new Date(event.start);
-    const end = new Date(event.end);
+    const start = new Date(event.start_date);
+    const end = new Date(event.end_date);
     const dayStart = new Date();
     dayStart.setHours(0, 0, 0, 0);
     const dayEnd = new Date();

@@ -5,16 +5,16 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { addDays } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    Image,
+    Modal,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Icon, Switch } from 'react-native-elements';
@@ -151,8 +151,8 @@ export default function EventModal({ visible, onClose, event, onSave }: eventMod
   useEffect(() => {
     if (event) {
       setTitle(event.title || '');
-      setRepeatValue(event.repeat_schedule || 'None');
-      setColor(event.color || '#FFD700');
+      setRepeatValue(event.repeat || 'None');
+      setColor(event.event_color || '#FFD700');
     }
   }, [event]);
 
@@ -174,12 +174,12 @@ export default function EventModal({ visible, onClose, event, onSave }: eventMod
                 const eventToSave: EventDetailsForNow = {
                   ...event,
                   title,
-                  repeat_schedule: repeatValue,
-                  color,
-                  start: startTime,
-                  end: endTime,
+                  repeat: repeatValue,
+                  event_color: color,
+                  start_date: startTime,
+                  end_date: endTime,
                   end_repeat: endRepeat ?? endTime, // fallback to endTime if undefined
-                  days: days || [],
+                  weekdays: days || [],
                   isAllDay,
                 };
 

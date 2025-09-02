@@ -53,8 +53,8 @@ export function generateOccurrences(
     return newDate;
   };
 
-  const startDate = isAllDay ? toDateOnly(event.start) : new Date(event.start);
-  const endDate = isAllDay ? toDateOnly(event.end) : new Date(event.end);
+  const startDate = isAllDay ? toDateOnly(event.start_date) : new Date(event.start_date);
+  const endDate = isAllDay ? toDateOnly(event.end_date) : new Date(event.end_date);
   const endRepeatDate = isAllDay ? toDateOnly(event.end_repeat) : new Date(event.end_repeat);
 
   const effectiveWeekStart = isAllDay ? toDateOnly(weekStart) : weekStart;
@@ -62,7 +62,7 @@ export function generateOccurrences(
     ? toDateOnly(weekEnd > endRepeatDate ? endRepeatDate : weekEnd)
     : weekEnd > endRepeatDate ? endRepeatDate : weekEnd;
 
-  if (event.repeat_schedule === 'none') {
+  if (event.repeat === 'none') {
     if (startDate <= effectiveWeekEnd && endDate >= effectiveWeekStart) {
       eventsForNow.push({ ...event });
     }
@@ -71,7 +71,7 @@ export function generateOccurrences(
 
   const eventDuration = endDate.getTime() - startDate.getTime();
 
-  if (event.repeat_schedule === 'daily') {
+  if (event.repeat === 'daily') {
     for (
       let d = new Date(effectiveWeekStart.getTime() - eventDuration);
       d <= effectiveWeekEnd;
@@ -80,11 +80,11 @@ export function generateOccurrences(
       if (d >= startDate && d <= endRepeatDate) {
         const start = cloneDateWithTime(d, startDate);
         const end = new Date(start.getTime() + eventDuration);
-        eventsForNow.push({ ...event, start, end });
+        eventsForNow.push({ ...event, start_date: start, end_date: end });
       }
     }
-  } else if (event.repeat_schedule === 'weekly' || event.repeat_schedule === 'biweekly') {
-    const increment = event.repeat_schedule === 'weekly' ? 7 : 14;
+  } else if (event.repeat === 'weekly' || event.repeat === 'biweekly') {
+    const increment = event.repeat === 'weekly' ? 7 : 14;
 
     const startDay = startDate.getDay();
     const startWeekMonday = addDays(startDate, -startDay);
@@ -112,16 +112,16 @@ export function generateOccurrences(
           day >= weekStartDate &&
           day <= effectiveWeekEnd &&
           day <= endRepeatDate &&
-          day >= event.start &&
-          event.days.includes(day.getDay())
+          day >= event.start_date &&
+          event.weekdays.includes(day.getDay())
         ) {
           const start = cloneDateWithTime(day, startDate);
           const end = new Date(start.getTime() + eventDuration);
-          eventsForNow.push({ ...event, start, end });
+          eventsForNow.push({ ...event, start_date: start, end_date: end });
         }
       }
     }
-  } else if (event.repeat_schedule === 'yearly') {
+  } else if (event.repeat === 'yearly') {
     for (
       let year = startDate.getFullYear();
       year <= endRepeatDate.getFullYear();
@@ -147,12 +147,12 @@ export function generateOccurrences(
       ) {
         eventsForNow.push({
           ...event,
-          start: occurrenceStart,
-          end: occurrenceEnd,
+          start_date: occurrenceStart,
+          end_date: occurrenceEnd,
         });
       }
     }
-  } else if (event.repeat_schedule === 'monthly') {
+  } else if (event.repeat === 'monthly') {
     let monthCursor = new Date(startDate.getTime());
 
     while (monthCursor < addDays(new Date(effectiveWeekStart.getDate() - eventDuration), -1)) {
@@ -169,7 +169,7 @@ export function generateOccurrences(
       ) {
         const start = cloneDateWithTime(monthCursor, startDate);
         const end = new Date(start.getTime() + eventDuration);
-        eventsForNow.push({ ...event, start, end });
+        eventsForNow.push({ ...event, start_date: start, end_date: end });
       }
 
       monthCursor.setMonth(monthCursor.getMonth() + 1);
@@ -275,13 +275,13 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
     events
       /* keep only events that touch this week */
       .filter((event) => {
-        const s = new Date(event.start);
-        const e = new Date(event.end);
+        const s = new Date(event.start_date);
+        const e = new Date(event.end_date);
         return e >= weekStart && s < addDays(weekStart, 7);
       })
       .forEach((event) => {
-        const s = new Date(event.start);
-        const e = new Date(event.end);
+        const s = new Date(event.start_date);
+        const e = new Date(event.end_date);
 
         /* collect the *indices* (0-6) of fully covered days inside this week */
         const covered: number[] = [];
@@ -329,7 +329,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
               left,
               width,
               height: EVENT_HEIGHT,
-              backgroundColor: event.color || '#999',
+              backgroundColor: event.event_color || '#999',
             },
           ]}
           onPress={() => onEventPress(event)}
@@ -399,13 +399,13 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
     events
       /* keep events that touch this week */
       .filter((ev) => {
-        const s = new Date(ev.start);
-        const e = new Date(ev.end);
+        const s = new Date(ev.start_date);
+        const e = new Date(ev.end_date);
         return e > weekStart && s < weekEnd;
       })
       .forEach((ev) => {
-        const evStart = new Date(ev.start);
-        const evEnd = new Date(ev.end);
+        const evStart = new Date(ev.start_date);
+        const evEnd = new Date(ev.end_date);
 
         /* walk each day of *this* week (0-6) */
         for (let i = 0; i < 7; i++) {
@@ -482,7 +482,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
           ]}
           onPress={() => onEventPress(event)}
         >
-          <View style={[styles.colorStrip, { backgroundColor: event.color || '#999' }]} />
+          <View style={[styles.colorStrip, { backgroundColor: event.event_color || '#999' }]} />
           <View style={styles.eventContent}>
             <Text style={[styles.eventTitle, { fontSize: fontSizeTitle }]}>{event.title}</Text>
             {hourHeight >= SHOW_TIME_THRESHOLD && (

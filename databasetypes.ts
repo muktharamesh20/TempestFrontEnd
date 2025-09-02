@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -22,10 +22,10 @@ export type Database = {
     Functions: {
       graphql: {
         Args: {
+          extensions?: Json
           operationName?: string
           query?: string
           variables?: Json
-          extensions?: Json
         }
         Returns: Json
       }
@@ -60,7 +60,7 @@ export type Database = {
             foreignKeyName: "group_event_to_viewership_tags_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "event"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
@@ -195,7 +195,7 @@ export type Database = {
           },
         ]
       }
-      event: {
+      events: {
         Row: {
           created_at: string | null
           description: string
@@ -214,7 +214,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          description: string
+          description?: string
           end_date: string
           end_repeat?: string | null
           event_color?: string | null
@@ -637,7 +637,7 @@ export type Database = {
             foreignKeyName: "people_to_delete_added_group_events_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "event"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
@@ -667,7 +667,7 @@ export type Database = {
             foreignKeyName: "people_to_deleted_group_todos_event_id_fkey"
             columns: ["todo_id"]
             isOneToOne: false
-            referencedRelation: "event"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
@@ -1003,7 +1003,7 @@ export type Database = {
             foreignKeyName: "post_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "event"
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
           {
@@ -1353,7 +1353,6 @@ export type Database = {
           priority: number | null
           privacy: number | null
           repeat_every: string
-          start_date: string | null
           title: string
           todo_color: string | null
           weekdays: number[]
@@ -1374,7 +1373,6 @@ export type Database = {
           priority?: number | null
           privacy?: number | null
           repeat_every?: string
-          start_date?: string | null
           title: string
           todo_color?: string | null
           weekdays: number[]
@@ -1395,7 +1393,6 @@ export type Database = {
           priority?: number | null
           privacy?: number | null
           repeat_every?: string
-          start_date?: string | null
           title?: string
           todo_color?: string | null
           weekdays?: number[]
@@ -1669,7 +1666,7 @@ export type Database = {
         Returns: boolean
       }
       can_view_post_invoker: {
-        Args: { post_id: string } | { post_id: string; owner_id: string }
+        Args: { owner_id: string; post_id: string } | { post_id: string }
         Returns: boolean
       }
       delete_specific_users: {
@@ -1679,22 +1676,22 @@ export type Database = {
       get_feed: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          archived: boolean
-          created_at: string
-          description: string
-          todo_id: string
-          event_id: string
-          owner_id: string
-          inspired_by_count: number
-          liked_count: number
-          comment_count: number
-          title: string
-          imageLink: string
-          highlighted_by_owner: boolean
-          username: string
           alreadyliked: boolean
           alreadysaved: boolean
+          archived: boolean
+          comment_count: number
+          created_at: string
+          description: string
+          event_id: string
+          highlighted_by_owner: boolean
+          id: string
+          imageLink: string
+          inspired_by_count: number
+          liked_count: number
+          owner_id: string
+          title: string
+          todo_id: string
+          username: string
         }[]
       }
       get_group_ids_for_user: {
@@ -1722,7 +1719,7 @@ export type Database = {
         Returns: boolean
       }
       is_following: {
-        Args: { follower: string; followed: string }
+        Args: { followed: string; follower: string }
         Returns: boolean
       }
       is_in_group: {
@@ -1735,12 +1732,12 @@ export type Database = {
       }
       viewership_tag_allows_viewer: {
         Args:
-          | { viewership_tag_id: string; owner_of_vt: string }
           | {
-              viewership_tag_id: string
-              owner_of_vt: string
               curr_viewer: string
+              owner_of_vt: string
+              viewership_tag_id: string
             }
+          | { owner_of_vt: string; viewership_tag_id: string }
         Returns: boolean
       }
     }

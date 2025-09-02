@@ -201,16 +201,7 @@ export interface ProfileSummary {
 
 export const dummyPost: postDetails = { postId: "dummy", taskOrEventName: "Dummy Post", personID: "0", myPost: true, username: 'dummyUser', thoughts: "This is a dummy post for testing purposes.", hashtags: ['test', 'dummy'], timeCreated: new Date("2023-10-01T12:00:00Z"), likes: 0, comments: 0, alreadyLiked: false, alreadySaved: false, archived: false };
 
-export interface EventDetailsForNow {
-    title: string;
-    start: Date;
-    end: Date;
-    color: string;
-    end_repeat: Date;
-    days: number[]; //0 is sunday, 6 is saturday
-    repeat_schedule: 'weekly' | 'monthly' | 'biweekly' | 'daily' | 'none' | 'yearly';
-    isAllDay?: boolean;
-}
+
 
 //created
 export async function createEventTypeWithData(eventDetails: EventDetails): Promise<Event> {
@@ -351,6 +342,17 @@ export type EventDetails = {
     start_date: string
     title: string
     weekdays: number[]
+}
+
+export interface EventDetailsForNow {
+    title: string;
+    start_date: Date;
+    end_date: Date;
+    event_color: string;
+    end_repeat: Date;
+    weekdays: number[]; //0 is sunday, 6 is saturday
+    repeat: 'weekly' | 'monthly' | 'biweekly' | 'daily' | 'none' | 'yearly';
+    isAllDay?: boolean;
 }
 
 //created

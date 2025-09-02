@@ -4,6 +4,9 @@ import MonthCalendar from '@/components/MonthCalendar';
 import DraggablePlusButton from '@/components/todosEvents/draggableButton';
 import TodoModal from '@/components/todosEvents/todoModal';
 import WeekCalendar from '@/components/WeekCalendar';
+import { supabase } from '@/constants/supabaseClient';
+import { getUserId } from '@/services/api';
+import { getMyEvents } from '@/services/myCalendar';
 import { calendarGroupProps, calendarPersonProps, drawerProps, EventDetailsForNow } from '@/services/utils';
 import { useIsFocused } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
@@ -27,7 +30,40 @@ const calendar = () => {
   const [view, setView] = React.useState<'day' | 'week' | 'month'>('day');
   const [eventModalVisible, setEventModalVisible] = React.useState<boolean>(false);
   const [currEvent, setCurrEvent] = React.useState<EventDetailsForNow | null>(null);
+  const [supabaseEvents, setSupabaseEvents] = React.useState<EventDetailsForNow[]>([]);
   useEffect(() => { console.log(date.toDateString()) }, [date]);
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const userId = (await getUserId())[0];
+        const events = await getMyEvents(userId, supabase);
+  
+        if (events) {
+          const mappedEvents: EventDetailsForNow[] = events.map((ev) => ({
+            title: ev.title,
+            start_date: new Date(ev.start_date),
+            end_date: new Date(ev.end_date),
+            // If end_repeat exists, use it; otherwise fallback to end_date
+            end_repeat: ev.end_repeat ? new Date(ev.end_repeat) : new Date(ev.end_date),
+            event_color: ev.event_color ?? '#000000', // fallback color
+            weekdays: ev.weekdays,
+            repeat: ev.repeat as 'weekly' | 'monthly' | 'biweekly' | 'daily' | 'none' | 'yearly',
+            isAllDay: ev.is_all_day,
+          }));
+  
+          setSupabaseEvents(mappedEvents);
+          console.log('Fetched events:', mappedEvents);
+        } else {
+          console.log('No events found or error fetching events.');
+        }
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+  
+    fetchEvents();
+  }, []);
+  
 
   const handleTogglePublic = (categoryId: string, newValue: boolean) => {
     setCategories(prev =>
@@ -66,19 +102,19 @@ const calendar = () => {
       {view === 'day' && (
         <>
           {isFocused ? <StatusBar style="light" /> : null}
-          <DayCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} people={people} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle} onEventPress={(event) => { setCurrEvent(event); console.log('event switched', event); setEventModalVisible(true); }} />
+          <DayCalendar events={supabaseEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} people={people} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle} onEventPress={(event) => { setCurrEvent(event); console.log('event switched', event); setEventModalVisible(true); }} />
         </>
       )}
       {view === 'week' && (
         <>
           {isFocused ? <StatusBar style="light" /> : null}
-          <WeekCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} people={people} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle} onEventPress={(event) => { setCurrEvent(event); setEventModalVisible(true); }} />
+          <WeekCalendar events={supabaseEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} hourHeight={hourHeight} setHourHeight={setHourHeight} people={people} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle} onEventPress={(event) => { setCurrEvent(event); setEventModalVisible(true); }} />
         </>
       )}
       {view === 'month' && (
         <>
           {isFocused ? <StatusBar style="light" /> : null}
-          <MonthCalendar events={sampleEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} people={people} hourHeight={hourHeight} setHourHeight={setHourHeight} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle} onEventPress={(event) => { setCurrEvent(event); setEventModalVisible(true); }} />
+          <MonthCalendar events={supabaseEvents} viewingDate={date} setViewingDateFunc={setDate} categories={categories} handleCategoryToggle={handleTogglePublic} setView={setView} people={people} hourHeight={hourHeight} setHourHeight={setHourHeight} groups={groups} handlePersonToggle={handlePersonToggle} handleGroupToggle={handleGroupToggle} onEventPress={(event) => { setCurrEvent(event); setEventModalVisible(true); }} />
         </>
       )}
 
@@ -121,164 +157,164 @@ export default calendar
 const sampleEvents: EventDetailsForNow[] = [
   {
     title: 'Morning Run',
-    start: new Date('2025-06-24T06:00:00'),
-    end: new Date('2025-06-24T07:00:00'),
-    color: '#4CAF50',
+    start_date: new Date('2025-06-24T06:00:00'),
+    end_date: new Date('2025-06-24T07:00:00'),
+    event_color: '#4CAF50',
     end_repeat: new Date('2025-08-24T023:59:59'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Team Stand-up Meeting',
-    start: new Date('2025-06-24T09:15:00'),
-    end: new Date('2025-06-24T09:30:00'),
-    color: '#2196F3',
+    start_date: new Date('2025-06-24T09:15:00'),
+    end_date: new Date('2025-06-24T09:30:00'),
+    event_color: '#2196F3',
     end_repeat: new Date('2025-06-24T09:30:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Morning Run',
-    start: new Date('2025-06-24T06:00:00'),
-    end: new Date('2025-06-24T07:00:00'),
-    color: '#4CAF50',
+    start_date: new Date('2025-06-24T06:00:00'),
+    end_date: new Date('2025-06-24T07:00:00'),
+    event_color: '#4CAF50',
     end_repeat: new Date('2025-06-24T07:00:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Team Stand-up Meeting',
-    start: new Date('2025-06-24T09:00:00'),
-    end: new Date('2025-06-24T09:30:00'),
-    color: '#2196F3',
+    start_date: new Date('2025-06-24T09:00:00'),
+    end_date: new Date('2025-06-24T09:30:00'),
+    event_color: '#2196F3',
     end_repeat: new Date('2025-06-24T09:30:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Morning Run',
-    start: new Date('2025-06-24T06:00:00'),
-    end: new Date('2025-06-24T07:00:00'),
-    color: '#4CAF50',
+    start_date: new Date('2025-06-24T06:00:00'),
+    end_date: new Date('2025-06-24T07:00:00'),
+    event_color: '#4CAF50',
     end_repeat: new Date('2025-06-24T07:00:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Team Stand-up Meeting',
-    start: new Date('2025-06-24T09:20:00'),
-    end: new Date('2025-06-24T09:35:00'),
-    color: '#2196F3',
+    start_date: new Date('2025-06-24T09:20:00'),
+    end_date: new Date('2025-06-24T09:35:00'),
+    event_color: '#2196F3',
     end_repeat: new Date('2025-06-24T09:35:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Work Session: UI Design',
-    start: new Date('2025-06-24T10:00:00'),
-    end: new Date('2025-06-24T12:00:00'),
-    color: '#FFC107',
+    start_date: new Date('2025-06-24T10:00:00'),
+    end_date: new Date('2025-06-24T12:00:00'),
+    event_color: '#FFC107',
     end_repeat: new Date('2025-06-24T12:00:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Lunch with Sarah',
-    start: new Date('2025-06-24T12:30:00'),
-    end: new Date('2025-06-24T13:30:00'),
-    color: '#FF5722',
+    start_date: new Date('2025-06-24T12:30:00'),
+    end_date: new Date('2025-06-24T13:30:00'),
+    event_color: '#FF5722',
     end_repeat: new Date('2025-06-24T13:30:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Doctor Appointment',
-    start: new Date('2025-06-24T15:00:00'),
-    end: new Date('2025-06-24T15:45:00'),
-    color: '#9C27B0',
+    start_date: new Date('2025-06-24T15:00:00'),
+    end_date: new Date('2025-06-24T15:45:00'),
+    event_color: '#9C27B0',
     end_repeat: new Date('2025-06-24T15:45:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Project Review Call',
-    start: new Date('2025-06-24T16:00:00'),
-    end: new Date('2025-06-24T17:00:00'),
-    color: '#3F51B5',
+    start_date: new Date('2025-06-24T16:00:00'),
+    end_date: new Date('2025-06-24T17:00:00'),
+    event_color: '#3F51B5',
     end_repeat: new Date('2025-06-24T17:00:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Morning Workout',
-    start: new Date('2025-06-23T06:30:00'),
-    end: new Date('2025-06-23T07:30:00'),
-    color: '#4CAF50',
+    start_date: new Date('2025-06-23T06:30:00'),
+    end_date: new Date('2025-06-23T07:30:00'),
+    event_color: '#4CAF50',
     end_repeat: new Date('2025-06-23T07:30:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Team Standup',
-    start: new Date('2025-06-24T09:00:00'),
-    end: new Date('2025-06-24T09:30:00'),
-    color: '#2196F3',
+    start_date: new Date('2025-06-24T09:00:00'),
+    end_date: new Date('2025-06-24T09:30:00'),
+    event_color: '#2196F3',
     end_repeat: new Date('2025-06-24T09:30:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Lunch with Alex',
-    start: new Date('2025-06-25T12:00:00'),
-    end: new Date('2025-06-25T13:00:00'),
-    color: '#FFC107',
+    start_date: new Date('2025-06-25T12:00:00'),
+    end_date: new Date('2025-06-25T13:00:00'),
+    event_color: '#FFC107',
     end_repeat: new Date('2025-06-25T13:00:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Project Meeting',
-    start: new Date('2025-06-25T15:00:00'),
-    end: new Date('2025-06-25T16:30:00'),
-    color: '#9C27B0',
+    start_date: new Date('2025-06-25T15:00:00'),
+    end_date: new Date('2025-06-25T16:30:00'),
+    event_color: '#9C27B0',
     end_repeat: new Date('2025-06-25T16:30:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Dentist Appointment',
-    start: new Date('2025-06-26T11:00:00'),
-    end: new Date('2025-06-26T11:45:00'),
-    color: '#E91E63',
+    start_date: new Date('2025-06-26T11:00:00'),
+    end_date: new Date('2025-06-26T11:45:00'),
+    event_color: '#E91E63',
     end_repeat: new Date('2025-06-26T11:45:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Date Night',
-    start: new Date('2025-06-27T19:00:00'),
-    end: new Date('2025-06-27T21:30:00'),
-    color: '#F44336',
+    start_date: new Date('2025-06-27T19:00:00'),
+    end_date: new Date('2025-06-27T21:30:00'),
+    event_color: '#F44336',
     end_repeat: new Date('2025-06-27T21:30:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   {
     title: 'Weekend Hike',
-    start: new Date('2025-06-29T08:00:00'),
-    end: new Date('2025-06-29T10:00:00'),
-    color: '#3F51B5',
+    start_date: new Date('2025-06-29T08:00:00'),
+    end_date: new Date('2025-06-29T10:00:00'),
+    event_color: '#3F51B5',
     end_repeat: new Date('2025-06-29T10:00:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   }, {
     title: 'Date Night',
-    start: new Date('2025-06-28T19:00:00'),
-    end: new Date('2025-06-28T21:30:00'),
-    color: '#F44336',
+    start_date: new Date('2025-06-28T19:00:00'),
+    end_date: new Date('2025-06-28T21:30:00'),
+    event_color: '#F44336',
     end_repeat: new Date('2025-06-28T21:30:00'),
-    repeat_schedule: 'none',
-    days: []
+    repeat: 'none',
+    weekdays: []
   },
   // {
   //   title: 'Evening Yoga',
@@ -291,12 +327,12 @@ const sampleEvents: EventDetailsForNow[] = [
   // },
   {
     title: 'Birthday!',
-    start: new Date('2006-02-07T23:00:00'),
-    end: new Date('2006-02-08T23:00:00'),
-    color: '#E91E63',
-    end_repeat: new Date('2100-08-09T23:00:00'),
-    repeat_schedule: 'yearly',
-    days: [1],
+    start_date: new Date('2006-02-08T23:00:00Z'),
+    end_date: new Date('2006-02-09T23:00:00Z'),
+    event_color: '#E91E63',
+    end_repeat: new Date('2100-08-09T23:00:00Z'),
+    repeat: 'yearly',
+    weekdays: [1],
     isAllDay: true
   },
 ];

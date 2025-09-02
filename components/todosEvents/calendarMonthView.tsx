@@ -2,12 +2,12 @@ import { EventDetailsForNow } from '@/services/utils';
 import { addMinutes, startOfDay } from 'date-fns';
 import React from 'react';
 import {
-  Dimensions,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
+    Dimensions,
+    FlatList,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
 import { generateOccurrences } from './calendarWeekView';
 
@@ -70,8 +70,8 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
   events
     .flatMap((event) => generateOccurrences(event, startOfMonth, endOfMonth))
     .forEach((event) => {
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
+      const eventStart = new Date(event.start_date);
+      const eventEnd = new Date(event.end_date);
 
       // Clamp the event range to this month only
       const localStart = new Date(
@@ -124,7 +124,7 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
           {visibleEvents.map((event, idx) => (
             <Pressable
               key={idx}
-              style={[styles.eventSliver, { backgroundColor: event.color || '#999' }]}
+              style={[styles.eventSliver, { backgroundColor: event.event_color || '#999' }]}
               onPress={() => onEventPress(event)}
             >
               <Text style={styles.eventTitle} numberOfLines={1}>

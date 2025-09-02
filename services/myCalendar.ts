@@ -8,6 +8,34 @@ export async function getMyCalendar(user: types.User, supabaseClient: SupabaseCl
     throw new Error('Not implemented yet');
 }
 
+export async function getMyEvents(
+    userId: string,
+    supabaseClient: SupabaseClient<Database>
+  ): Promise<types.EventDetails[]> {
+  
+    // First, get the groups the user belongs to
+    const { data: groupsData, error: groupsError } = await supabaseClient
+      .from('people_to_group')
+      .select('group_id')
+      .eq('person_id', userId);
+  
+    if (groupsError) throw groupsError;
+  
+    const groupIds = groupsData?.map(g => g.group_id) || [];
+  
+    // Then fetch events
+    const { data, error } = await supabaseClient
+        .from('events')
+        .select('*')
+        .or(`owner_id.eq.${userId},group_id.in.(${groupIds.join(',')})`)
+    
+    console.log(error, data, "hola")
+    if (error) throw error;
+  
+    return data as types.EventDetails[];
+  }
+  
+
 export async function createPersonalTodo(todoDetails: { person_id: string, title: string, deadline: string, priority: number, end_repeat: string, repeat_every: types.RepeatPeriod, weekdays: number[], habit: boolean, backlog: boolean,location: string, privacy: number}, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
     const { data, error } = await supabaseClient
         .from('todo')
@@ -58,7 +86,7 @@ export async function createGroupTodo(todoDetails: { group_id: string, title: st
 
 export async function createPersonalOrGroupEvent(eventDetails: {group_id?: string; title: string; start_date: string; end_date: string; end_repeat: string; event_color: string; is_all_day: boolean; location: string | null; repeat: types.RepeatPeriod; weekdays: number[]}, supabaseClient: SupabaseClient<Database>): Promise<types.EventDetails> {
     const { data, error } = await supabaseClient
-        .from('event')
+        .from('events')
         .insert({...eventDetails,  description: ''});
 
     if (error) {
@@ -82,7 +110,7 @@ export async function createPersonalOrGroupEvent(eventDetails: {group_id?: strin
  */
 export async function inviteFriendtoPerosonalEvent(eventDetails: { title: string; description: string; date: string; user: types.User }, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
     const { error } = await supabaseClient
-        .from('event')
+        .from('events')
         .insert(eventDetails);
 
     if (error) {
@@ -103,7 +131,7 @@ export async function inviteFriendtoPerosonalEvent(eventDetails: { title: string
  */
 export async function inviteGroupMembersToRSVPForEvent(eventDetails: { title: string; description: string; date: string; user: types.User }, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
     const { error } = await supabaseClient
-        .from('event')
+        .from('evenst')
         .insert(eventDetails);
 
     if (error) {
@@ -132,7 +160,7 @@ export async function findWhichFriendsAreBusy(startdate: string, enddate: string
  */
 export async function acceptInviteToEvent(eventDetails: { title: string; description: string; date: string; user: types.User }, supabaseClient: SupabaseClient<Database>): Promise<types.TodoDetails> {
     const { error } = await supabaseClient
-        .from('event')
+        .from('events')
         .insert(eventDetails);
 
     if (error) {
@@ -183,7 +211,7 @@ export async function getKanban(user: types.User, supabaseClient: SupabaseClient
 
 export async function deletePersonalEvent(eventId:string, target: 'today' | 'future' | 'all', supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
-        .from('event')
+        .from('events')
         .delete()
         .eq('id', eventId)
         .eq('target', target);
@@ -240,7 +268,7 @@ export async function updatePersonalSubTodo(todoId: string, target: 'today' | 'f
 
 export async function updatePersonalEvent(eventId: string, target: 'today' | 'future' | 'all', updates: Partial<types.EventDetails>, supabaseClient: SupabaseClient<Database>): Promise<void> {
     const { error } = await supabaseClient
-        .from('event')
+        .from('events')
         .update(updates)
         .eq('id', eventId);
 
