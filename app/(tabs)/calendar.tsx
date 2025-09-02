@@ -49,6 +49,7 @@ const calendar = () => {
             weekdays: ev.weekdays,
             repeat: ev.repeat as 'weekly' | 'monthly' | 'biweekly' | 'daily' | 'none' | 'yearly',
             isAllDay: ev.is_all_day,
+            id: ev.id
           }));
   
           setSupabaseEvents(mappedEvents);
@@ -154,185 +155,185 @@ export default calendar
 */
 
 
-const sampleEvents: EventDetailsForNow[] = [
-  {
-    title: 'Morning Run',
-    start_date: new Date('2025-06-24T06:00:00'),
-    end_date: new Date('2025-06-24T07:00:00'),
-    event_color: '#4CAF50',
-    end_repeat: new Date('2025-08-24T023:59:59'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Team Stand-up Meeting',
-    start_date: new Date('2025-06-24T09:15:00'),
-    end_date: new Date('2025-06-24T09:30:00'),
-    event_color: '#2196F3',
-    end_repeat: new Date('2025-06-24T09:30:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Morning Run',
-    start_date: new Date('2025-06-24T06:00:00'),
-    end_date: new Date('2025-06-24T07:00:00'),
-    event_color: '#4CAF50',
-    end_repeat: new Date('2025-06-24T07:00:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Team Stand-up Meeting',
-    start_date: new Date('2025-06-24T09:00:00'),
-    end_date: new Date('2025-06-24T09:30:00'),
-    event_color: '#2196F3',
-    end_repeat: new Date('2025-06-24T09:30:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Morning Run',
-    start_date: new Date('2025-06-24T06:00:00'),
-    end_date: new Date('2025-06-24T07:00:00'),
-    event_color: '#4CAF50',
-    end_repeat: new Date('2025-06-24T07:00:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Team Stand-up Meeting',
-    start_date: new Date('2025-06-24T09:20:00'),
-    end_date: new Date('2025-06-24T09:35:00'),
-    event_color: '#2196F3',
-    end_repeat: new Date('2025-06-24T09:35:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Work Session: UI Design',
-    start_date: new Date('2025-06-24T10:00:00'),
-    end_date: new Date('2025-06-24T12:00:00'),
-    event_color: '#FFC107',
-    end_repeat: new Date('2025-06-24T12:00:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Lunch with Sarah',
-    start_date: new Date('2025-06-24T12:30:00'),
-    end_date: new Date('2025-06-24T13:30:00'),
-    event_color: '#FF5722',
-    end_repeat: new Date('2025-06-24T13:30:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Doctor Appointment',
-    start_date: new Date('2025-06-24T15:00:00'),
-    end_date: new Date('2025-06-24T15:45:00'),
-    event_color: '#9C27B0',
-    end_repeat: new Date('2025-06-24T15:45:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Project Review Call',
-    start_date: new Date('2025-06-24T16:00:00'),
-    end_date: new Date('2025-06-24T17:00:00'),
-    event_color: '#3F51B5',
-    end_repeat: new Date('2025-06-24T17:00:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Morning Workout',
-    start_date: new Date('2025-06-23T06:30:00'),
-    end_date: new Date('2025-06-23T07:30:00'),
-    event_color: '#4CAF50',
-    end_repeat: new Date('2025-06-23T07:30:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Team Standup',
-    start_date: new Date('2025-06-24T09:00:00'),
-    end_date: new Date('2025-06-24T09:30:00'),
-    event_color: '#2196F3',
-    end_repeat: new Date('2025-06-24T09:30:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Lunch with Alex',
-    start_date: new Date('2025-06-25T12:00:00'),
-    end_date: new Date('2025-06-25T13:00:00'),
-    event_color: '#FFC107',
-    end_repeat: new Date('2025-06-25T13:00:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Project Meeting',
-    start_date: new Date('2025-06-25T15:00:00'),
-    end_date: new Date('2025-06-25T16:30:00'),
-    event_color: '#9C27B0',
-    end_repeat: new Date('2025-06-25T16:30:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Dentist Appointment',
-    start_date: new Date('2025-06-26T11:00:00'),
-    end_date: new Date('2025-06-26T11:45:00'),
-    event_color: '#E91E63',
-    end_repeat: new Date('2025-06-26T11:45:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Date Night',
-    start_date: new Date('2025-06-27T19:00:00'),
-    end_date: new Date('2025-06-27T21:30:00'),
-    event_color: '#F44336',
-    end_repeat: new Date('2025-06-27T21:30:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  {
-    title: 'Weekend Hike',
-    start_date: new Date('2025-06-29T08:00:00'),
-    end_date: new Date('2025-06-29T10:00:00'),
-    event_color: '#3F51B5',
-    end_repeat: new Date('2025-06-29T10:00:00'),
-    repeat: 'none',
-    weekdays: []
-  }, {
-    title: 'Date Night',
-    start_date: new Date('2025-06-28T19:00:00'),
-    end_date: new Date('2025-06-28T21:30:00'),
-    event_color: '#F44336',
-    end_repeat: new Date('2025-06-28T21:30:00'),
-    repeat: 'none',
-    weekdays: []
-  },
-  // {
-  //   title: 'Evening Yoga',
-  //   start: new Date('2025-07-31T19:00:00'),
-  //   end: new Date('2025-08-02T20:00:00'),
-  //   color: '#E91E63',
-  //   end_repeat: new Date('2026-05-24T30:00:00'),
-  //   repeat_schedule: 'weekly',
-  //   days: [0,1,2,6]
-  // },
-  {
-    title: 'Birthday!',
-    start_date: new Date('2006-02-08T23:00:00Z'),
-    end_date: new Date('2006-02-09T23:00:00Z'),
-    event_color: '#E91E63',
-    end_repeat: new Date('2100-08-09T23:00:00Z'),
-    repeat: 'yearly',
-    weekdays: [1],
-    isAllDay: true
-  },
-];
+// const sampleEvents: EventDetailsForNow[] = [
+//   {
+//     title: 'Morning Run',
+//     start_date: new Date('2025-06-24T06:00:00'),
+//     end_date: new Date('2025-06-24T07:00:00'),
+//     event_color: '#4CAF50',
+//     end_repeat: new Date('2025-08-24T023:59:59'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Team Stand-up Meeting',
+//     start_date: new Date('2025-06-24T09:15:00'),
+//     end_date: new Date('2025-06-24T09:30:00'),
+//     event_color: '#2196F3',
+//     end_repeat: new Date('2025-06-24T09:30:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Morning Run',
+//     start_date: new Date('2025-06-24T06:00:00'),
+//     end_date: new Date('2025-06-24T07:00:00'),
+//     event_color: '#4CAF50',
+//     end_repeat: new Date('2025-06-24T07:00:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Team Stand-up Meeting',
+//     start_date: new Date('2025-06-24T09:00:00'),
+//     end_date: new Date('2025-06-24T09:30:00'),
+//     event_color: '#2196F3',
+//     end_repeat: new Date('2025-06-24T09:30:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Morning Run',
+//     start_date: new Date('2025-06-24T06:00:00'),
+//     end_date: new Date('2025-06-24T07:00:00'),
+//     event_color: '#4CAF50',
+//     end_repeat: new Date('2025-06-24T07:00:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Team Stand-up Meeting',
+//     start_date: new Date('2025-06-24T09:20:00'),
+//     end_date: new Date('2025-06-24T09:35:00'),
+//     event_color: '#2196F3',
+//     end_repeat: new Date('2025-06-24T09:35:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Work Session: UI Design',
+//     start_date: new Date('2025-06-24T10:00:00'),
+//     end_date: new Date('2025-06-24T12:00:00'),
+//     event_color: '#FFC107',
+//     end_repeat: new Date('2025-06-24T12:00:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Lunch with Sarah',
+//     start_date: new Date('2025-06-24T12:30:00'),
+//     end_date: new Date('2025-06-24T13:30:00'),
+//     event_color: '#FF5722',
+//     end_repeat: new Date('2025-06-24T13:30:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Doctor Appointment',
+//     start_date: new Date('2025-06-24T15:00:00'),
+//     end_date: new Date('2025-06-24T15:45:00'),
+//     event_color: '#9C27B0',
+//     end_repeat: new Date('2025-06-24T15:45:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Project Review Call',
+//     start_date: new Date('2025-06-24T16:00:00'),
+//     end_date: new Date('2025-06-24T17:00:00'),
+//     event_color: '#3F51B5',
+//     end_repeat: new Date('2025-06-24T17:00:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Morning Workout',
+//     start_date: new Date('2025-06-23T06:30:00'),
+//     end_date: new Date('2025-06-23T07:30:00'),
+//     event_color: '#4CAF50',
+//     end_repeat: new Date('2025-06-23T07:30:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Team Standup',
+//     start_date: new Date('2025-06-24T09:00:00'),
+//     end_date: new Date('2025-06-24T09:30:00'),
+//     event_color: '#2196F3',
+//     end_repeat: new Date('2025-06-24T09:30:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Lunch with Alex',
+//     start_date: new Date('2025-06-25T12:00:00'),
+//     end_date: new Date('2025-06-25T13:00:00'),
+//     event_color: '#FFC107',
+//     end_repeat: new Date('2025-06-25T13:00:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Project Meeting',
+//     start_date: new Date('2025-06-25T15:00:00'),
+//     end_date: new Date('2025-06-25T16:30:00'),
+//     event_color: '#9C27B0',
+//     end_repeat: new Date('2025-06-25T16:30:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Dentist Appointment',
+//     start_date: new Date('2025-06-26T11:00:00'),
+//     end_date: new Date('2025-06-26T11:45:00'),
+//     event_color: '#E91E63',
+//     end_repeat: new Date('2025-06-26T11:45:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Date Night',
+//     start_date: new Date('2025-06-27T19:00:00'),
+//     end_date: new Date('2025-06-27T21:30:00'),
+//     event_color: '#F44336',
+//     end_repeat: new Date('2025-06-27T21:30:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   {
+//     title: 'Weekend Hike',
+//     start_date: new Date('2025-06-29T08:00:00'),
+//     end_date: new Date('2025-06-29T10:00:00'),
+//     event_color: '#3F51B5',
+//     end_repeat: new Date('2025-06-29T10:00:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   }, {
+//     title: 'Date Night',
+//     start_date: new Date('2025-06-28T19:00:00'),
+//     end_date: new Date('2025-06-28T21:30:00'),
+//     event_color: '#F44336',
+//     end_repeat: new Date('2025-06-28T21:30:00'),
+//     repeat: 'none',
+//     weekdays: []
+//   },
+//   // {
+//   //   title: 'Evening Yoga',
+//   //   start: new Date('2025-07-31T19:00:00'),
+//   //   end: new Date('2025-08-02T20:00:00'),
+//   //   color: '#E91E63',
+//   //   end_repeat: new Date('2026-05-24T30:00:00'),
+//   //   repeat_schedule: 'weekly',
+//   //   days: [0,1,2,6]
+//   // },
+//   {
+//     title: 'Birthday!',
+//     start_date: new Date('2006-02-08T23:00:00Z'),
+//     end_date: new Date('2006-02-09T23:00:00Z'),
+//     event_color: '#E91E63',
+//     end_repeat: new Date('2100-08-09T23:00:00Z'),
+//     repeat: 'yearly',
+//     weekdays: [1],
+//     isAllDay: true
+//   },
+// ];

@@ -195,6 +195,56 @@ export type Database = {
           },
         ]
       }
+      calendar_sources: {
+        Row: {
+          auth_token: string | null
+          calendar_id: string | null
+          color: string | null
+          created_at: string | null
+          email_id: string | null
+          id: string
+          is_enabled: boolean | null
+          name: string
+          owner_id: string
+          refresh_token: string | null
+          type: string
+        }
+        Insert: {
+          auth_token?: string | null
+          calendar_id?: string | null
+          color?: string | null
+          created_at?: string | null
+          email_id?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          name: string
+          owner_id: string
+          refresh_token?: string | null
+          type: string
+        }
+        Update: {
+          auth_token?: string | null
+          calendar_id?: string | null
+          color?: string | null
+          created_at?: string | null
+          email_id?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          name?: string
+          owner_id?: string
+          refresh_token?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_sources_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "usersettings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string | null
@@ -202,6 +252,7 @@ export type Database = {
           end_date: string
           end_repeat: string | null
           event_color: string | null
+          for_todo: string | null
           group_id: string | null
           id: string
           is_all_day: boolean
@@ -218,6 +269,7 @@ export type Database = {
           end_date: string
           end_repeat?: string | null
           event_color?: string | null
+          for_todo?: string | null
           group_id?: string | null
           id?: string
           is_all_day?: boolean
@@ -234,6 +286,7 @@ export type Database = {
           end_date?: string
           end_repeat?: string | null
           event_color?: string | null
+          for_todo?: string | null
           group_id?: string | null
           id?: string
           is_all_day?: boolean
@@ -257,6 +310,13 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "usersettings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_for_todo_fkey"
+            columns: ["for_todo"]
+            isOneToOne: false
+            referencedRelation: "todo"
             referencedColumns: ["id"]
           },
         ]

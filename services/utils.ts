@@ -2,6 +2,18 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "../databasetypes";
 import { getUserId } from "./api";
 
+type CalendarSourceType = "supabase" | "google" | "canvas" | "blackboard" | "gclassroom" | "ical" | "todowork";
+
+export interface CalendarSource {
+  id: string;                // unique id for the source
+  type: CalendarSourceType;  // what kind of source
+  name: string;              // "Google Calendar", "Canvas Assignments"
+  color: string;             // default color for events
+  isEnabled: boolean;        // user toggle
+  authToken?: string;        // stored if needed
+  calendarId?: string;       // external id (e.g. Google calendar id)
+}
+
 export type Post = {
     image: Image, caption: Text, categories: Category, ownerId: UserId, id: PostId, createdAt: Date, likeCount: number
         , likedByMe: boolean, inspiredCount: number, comments: MainComment[], linkedObject: Event | Todo
@@ -353,6 +365,10 @@ export interface EventDetailsForNow {
     weekdays: number[]; //0 is sunday, 6 is saturday
     repeat: 'weekly' | 'monthly' | 'biweekly' | 'daily' | 'none' | 'yearly';
     isAllDay?: boolean;
+    id: string;
+    sourceId?: string; //which calendar source did this come from  //TODO: make this required later
+    location?: string;
+    
 }
 
 //created
