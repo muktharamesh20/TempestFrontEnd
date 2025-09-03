@@ -67,10 +67,13 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
   useEffect(() => {
     setFocusedDay(initialDay);
     setViewingDateFunc(initialDay);
+    //scrollToDate(initialDay);
+    console.log("MonthCalendar mounted with initial day:", initialDay);
   }, []); // only run on first mount
 
   useEffect(() => {
     scrollToDate(focusedDay)
+    console.log("MonthCalendar focused day changed to:", focusedDay);
   }, [focusedDay])
 
   const scrollToIndex = (index: number) => {
@@ -179,7 +182,7 @@ const MonthCalendar = ({ events, setView, viewingDate, setViewingDateFunc, categ
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          initialScrollIndex={getIndexOfDate(initialDay)}
+          //initialScrollIndex={getIndexOfDate(focusedDay)}
           getItemLayout={(_, index) => ({
             length: screenWidth,
             offset: screenWidth * index,

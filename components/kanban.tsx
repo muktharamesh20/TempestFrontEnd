@@ -1,7 +1,7 @@
 import { numbers } from '@/constants/numbers';
 import { Calendar, CheckCircle, Clock, List, Plus, SortAsc } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Dimensions, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Dimensions, Pressable, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { TabBar, TabView } from 'react-native-tab-view';
 
@@ -19,6 +19,7 @@ export interface TaskCardDetails {
 }
 
 interface KanbanProps {
+  toggleTodoModal: (visible: boolean) => void;
   taskCards: TaskCardDetails[];
 }
 
@@ -39,7 +40,7 @@ const sortOptionIcons = [
 
 const initialLayout = { width: Dimensions.get('window').width };
 
-const KanbanPage = ({ taskCards }: KanbanProps) => {
+const KanbanPage = ({ toggleTodoModal, taskCards }: KanbanProps) => {
   const [index, setIndex] = useState(1); // default to "To Do"
   const [routes] = useState(
     TABS.map(tab => ({ key: tab, title: tab }))
@@ -84,6 +85,7 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
     return (
       <ScrollView className="px-4 py-2">
         {tasks.map(task => (
+          <Pressable onPress={() => toggleTodoModal(true)}>
           <View
             key={task.taskID ?? task.eventID}
             className="rounded-lg p-3 mb-3"
@@ -104,6 +106,7 @@ const KanbanPage = ({ taskCards }: KanbanProps) => {
               </Text>
             )}
           </View>
+          </Pressable>
         ))}
       </ScrollView>
     );

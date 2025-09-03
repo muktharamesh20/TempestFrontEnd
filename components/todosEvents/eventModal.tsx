@@ -5,16 +5,16 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { addDays } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Image,
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Icon, Switch } from 'react-native-elements';
@@ -52,10 +52,10 @@ export default function EventModal({ visible, onClose, event, onSave }: eventMod
   const [location, setLocation] = useState('London, Red Meeting Room');
   const [color, setColor] = useState('#FFD700');
   const [isEditing, setIsEditing] = useState(false);
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date(new Date().getTime() + 90 * 60000));
+  const [startDate, setStartDate] = useState(event?.start_date ?? new Date());
+  const [endDate, setEndDate] = useState(event?.end_date ?? new Date());
+  const [startTime, setStartTime] = useState(event?.start_date ?? new Date());
+  const [endTime, setEndTime] = useState(event?.end_date ?? new Date());
   const [selectedDay, setSelectedDay] = useState<number>(startDate.getDay())
   const [tempLocation, setTempLocation] = useState(location); // holds edits while editing
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -71,6 +71,16 @@ export default function EventModal({ visible, onClose, event, onSave }: eventMod
     { id: 2, name: 'Bob', avatar: images.googleLogo },
     { id: 3, name: 'Charlie', avatar: images.googleLogo },
   ];
+
+  useEffect(() => {
+    setStartDate(event?.start_date || new Date());
+    setEndDate(event?.end_date || addDays(new Date(), 1));
+    setStartTime(event?.start_date || new Date());
+    setEndTime(event?.end_date || addDays(new Date(), 1));
+    setIsAllDay(event?.isAllDay || false);
+    setDays(event?.weekdays || undefined);
+    setEndRepeat(event?.end_repeat || undefined);
+  }, [event]);
 
 
   useEffect(() => {

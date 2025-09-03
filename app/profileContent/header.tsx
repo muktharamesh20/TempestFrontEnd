@@ -93,7 +93,7 @@ const ProfileContentHeader = ({ profilePicture, user, setUser, id, myId, editPro
         <View className="flex-row px-5 mt-3 gap-2 flex-1">
           {user.isownprofile ? (
             <TouchableOpacity className="flex-1 border rounded-lg py-1 items-center" onPress={editProfile}>
-              <Text className="text-sm font-medium">Edit Profile</Text>
+              <Text className="text-sm font-medium">Edit Capsule</Text>
             </TouchableOpacity>
           ) : (
             <>

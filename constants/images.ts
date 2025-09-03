@@ -1,5 +1,6 @@
 import bg from "@/assets/images/bg.png";
 import blankProfileName from '@/assets/images/blankProfileName.jpg';
+import capsule from '@/assets/images/capsulenoBG.png';
 import googleLogo from '@/assets/images/google-logo.png';
 import highlight from "@/assets/images/highlight.png";
 import rankingGradient from "@/assets/images/rankingGradient.png";
@@ -17,5 +18,6 @@ export const images = {
   googleLogo,
   tempestNoLightening,
   whiteTempest,
-  blankProfileName
+  blankProfileName,
+  capsule
 };

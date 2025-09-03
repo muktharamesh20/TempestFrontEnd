@@ -3,7 +3,7 @@ import DayCalendar from '@/components/DayCalendar';
 import MonthCalendar from '@/components/MonthCalendar';
 import ConnectedCalendarsModal from '@/components/otherPlatformComponents/ConnectedCalendarsModal';
 import DraggablePlusButton from '@/components/todosEvents/draggableButton';
-import TodoModal from '@/components/todosEvents/todoModal';
+import EventModal from '@/components/todosEvents/eventModal';
 import WeekCalendar from '@/components/WeekCalendar';
 import { supabase } from '@/constants/supabaseClient';
 import { getUserId } from '@/services/api';
@@ -150,8 +150,8 @@ const calendar = () => {
 )}
 
 
-        {/* <EventModal visible={eventModalVisible} onClose={(() => setEventModalVisible(false))} event={currEvent} onSave={(event) => { setCurrEvent(event) }} /> */}
-        <TodoModal visible={eventModalVisible} onClose={() => setEventModalVisible(false)}/>
+        <EventModal visible={eventModalVisible} onClose={(() => setEventModalVisible(false))} event={currEvent} onSave={(event) => { setCurrEvent(event) }} />
+        {/* <TodoModal visible={eventModalVisible} onClose={() => setEventModalVisible(false)}/> */}
       </>
 
 

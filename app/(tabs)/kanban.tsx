@@ -1,18 +1,21 @@
 import KanbanPage from '@/components/kanban'
+import TodoModal from '@/components/todosEvents/todoModal'
 import { numbers } from '@/constants/numbers'
 import { addDays } from 'date-fns'
-import React from 'react'
+import React, { useState } from 'react'
 import { Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const kanban = () => {
   const insets = useSafeAreaInsets();
+  const [todoModalVisible, setTodoModalVisible] = useState(false);
   return (
     <View style={{ flex: 1, backgroundColor: numbers.secondaryColor, paddingTop: insets.top }}>
 
       <Text className="font-semibold text-3xl text-center text-white mb-0">Task Board</Text>
 
       <KanbanPage
+        toggleTodoModal={setTodoModalVisible}
         taskCards={[
           {
             taskID: '1',
@@ -53,6 +56,8 @@ const kanban = () => {
           },
         ]}
       />
+
+      <TodoModal visible={todoModalVisible} onClose={() => setTodoModalVisible(false)}/> 
 
     </View>
   )
