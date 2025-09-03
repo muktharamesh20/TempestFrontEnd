@@ -1,13 +1,15 @@
 
 import DayCalendar from '@/components/DayCalendar';
 import MonthCalendar from '@/components/MonthCalendar';
+import ConnectedCalendarsModal from '@/components/otherPlatformComponents/ConnectedCalendarsModal';
 import DraggablePlusButton from '@/components/todosEvents/draggableButton';
 import TodoModal from '@/components/todosEvents/todoModal';
 import WeekCalendar from '@/components/WeekCalendar';
 import { supabase } from '@/constants/supabaseClient';
 import { getUserId } from '@/services/api';
+import { importFromICal } from '@/services/importCalendars';
 import { getMyEvents } from '@/services/myCalendar';
-import { calendarGroupProps, calendarPersonProps, drawerProps, EventDetailsForNow } from '@/services/utils';
+import { calendarGroupProps, calendarPersonProps, CalendarSource, drawerProps, EventDetailsForNow } from '@/services/utils';
 import { useIsFocused } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
@@ -31,12 +33,27 @@ const calendar = () => {
   const [eventModalVisible, setEventModalVisible] = React.useState<boolean>(false);
   const [currEvent, setCurrEvent] = React.useState<EventDetailsForNow | null>(null);
   const [supabaseEvents, setSupabaseEvents] = React.useState<EventDetailsForNow[]>([]);
+  const [calendarModalVisible, setCalendarModalVisible] = useState(false);
+  const [connectedCalendars, setConnectedCalendars] = useState<CalendarSource[]>([]);
+
+
   useEffect(() => { console.log(date.toDateString()) }, [date]);
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const userId = (await getUserId())[0];
         const events = await getMyEvents(userId, supabase);
+
+        const exampleCalendarSource: CalendarSource = {
+          id: '1',
+          type: 'ical',
+          name: 'Canvas',
+          color: '#FF5733',
+          isEnabled: true,
+          authToken: '', // Not needed for public iCal URLs
+          calendarId: 'https://canvas.mit.edu/feeds/calendars/user_8YCy1ygNSGxFhyeBgulo8oPnKwjJSaX8RS7Mi50q.ics', // iCal URL
+        };
+        const otherEvents = await importFromICal(exampleCalendarSource);
   
         if (events) {
           const mappedEvents: EventDetailsForNow[] = events.map((ev) => ({
@@ -52,7 +69,7 @@ const calendar = () => {
             id: ev.id
           }));
   
-          setSupabaseEvents(mappedEvents);
+          setSupabaseEvents([...mappedEvents, ...otherEvents]);
           console.log('Fetched events:', mappedEvents);
         } else {
           console.log('No events found or error fetching events.');
@@ -120,7 +137,19 @@ const calendar = () => {
       )}
 
       <>
-        <DraggablePlusButton onPress={() => console.log('buttonPressed!')} />
+        {/* <DraggablePlusButton onPress={() => setCalendarModalVisible(true)} /> */}
+        <DraggablePlusButton onPress={() => setCalendarModalVisible(true)} />
+
+        {calendarModalVisible && (
+  <ConnectedCalendarsModal
+    visible={calendarModalVisible}
+    onClose={() => setCalendarModalVisible(false)}
+    calendars={connectedCalendars}
+    onUpdateCalendars={setConnectedCalendars}
+  />
+)}
+
+
         {/* <EventModal visible={eventModalVisible} onClose={(() => setEventModalVisible(false))} event={currEvent} onSave={(event) => { setCurrEvent(event) }} /> */}
         <TodoModal visible={eventModalVisible} onClose={() => setEventModalVisible(false)}/>
       </>
